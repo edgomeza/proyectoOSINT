@@ -480,8 +480,15 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                 const SnackBar(
                   content: Text('Formulario enviado a procesamiento'),
                   backgroundColor: Colors.green,
+                  duration: Duration(seconds: 2),
                 ),
               );
+              // Navegar automáticamente a processing
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (context.mounted) {
+                  context.go('/investigation/${widget.investigationId}/processing');
+                }
+              });
             },
           ),
         );

@@ -27,6 +27,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
         ],
         isActive: true,
         completeness: 0.35,
+        status: InvestigationStatus.active,
       ),
       Investigation(
         name: 'Análisis de Red Social',
@@ -37,6 +38,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           'Identificar influencers clave',
         ],
         completeness: 0.60,
+        status: InvestigationStatus.inactive,
       ),
       Investigation(
         name: 'Verificación de Identidad',
@@ -47,6 +49,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           'Cruzar datos de múltiples fuentes',
         ],
         completeness: 0.75,
+        status: InvestigationStatus.active,
       ),
       Investigation(
         name: 'Fraude Corporativo',
@@ -64,6 +67,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           '¿Hay documentación falsificada?',
         ],
         completeness: 0.85,
+        status: InvestigationStatus.inactive,
       ),
       Investigation(
         name: 'Ciberseguridad - Incidente DDoS',
@@ -79,6 +83,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           '¿Qué vectores se utilizaron?',
         ],
         completeness: 0.45,
+        status: InvestigationStatus.active,
       ),
       Investigation(
         name: 'Due Diligence - Merger & Acquisition',
@@ -92,6 +97,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           'Revisar historial de litigios',
         ],
         completeness: 0.95,
+        status: InvestigationStatus.closed,
       ),
       Investigation(
         name: 'Fuga de Información Interna',
@@ -108,6 +114,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           '¿Existe complicidad externa?',
         ],
         completeness: 0.52,
+        status: InvestigationStatus.inactive,
       ),
       Investigation(
         name: 'Campaña de Desinformación',
@@ -124,6 +131,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           '¿Qué objetivo político tiene?',
         ],
         completeness: 0.68,
+        status: InvestigationStatus.active,
       ),
       Investigation(
         name: 'Blanqueo de Capitales - Criptomonedas',
@@ -135,6 +143,7 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
           'Mapear flujo de fondos',
         ],
         completeness: 0.40,
+        status: InvestigationStatus.inactive,
       ),
     ];
   }
