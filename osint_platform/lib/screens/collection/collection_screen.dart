@@ -48,23 +48,28 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   }
 
   void _onCategorySelected(DataFormCategory category) {
+    // Guardar referencia a los controladores antiguos
+    final oldControllers = Map<String, TextEditingController>.from(_controllers);
+
     setState(() {
       _selectedCategory = category;
       _currentFields.clear();
-
-      // Dispose de todos los controladores antiguos antes de limpiar
-      for (var controller in _controllers.values) {
-        controller.dispose();
-      }
       _controllers.clear();
 
       // Cargar campos predeterminados
       final defaultFields = CategoryFieldsGenerator.getDefaultFields(category);
       _currentFields.addAll(defaultFields);
 
-      // Crear controladores
+      // Crear controladores nuevos
       for (var i = 0; i < _currentFields.length; i++) {
         _controllers['field_$i'] = TextEditingController();
+      }
+    });
+
+    // Dispose de los controladores antiguos DESPUÉS del rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (var controller in oldControllers.values) {
+        controller.dispose();
       }
     });
   }
@@ -94,23 +99,19 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   }
 
   void _removeField(int index) {
+    // Guardar textos y referencias de controladores antiguos
+    final savedTexts = <int, String>{};
+    for (var i = 0; i < _controllers.length; i++) {
+      final controller = _controllers['field_$i'];
+      if (controller != null && controller.text.isNotEmpty) {
+        savedTexts[i] = controller.text;
+      }
+    }
+    final oldControllers = Map<String, TextEditingController>.from(_controllers);
+
     setState(() {
       // Remover el campo
       _currentFields.removeAt(index);
-
-      // Guardar los textos de los controladores antes de limpiarlos
-      final savedTexts = <int, String>{};
-      for (var i = 0; i < _controllers.length; i++) {
-        final controller = _controllers['field_$i'];
-        if (controller != null && controller.text.isNotEmpty) {
-          savedTexts[i] = controller.text;
-        }
-      }
-
-      // Disponer de todos los controladores
-      for (var controller in _controllers.values) {
-        controller.dispose();
-      }
       _controllers.clear();
 
       // Crear nuevos controladores con los valores preservados
@@ -124,6 +125,13 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
         }
 
         _controllers['field_$i'] = newController;
+      }
+    });
+
+    // Dispose de los controladores antiguos DESPUÉS del rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (var controller in oldControllers.values) {
+        controller.dispose();
       }
     });
   }
@@ -187,13 +195,20 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   }
 
   void _resetForm() {
+    // Guardar referencia a los controladores antiguos
+    final oldControllers = Map<String, TextEditingController>.from(_controllers);
+
     setState(() {
       _selectedCategory = null;
       _currentFields.clear();
-      for (var controller in _controllers.values) {
+      _controllers.clear();
+    });
+
+    // Dispose de los controladores antiguos DESPUÉS del rebuild
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      for (var controller in oldControllers.values) {
         controller.dispose();
       }
-      _controllers.clear();
     });
   }
 
