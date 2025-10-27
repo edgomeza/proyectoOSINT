@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/investigation.dart';
 import '../models/investigation_phase.dart';
+import '../models/investigation_status.dart';
 
 // Notifier para gestionar la lista de investigaciones
 class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
