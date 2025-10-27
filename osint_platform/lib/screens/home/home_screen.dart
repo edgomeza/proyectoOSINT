@@ -266,6 +266,76 @@ class HomeScreen extends ConsumerWidget {
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.grey[500],
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    final actions = [
+      {
+        'icon': Icons.lightbulb_outline,
+        'label': 'Planificación',
+        'color': Colors.blue,
+        'route': '/investigation/${activeInvestigation.id}/planning',
+      },
+      {
+        'icon': Icons.collections_bookmark_outlined,
+        'label': 'Recopilación',
+        'color': Colors.orange,
+        'route': '/investigation/${activeInvestigation.id}/collection',
+      },
+      {
+        'icon': Icons.settings_outlined,
+        'label': 'Procesamiento',
+        'color': Colors.purple,
+        'route': '/investigation/${activeInvestigation.id}/processing',
+      },
+    ];
+
+    return Row(
+      children: actions.map((action) {
+        final index = actions.indexOf(action);
+        return Expanded(
+          child: Padding(
+            padding: EdgeInsets.only(
+              right: index < actions.length - 1 ? 8 : 0,
+            ),
+            child: FadeInUp(
+              delay: Duration(milliseconds: 100 * index),
+              child: Card(
+                child: InkWell(
+                  onTap: () => context.go(action['route'] as String),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: (action['color'] as Color).withValues(alpha:0.15),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Icon(
+                            action['icon'] as IconData,
+                            color: action['color'] as Color,
+                            size: 28,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          action['label'] as String,
+                          style: const TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          textAlign: TextAlign.center,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
                     ),
                   ),
                   Text(

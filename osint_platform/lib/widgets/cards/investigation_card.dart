@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../models/investigation.dart';
-import '../../models/investigation_phase.dart';
 import '../common/phase_badge.dart';
 import '../common/progress_indicator_widget.dart';
 import 'package:intl/intl.dart';
@@ -42,7 +41,7 @@ class InvestigationCard extends StatelessWidget {
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Icon(
@@ -148,7 +147,7 @@ class InvestigationCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.green.withOpacity(0.2),
+                          color: Colors.green.withValues(alpha:0.2),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: const Row(
@@ -205,7 +204,7 @@ class InvestigationCard extends StatelessWidget {
                           vertical: 4,
                         ),
                         decoration: BoxDecoration(
-                          color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                          color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(

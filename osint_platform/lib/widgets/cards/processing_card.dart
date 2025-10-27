@@ -57,7 +57,7 @@ class _ProcessingCardState extends State<ProcessingCard> {
                         Container(
                           padding: const EdgeInsets.all(10),
                           decoration: BoxDecoration(
-                            color: _getCategoryColor(widget.form.category).withOpacity(0.15),
+                            color: _getCategoryColor(widget.form.category).withValues(alpha:0.15),
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Icon(
@@ -159,7 +159,7 @@ class _ProcessingCardState extends State<ProcessingCard> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha:0.15),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 1.5),
       ),
@@ -192,7 +192,7 @@ class _ProcessingCardState extends State<ProcessingCard> {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha:0.1),
           borderRadius: BorderRadius.circular(6),
         ),
         child: Row(
@@ -300,7 +300,7 @@ class _ProcessingCardState extends State<ProcessingCard> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
             if (widget.form.notes != null) ...[
               const SizedBox(height: 8),
               Text(

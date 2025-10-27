@@ -61,10 +61,10 @@ class AppTheme {
       ),
 
       // Cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 4,
         color: darkCard,
-        shadowColor: Colors.black.withOpacity(0.3),
+        shadowColor: Colors.black.withValues(alpha:0.3),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -184,7 +184,7 @@ class AppTheme {
 
       // Divider
       dividerTheme: DividerThemeData(
-        color: Colors.white.withOpacity(0.1),
+        color: Colors.white.withValues(alpha:0.1),
         thickness: 1,
       ),
     );
@@ -229,10 +229,10 @@ class AppTheme {
       ),
 
       // Cards
-      cardTheme: CardTheme(
+      cardTheme: CardThemeData(
         elevation: 2,
         color: lightCard,
-        shadowColor: Colors.black.withOpacity(0.1),
+        shadowColor: Colors.black.withValues(alpha:0.1),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
         ),
@@ -352,7 +352,7 @@ class AppTheme {
 
       // Divider
       dividerTheme: DividerThemeData(
-        color: Colors.black.withOpacity(0.1),
+        color: Colors.black.withValues(alpha:0.1),
         thickness: 1,
       ),
     );

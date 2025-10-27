@@ -40,7 +40,7 @@ class DataFormCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: _getCategoryColor(form.category).withOpacity(0.15),
+                        color: _getCategoryColor(form.category).withValues(alpha:0.15),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Icon(
@@ -221,7 +221,7 @@ class DataFormCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha:0.15),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 1),
       ),
@@ -249,9 +249,9 @@ class DataFormCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.1),
+          color: color.withValues(alpha:0.1),
           borderRadius: BorderRadius.circular(8),
-          border: Border.all(color: color.withOpacity(0.5)),
+          border: Border.all(color: color.withValues(alpha:0.5)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

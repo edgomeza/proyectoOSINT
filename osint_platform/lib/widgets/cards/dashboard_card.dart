@@ -7,7 +7,7 @@ enum DashboardType {
   heatmap('Heatmap', Icons.map, 'Mapa de calor geográfico'),
   statistics('Statistics', Icons.bar_chart, 'Estadísticas generales'),
   sentiment('Sentiment', Icons.mood, 'Análisis de sentimiento'),
-  activity('Activity', Icons.activity_zone, 'Actividad temporal');
+  activity('Activity', Icons.local_activity_outlined, 'Actividad temporal');
 
   final String displayName;
   final IconData icon;
@@ -56,8 +56,8 @@ class DashboardCard extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            colorScheme.primary.withOpacity(0.8),
-                            colorScheme.secondary.withOpacity(0.8),
+                            colorScheme.primary.withValues(alpha:0.8),
+                            colorScheme.secondary.withValues(alpha:0.8),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
@@ -121,7 +121,7 @@ class DashboardCard extends StatelessWidget {
                         Icon(
                           type.icon,
                           size: 48,
-                          color: colorScheme.primary.withOpacity(0.3),
+                          color: colorScheme.primary.withValues(alpha:0.3),
                         ),
                         const SizedBox(height: 8),
                         Text(
