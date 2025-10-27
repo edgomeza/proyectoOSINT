@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
+import 'package:go_router/go_router.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/common/phase_badge.dart';
+import '../../widgets/common/navigation_drawer.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
   final String investigationId;
@@ -79,6 +81,11 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
     if (investigation == null) {
       return Scaffold(
         appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => context.go('/'),
+            tooltip: 'Volver al inicio',
+          ),
           title: const Text('Planificación'),
         ),
         body: const Center(
@@ -89,6 +96,11 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+          tooltip: 'Volver al inicio',
+        ),
         title: const Text('Planificación'),
         actions: [
           IconButton(
@@ -98,6 +110,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
           ),
         ],
       ),
+      drawer: const AppNavigationDrawer(),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),

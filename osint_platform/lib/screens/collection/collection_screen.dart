@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import '../../widgets/common/navigation_drawer.dart';
 
 class CollectionScreen extends StatelessWidget {
   final String investigationId;
@@ -12,10 +14,48 @@ class CollectionScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => context.go('/'),
+          tooltip: 'Volver al inicio',
+        ),
         title: const Text('Recopilación'),
       ),
+      drawer: const AppNavigationDrawer(),
       body: Center(
-        child: Text('Collection Screen - ID: $investigationId'),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.collections_bookmark_outlined,
+              size: 80,
+              color: Colors.orange.withOpacity(0.5),
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Pantalla de Recopilación',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Próximamente: Formularios dinámicos de recopilación de datos',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 24),
+            OutlinedButton.icon(
+              onPressed: () => context.go('/'),
+              icon: const Icon(Icons.home),
+              label: const Text('Volver al inicio'),
+            ),
+          ],
+        ),
       ),
     );
   }

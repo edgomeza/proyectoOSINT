@@ -7,6 +7,7 @@ import '../../providers/view_mode_provider.dart';
 import '../../widgets/cards/investigation_card.dart';
 import '../../widgets/common/view_mode_toggle.dart';
 import '../../widgets/common/theme_toggle_button.dart';
+import '../../widgets/common/navigation_drawer.dart';
 import '../../models/investigation.dart';
 import '../../models/investigation_phase.dart';
 
@@ -76,6 +77,7 @@ class HomeScreen extends ConsumerWidget {
           const SizedBox(width: 8),
         ],
       ),
+      drawer: const AppNavigationDrawer(),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: () async {
