@@ -47,6 +47,94 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
         ],
         completeness: 0.75,
       ),
+      Investigation(
+        name: 'Fraude Corporativo',
+        description: 'Investigación de posibles irregularidades financieras en empresa tecnológica',
+        currentPhase: InvestigationPhase.analysis,
+        objectives: [
+          'Analizar transacciones sospechosas',
+          'Identificar beneficiarios finales',
+          'Rastrear flujo de fondos',
+          'Documentar evidencias',
+        ],
+        keyQuestions: [
+          '¿Existen operaciones offshore vinculadas?',
+          '¿Quiénes son los verdaderos propietarios?',
+          '¿Hay documentación falsificada?',
+        ],
+        completeness: 0.85,
+      ),
+      Investigation(
+        name: 'Ciberseguridad - Incidente DDoS',
+        description: 'Análisis de ataque distribuido de denegación de servicio',
+        currentPhase: InvestigationPhase.collection,
+        objectives: [
+          'Identificar origen del ataque',
+          'Mapear infraestructura utilizada',
+          'Recopilar indicadores de compromiso (IOCs)',
+        ],
+        keyQuestions: [
+          '¿Quién está detrás del ataque?',
+          '¿Qué vectores se utilizaron?',
+        ],
+        completeness: 0.45,
+      ),
+      Investigation(
+        name: 'Due Diligence - Merger & Acquisition',
+        description: 'Investigación exhaustiva de empresa objetivo para proceso de adquisición',
+        currentPhase: InvestigationPhase.reports,
+        objectives: [
+          'Verificar información financiera',
+          'Evaluar reputación corporativa',
+          'Identificar riesgos legales',
+          'Analizar antecedentes de directivos',
+          'Revisar historial de litigios',
+        ],
+        completeness: 0.95,
+      ),
+      Investigation(
+        name: 'Fuga de Información Interna',
+        description: 'Rastreo de filtración de documentos confidenciales',
+        currentPhase: InvestigationPhase.processing,
+        objectives: [
+          'Identificar punto de fuga',
+          'Analizar metadatos de documentos',
+          'Revisar logs de acceso',
+        ],
+        keyQuestions: [
+          '¿Quién tuvo acceso a los documentos?',
+          '¿Cuándo se produjo la filtración?',
+          '¿Existe complicidad externa?',
+        ],
+        completeness: 0.52,
+      ),
+      Investigation(
+        name: 'Campaña de Desinformación',
+        description: 'Análisis de red de cuentas coordinadas que difunden noticias falsas',
+        currentPhase: InvestigationPhase.analysis,
+        objectives: [
+          'Mapear red de cuentas bot',
+          'Identificar narrativas principales',
+          'Rastrear origen del contenido',
+          'Analizar patrones temporales',
+        ],
+        keyQuestions: [
+          '¿Quién financia la campaña?',
+          '¿Qué objetivo político tiene?',
+        ],
+        completeness: 0.68,
+      ),
+      Investigation(
+        name: 'Blanqueo de Capitales - Criptomonedas',
+        description: 'Seguimiento de transacciones sospechosas en blockchain',
+        currentPhase: InvestigationPhase.collection,
+        objectives: [
+          'Rastrear direcciones wallet',
+          'Identificar exchanges utilizados',
+          'Mapear flujo de fondos',
+        ],
+        completeness: 0.40,
+      ),
     ];
   }
 
