@@ -1,0 +1,107 @@
+import 'package:uuid/uuid.dart';
+import 'investigation_phase.dart';
+
+class Investigation {
+  final String id;
+  final String name;
+  final String description;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final InvestigationPhase currentPhase;
+  final List<String> objectives;
+  final Map<String, dynamic> knownInformation;
+  final List<String> keyQuestions;
+  final double completeness;
+  final int sessionTime;
+  final int fatigueLevel;
+  final bool isActive;
+
+  Investigation({
+    String? id,
+    required this.name,
+    required this.description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    this.currentPhase = InvestigationPhase.planning,
+    this.objectives = const [],
+    this.knownInformation = const {},
+    this.keyQuestions = const [],
+    this.completeness = 0.0,
+    this.sessionTime = 0,
+    this.fatigueLevel = 0,
+    this.isActive = false,
+  })  : id = id ?? const Uuid().v4(),
+        createdAt = createdAt ?? DateTime.now(),
+        updatedAt = updatedAt ?? DateTime.now();
+
+  Investigation copyWith({
+    String? id,
+    String? name,
+    String? description,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    InvestigationPhase? currentPhase,
+    List<String>? objectives,
+    Map<String, dynamic>? knownInformation,
+    List<String>? keyQuestions,
+    double? completeness,
+    int? sessionTime,
+    int? fatigueLevel,
+    bool? isActive,
+  }) {
+    return Investigation(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? DateTime.now(),
+      currentPhase: currentPhase ?? this.currentPhase,
+      objectives: objectives ?? this.objectives,
+      knownInformation: knownInformation ?? this.knownInformation,
+      keyQuestions: keyQuestions ?? this.keyQuestions,
+      completeness: completeness ?? this.completeness,
+      sessionTime: sessionTime ?? this.sessionTime,
+      fatigueLevel: fatigueLevel ?? this.fatigueLevel,
+      isActive: isActive ?? this.isActive,
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'description': description,
+      'createdAt': createdAt.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
+      'currentPhase': currentPhase.name,
+      'objectives': objectives,
+      'knownInformation': knownInformation,
+      'keyQuestions': keyQuestions,
+      'completeness': completeness,
+      'sessionTime': sessionTime,
+      'fatigueLevel': fatigueLevel,
+      'isActive': isActive,
+    };
+  }
+
+  factory Investigation.fromJson(Map<String, dynamic> json) {
+    return Investigation(
+      id: json['id'],
+      name: json['name'],
+      description: json['description'],
+      createdAt: DateTime.parse(json['createdAt']),
+      updatedAt: DateTime.parse(json['updatedAt']),
+      currentPhase: InvestigationPhase.values.firstWhere(
+        (phase) => phase.name == json['currentPhase'],
+        orElse: () => InvestigationPhase.planning,
+      ),
+      objectives: List<String>.from(json['objectives'] ?? []),
+      knownInformation: Map<String, dynamic>.from(json['knownInformation'] ?? {}),
+      keyQuestions: List<String>.from(json['keyQuestions'] ?? []),
+      completeness: json['completeness']?.toDouble() ?? 0.0,
+      sessionTime: json['sessionTime'] ?? 0,
+      fatigueLevel: json['fatigueLevel'] ?? 0,
+      isActive: json['isActive'] ?? false,
+    );
+  }
+}
