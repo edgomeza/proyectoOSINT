@@ -1,5 +1,6 @@
 import 'package:uuid/uuid.dart';
 import 'investigation_phase.dart';
+import 'investigation_status.dart';
 
 class Investigation {
   final String id;
@@ -15,6 +16,7 @@ class Investigation {
   final int sessionTime;
   final int fatigueLevel;
   final bool isActive;
+  final InvestigationStatus status;
 
   Investigation({
     String? id,
@@ -30,6 +32,7 @@ class Investigation {
     this.sessionTime = 0,
     this.fatigueLevel = 0,
     this.isActive = false,
+    this.status = InvestigationStatus.inactive,
   })  : id = id ?? const Uuid().v4(),
         createdAt = createdAt ?? DateTime.now(),
         updatedAt = updatedAt ?? DateTime.now();
@@ -48,6 +51,7 @@ class Investigation {
     int? sessionTime,
     int? fatigueLevel,
     bool? isActive,
+    InvestigationStatus? status,
   }) {
     return Investigation(
       id: id ?? this.id,
@@ -63,6 +67,7 @@ class Investigation {
       sessionTime: sessionTime ?? this.sessionTime,
       fatigueLevel: fatigueLevel ?? this.fatigueLevel,
       isActive: isActive ?? this.isActive,
+      status: status ?? this.status,
     );
   }
 
@@ -81,6 +86,7 @@ class Investigation {
       'sessionTime': sessionTime,
       'fatigueLevel': fatigueLevel,
       'isActive': isActive,
+      'status': status.value,
     };
   }
 
@@ -102,6 +108,10 @@ class Investigation {
       sessionTime: json['sessionTime'] ?? 0,
       fatigueLevel: json['fatigueLevel'] ?? 0,
       isActive: json['isActive'] ?? false,
+      status: InvestigationStatus.values.firstWhere(
+        (s) => s.value == json['status'],
+        orElse: () => InvestigationStatus.inactive,
+      ),
     );
   }
 }
