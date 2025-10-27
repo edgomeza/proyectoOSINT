@@ -3,13 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/investigations_provider.dart';
-import '../../providers/view_mode_provider.dart';
-import '../../widgets/cards/investigation_card.dart';
-import '../../widgets/common/view_mode_toggle.dart';
 import '../../widgets/common/theme_toggle_button.dart';
-import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/elk_services_indicator.dart';
 import '../../models/investigation.dart';
-import '../../models/investigation_phase.dart';
+import '../../models/investigation_status.dart';
+import 'package:intl/intl.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -17,8 +15,6 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final investigations = ref.watch(investigationsProvider);
-    final viewMode = ref.watch(viewModeProvider);
-    final activeInvestigation = ref.watch(activeInvestigationProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -54,7 +50,7 @@ class HomeScreen extends ConsumerWidget {
                     ),
                   ),
                   Text(
-                    'Centro de Control',
+                    'Investigaciones',
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w400,
@@ -66,31 +62,17 @@ class HomeScreen extends ConsumerWidget {
           ),
         ),
         actions: [
+          const ELKServicesIndicator(),
+          const SizedBox(width: 12),
           const ThemeToggleButton(),
-          IconButton(
-            onPressed: () {
-              // TODO: Implementar notificaciones
-            },
-            icon: const Icon(Icons.notifications_outlined),
-            tooltip: 'Notificaciones',
-          ),
           const SizedBox(width: 8),
         ],
       ),
-      drawer: const AppNavigationDrawer(),
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: () async {
-            // TODO: Implementar refresh
-            await Future.delayed(const Duration(seconds: 1));
-          },
-          child: viewMode == ViewMode.simple
-              ? _buildSimpleView(context, ref, investigations, activeInvestigation)
-              : _buildDetailedView(context, ref, investigations),
-        ),
-      ),
+      body: investigations.isEmpty
+          ? _buildEmptyState(context, ref)
+          : _buildInvestigationsGrid(context, ref, investigations),
       floatingActionButton: FadeInUp(
-        duration: const Duration(milliseconds: 500),
+        delay: const Duration(milliseconds: 300),
         child: FloatingActionButton.extended(
           onPressed: () => _showCreateInvestigationDialog(context, ref),
           icon: const Icon(Icons.add),
@@ -100,322 +82,190 @@ class HomeScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildSimpleView(
+  Widget _buildEmptyState(BuildContext context, WidgetRef ref) {
+    return Center(
+      child: FadeIn(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.folder_open_outlined,
+              size: 100,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'No hay investigaciones',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Crea tu primera investigación para comenzar',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 32),
+            ElevatedButton.icon(
+              onPressed: () => _showCreateInvestigationDialog(context, ref),
+              icon: const Icon(Icons.add),
+              label: const Text('Crear Investigación'),
+              style: ElevatedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 32,
+                  vertical: 16,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInvestigationsGrid(
     BuildContext context,
     WidgetRef ref,
     List<Investigation> investigations,
-    Investigation? activeInvestigation,
   ) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: FadeInDown(
-                        child: Text(
-                          'Vista Simplificada',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                        ),
-                      ),
-                    ),
-                    const ViewModeToggle(),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                FadeInDown(
-                  delay: const Duration(milliseconds: 100),
-                  child: Text(
-                    'Enfocado en lo esencial para mantener tu productividad',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        if (activeInvestigation != null)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return GridView.builder(
+      padding: const EdgeInsets.all(16),
+      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: MediaQuery.of(context).size.width > 1200
+            ? 4
+            : MediaQuery.of(context).size.width > 800
+                ? 3
+                : MediaQuery.of(context).size.width > 600
+                    ? 2
+                    : 1,
+        childAspectRatio: 1.2,
+        crossAxisSpacing: 16,
+        mainAxisSpacing: 16,
+      ),
+      itemCount: investigations.length,
+      itemBuilder: (context, index) {
+        final investigation = investigations[index];
+        return FadeInUp(
+          delay: Duration(milliseconds: 50 * index),
+          child: _buildInvestigationCard(context, ref, investigation),
+        );
+      },
+    );
+  }
+
+  Widget _buildInvestigationCard(
+    BuildContext context,
+    WidgetRef ref,
+    Investigation investigation,
+  ) {
+    final dateFormat = DateFormat('dd/MM/yyyy');
+
+    return Card(
+      elevation: 2,
+      child: InkWell(
+        onTap: () {
+          // Activar la investigación antes de navegar
+          ref.read(investigationsProvider.notifier).setActiveInvestigation(investigation.id);
+          // Navegar a la fase actual
+          final route = '/investigation/${investigation.id}/${investigation.currentPhase.routeName}';
+          context.go(route);
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header con indicador de estado
+              Row(
                 children: [
-                  const SizedBox(height: 16),
-                  FadeInLeft(
-                    child: Row(
-                      children: [
-                        Icon(
-                          Icons.star,
-                          color: Theme.of(context).colorScheme.primary,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Investigación Activa',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  // Indicador de estado circular
+                  Container(
+                    width: 12,
+                    height: 12,
+                    decoration: BoxDecoration(
+                      color: _getStatusColor(investigation.status),
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: _getStatusColor(investigation.status)
+                              .withOpacity(0.5),
+                          blurRadius: 4,
+                          spreadRadius: 1,
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  InvestigationCard(
-                    investigation: activeInvestigation,
-                    isCompact: false,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 8),
-                FadeInLeft(
-                  delay: const Duration(milliseconds: 200),
-                  child: const Text(
-                    'Acciones Rápidas',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                _buildQuickActions(context, activeInvestigation),
-              ],
-            ),
-          ),
-        ),
-        if (investigations.length > 1)
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: FadeInLeft(
-                delay: const Duration(milliseconds: 300),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'Otras Investigaciones',
-                      style: TextStyle(
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      investigation.name,
+                      style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.w700,
                       ),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        ref.read(viewModeProvider.notifier).state = ViewMode.detailed;
-                      },
-                      child: const Text('Ver todas'),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        if (investigations.length > 1)
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final otherInvestigations = investigations
-                      .where((inv) => !inv.isActive)
-                      .take(3)
-                      .toList();
-                  if (index >= otherInvestigations.length) return null;
-
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 12),
-                    child: InvestigationCard(
-                      investigation: otherInvestigations[index],
-                      isCompact: true,
-                      onTap: () {
-                        ref.read(investigationsProvider.notifier)
-                            .setActiveInvestigation(otherInvestigations[index].id);
-                      },
-                    ),
-                  );
-                },
-              ),
-            ),
-          ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 100),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildDetailedView(
-    BuildContext context,
-    WidgetRef ref,
-    List<Investigation> investigations,
-  ) {
-    return CustomScrollView(
-      slivers: [
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: FadeInDown(
-                        child: Text(
-                          'Vista Detallada',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                                fontWeight: FontWeight.w700,
-                              ),
-                        ),
-                      ),
-                    ),
-                    const ViewModeToggle(),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                FadeInDown(
-                  delay: const Duration(milliseconds: 100),
-                  child: Text(
-                    'Control completo de todas tus investigaciones',
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: _buildStatsCards(context, investigations),
-          ),
-        ),
-        SliverToBoxAdapter(
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: FadeInLeft(
-              child: const Text(
-                'Todas las Investigaciones',
+                ],
+              ),
+              const SizedBox(height: 12),
+              // Descripción
+              Text(
+                investigation.description,
                 style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
+                  fontSize: 13,
+                  color: Colors.grey[600],
                 ),
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
               ),
-            ),
-          ),
-        ),
-        if (investigations.isEmpty)
-          SliverFillRemaining(
-            child: Center(
-              child: FadeIn(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.folder_open_outlined,
-                      size: 80,
-                      color: Colors.grey[400],
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'No hay investigaciones',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.grey[600],
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      'Crea tu primera investigación para comenzar',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
-                    ),
-                  ],
+              const Spacer(),
+              // Fase actual
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
                 ),
-              ),
-            ),
-          )
-        else
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverGrid(
-              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                maxCrossAxisExtent: 400,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.75,
-              ),
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  if (index >= investigations.length) return null;
-                  return InvestigationCard(
-                    investigation: investigations[index],
-                    isCompact: false,
-                  );
-                },
-              ),
-            ),
-          ),
-        const SliverToBoxAdapter(
-          child: SizedBox(height: 100),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildQuickActions(BuildContext context, Investigation? activeInvestigation) {
-    if (activeInvestigation == null) {
-      return FadeInUp(
-        child: Card(
-          child: Padding(
-            padding: const EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Icon(
-                  Icons.info_outline,
-                  size: 48,
-                  color: Colors.grey[400],
+                decoration: BoxDecoration(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                const SizedBox(height: 12),
-                Text(
-                  'No hay investigación activa',
+                child: Text(
+                  investigation.currentPhase.displayName,
                   style: TextStyle(
-                    fontSize: 14,
-                    color: Colors.grey[600],
+                    fontSize: 11,
+                    fontWeight: FontWeight.w600,
+                    color: Theme.of(context).colorScheme.primary,
                   ),
                 ),
-                const SizedBox(height: 8),
-                const Text(
-                  'Selecciona una investigación para ver las acciones disponibles',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 12),
+              ),
+              const SizedBox(height: 8),
+              // Progreso
+              ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: LinearProgressIndicator(
+                  value: investigation.completeness,
+                  minHeight: 6,
+                  backgroundColor: Colors.grey[300],
                 ),
+              ),
+              const SizedBox(height: 4),
+              // Fecha y porcentaje
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    dateFormat.format(investigation.createdAt),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey[500],
               ],
             ),
           ),
@@ -488,102 +338,94 @@ class HomeScreen extends ConsumerWidget {
                       ],
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildStatsCards(BuildContext context, List<Investigation> investigations) {
-    final stats = [
-      {
-        'label': 'Total',
-        'value': investigations.length.toString(),
-        'icon': Icons.folder_outlined,
-        'color': Theme.of(context).colorScheme.primary,
-      },
-      {
-        'label': 'En Progreso',
-        'value': investigations
-            .where((inv) => inv.currentPhase != InvestigationPhase.reports)
-            .length
-            .toString(),
-        'icon': Icons.trending_up,
-        'color': Colors.orange,
-      },
-      {
-        'label': 'Completadas',
-        'value': investigations
-            .where((inv) => inv.currentPhase == InvestigationPhase.reports)
-            .length
-            .toString(),
-        'icon': Icons.check_circle_outline,
-        'color': Colors.green,
-      },
-    ];
-
-    return FadeInUp(
-      child: Row(
-        children: stats.map((stat) {
-          final index = stats.indexOf(stat);
-          return Expanded(
-            child: Padding(
-              padding: EdgeInsets.only(
-                right: index < stats.length - 1 ? 12 : 0,
-              ),
-              child: Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Icon(
-                        stat['icon'] as IconData,
-                        color: stat['color'] as Color,
-                        size: 24,
-                      ),
-                      const SizedBox(height: 12),
-                      Text(
-                        stat['value'] as String,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        stat['label'] as String,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ],
+                  Text(
+                    '${(investigation.completeness * 100).toInt()}%',
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
                   ),
-                ),
+                ],
               ),
-            ),
-          );
-        }).toList(),
+            ],
+          ),
+        ),
       ),
     );
   }
 
+  Color _getStatusColor(InvestigationStatus status) {
+    switch (status) {
+      case InvestigationStatus.active:
+        return Colors.green;
+      case InvestigationStatus.inactive:
+        return Colors.grey;
+      case InvestigationStatus.closed:
+        return Colors.red;
+    }
+  }
+
   void _showCreateInvestigationDialog(BuildContext context, WidgetRef ref) {
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Nueva Investigación'),
-        content: const Text(
-          'La funcionalidad de crear investigaciones estará disponible en la pantalla de planificación.',
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Nombre',
+                  hintText: 'Ej: Fraude Corporativo XYZ',
+                  border: OutlineInputBorder(),
+                ),
+                autofocus: true,
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: descriptionController,
+                decoration: const InputDecoration(
+                  labelText: 'Descripción',
+                  hintText: 'Breve descripción del caso',
+                  border: OutlineInputBorder(),
+                ),
+                maxLines: 3,
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cerrar'),
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty &&
+                  descriptionController.text.isNotEmpty) {
+                final newInvestigation = Investigation(
+                  name: nameController.text,
+                  description: descriptionController.text,
+                  status: InvestigationStatus.active,
+                  isActive: true,
+                );
+
+                ref.read(investigationsProvider.notifier).addInvestigation(newInvestigation);
+
+                Navigator.of(context).pop();
+
+                // Navegar a la fase de planificación
+                context.go('/investigation/${newInvestigation.id}/planning');
+              }
+            },
+            child: const Text('Crear'),
           ),
         ],
       ),
