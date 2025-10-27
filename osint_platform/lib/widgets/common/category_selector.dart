@@ -51,7 +51,7 @@ class CategorySelector extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
-          color: isSelected ? color.withOpacity(0.15) : Colors.transparent,
+          color: isSelected ? color.withValues(alpha:0.15) : Colors.transparent,
           border: Border.all(
             color: isSelected ? color : Colors.grey.shade400,
             width: isSelected ? 2 : 1,
@@ -84,7 +84,7 @@ class CategorySelector extends StatelessWidget {
                     category.description,
                     style: TextStyle(
                       fontSize: 11,
-                      color: color.withOpacity(0.8),
+                      color: color.withValues(alpha:0.8),
                     ),
                   ),
               ],

@@ -41,7 +41,7 @@ class AppNavigationDrawer extends ConsumerWidget {
                     Container(
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
+                        color: Colors.white.withValues(alpha:0.2),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       child: const Icon(
@@ -63,7 +63,7 @@ class AppNavigationDrawer extends ConsumerWidget {
                     Text(
                       '${investigations.length} investigacion${investigations.length != 1 ? "es" : ""}',
                       style: TextStyle(
-                        color: Colors.white.withOpacity(0.8),
+                        color: Colors.white.withValues(alpha:0.8),
                         fontSize: 14,
                       ),
                     ),
@@ -91,7 +91,7 @@ class AppNavigationDrawer extends ConsumerWidget {
                       ),
                       const SizedBox(height: 8),
                       Card(
-                        color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                        color: Theme.of(context).colorScheme.primary.withValues(alpha:0.1),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
                           child: Column(
@@ -285,7 +285,7 @@ class AppNavigationDrawer extends ConsumerWidget {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(
         color: isActive
-            ? Theme.of(context).colorScheme.primary.withOpacity(0.1)
+            ? Theme.of(context).colorScheme.primary.withValues(alpha:0.1)
             : null,
         borderRadius: BorderRadius.circular(12),
       ),
