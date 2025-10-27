@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/cards/dashboard_card.dart';
+import '../../models/investigation_phase.dart';
 import '../../widgets/common/service_status_card.dart';
 import '../../providers/data_forms_provider.dart';
 
@@ -592,6 +594,10 @@ class _AnalysisScreenState extends ConsumerState<AnalysisScreen> {
                 ],
               ),
             ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.analysis,
+      ),
     );
   }
 

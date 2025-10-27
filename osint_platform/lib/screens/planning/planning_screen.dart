@@ -5,6 +5,8 @@ import 'package:go_router/go_router.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/common/phase_badge.dart';
 import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/phase_navigation.dart';
+import '../../models/investigation_phase.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
   final String investigationId;
@@ -331,6 +333,10 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.planning,
       ),
     );
   }

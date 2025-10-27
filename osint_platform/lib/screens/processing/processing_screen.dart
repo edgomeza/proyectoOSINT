@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/cards/processing_card.dart';
+import '../../models/investigation_phase.dart';
 import '../../providers/data_forms_provider.dart';
 import '../../providers/investigations_provider.dart';
 import '../../models/data_form.dart';
@@ -117,6 +119,10 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
                 if (forms.length > 7) _buildMoreItemsIndicator(forms.length),
               ],
             ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.processing,
+      ),
     );
   }
 

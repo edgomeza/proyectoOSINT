@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/phase_navigation.dart';
+import '../../models/investigation_phase.dart';
 
-class ReportsScreen extends StatelessWidget {
+class ReportsScreen extends ConsumerWidget {
   final String investigationId;
 
   const ReportsScreen({
@@ -11,7 +14,7 @@ class ReportsScreen extends StatelessWidget {
   });
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
@@ -56,6 +59,10 @@ class ReportsScreen extends StatelessWidget {
             ),
           ],
         ),
+      ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: investigationId,
+        currentPhase: InvestigationPhase.reports,
       ),
     );
   }

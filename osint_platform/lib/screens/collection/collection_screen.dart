@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../widgets/common/navigation_drawer.dart';
+import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/category_selector.dart';
+import '../../models/investigation_phase.dart';
 import '../../widgets/common/dynamic_field_input.dart';
 import '../../widgets/cards/data_form_card.dart';
 import '../../providers/data_forms_provider.dart';
@@ -256,6 +258,10 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           _buildCreateNewTab(),
           _buildSavedFormsTab(savedForms),
         ],
+      ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.collection,
       ),
     );
   }
