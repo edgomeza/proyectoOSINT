@@ -51,6 +51,11 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
     setState(() {
       _selectedCategory = category;
       _currentFields.clear();
+
+      // Dispose de todos los controladores antiguos antes de limpiar
+      for (var controller in _controllers.values) {
+        controller.dispose();
+      }
       _controllers.clear();
 
       // Cargar campos predeterminados
@@ -90,21 +95,36 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
 
   void _removeField(int index) {
     setState(() {
-      _controllers['field_$index']?.dispose();
-      _controllers.remove('field_$index');
+      // Remover el campo
       _currentFields.removeAt(index);
 
-      // Reindexar controladores
-      final newControllers = <String, TextEditingController>{};
-      for (var i = 0; i < _currentFields.length; i++) {
-        if (_controllers.containsKey('field_$i')) {
-          newControllers['field_$i'] = _controllers['field_$i']!;
-        } else if (_controllers.containsKey('field_${i + 1}')) {
-          newControllers['field_$i'] = _controllers['field_${i + 1}']!;
+      // Guardar los textos de los controladores antes de limpiarlos
+      final savedTexts = <int, String>{};
+      for (var i = 0; i < _controllers.length; i++) {
+        final controller = _controllers['field_$i'];
+        if (controller != null && controller.text.isNotEmpty) {
+          savedTexts[i] = controller.text;
         }
       }
+
+      // Disponer de todos los controladores
+      for (var controller in _controllers.values) {
+        controller.dispose();
+      }
       _controllers.clear();
-      _controllers.addAll(newControllers);
+
+      // Crear nuevos controladores con los valores preservados
+      for (var i = 0; i < _currentFields.length; i++) {
+        final newController = TextEditingController();
+
+        // Si había un valor en el controlador anterior, preservarlo
+        final oldIndex = i >= index ? i + 1 : i;
+        if (savedTexts.containsKey(oldIndex)) {
+          newController.text = savedTexts[oldIndex]!;
+        }
+
+        _controllers['field_$i'] = newController;
+      }
     });
   }
 
@@ -303,10 +323,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                 itemCount: _currentFields.length,
                 itemBuilder: (context, index) {
                   final field = _currentFields[index];
-                  final controller = _controllers['field_$index']!;
+                  final controller = _controllers['field_$index'];
                   final isCustom = field['custom'] == true;
 
+                  // Si el controlador no existe, no renderizar este campo
+                  if (controller == null) {
+                    return const SizedBox.shrink();
+                  }
+
                   return Padding(
+                    key: ValueKey('field_$index'),
                     padding: const EdgeInsets.only(bottom: 16),
                     child: DynamicFieldInput(
                       label: field['label'],
