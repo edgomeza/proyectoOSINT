@@ -49,7 +49,7 @@ class PhaseBadge extends StatelessWidget {
       return Container(
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         decoration: BoxDecoration(
-          color: color.withOpacity(0.2),
+          color: color.withValues(alpha:0.2),
           borderRadius: BorderRadius.circular(6),
           border: Border.all(color: color, width: 1),
         ),
@@ -74,7 +74,7 @@ class PhaseBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.15),
+        color: color.withValues(alpha:0.15),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: color, width: 1.5),
       ),

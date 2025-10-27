@@ -18,7 +18,7 @@ class ViewModeToggle extends ConsumerWidget {
           color: Theme.of(context).colorScheme.surface,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.3),
           ),
         ),
         child: Row(
@@ -39,7 +39,7 @@ class ViewModeToggle extends ConsumerWidget {
             Container(
               width: 1,
               height: 32,
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+              color: Theme.of(context).colorScheme.primary.withValues(alpha:0.3),
             ),
             _buildToggleButton(
               context: context,
@@ -74,7 +74,7 @@ class ViewModeToggle extends ConsumerWidget {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
         decoration: BoxDecoration(
           color: isActive
-              ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
+              ? Theme.of(context).colorScheme.primary.withValues(alpha:0.15)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),

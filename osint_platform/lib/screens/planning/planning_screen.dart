@@ -112,7 +112,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
                       Container(
                         padding: const EdgeInsets.all(12),
                         decoration: BoxDecoration(
-                          color: Colors.blue.withOpacity(0.15),
+                          color: Colors.blue.withValues(alpha:0.15),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Icon(

@@ -10,7 +10,7 @@ enum InvestigationPhase {
 
   const InvestigationPhase(this.displayName, this.routeName);
 
-  int get index => InvestigationPhase.values.indexOf(this);
+  int get indice => InvestigationPhase.values.indexOf(this);
 
   InvestigationPhase? get next {
     final currentIndex = InvestigationPhase.values.indexOf(this);

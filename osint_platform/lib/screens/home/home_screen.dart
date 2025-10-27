@@ -463,7 +463,7 @@ class HomeScreen extends ConsumerWidget {
                         Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: (action['color'] as Color).withOpacity(0.15),
+                            color: (action['color'] as Color).withValues(alpha:0.15),
                             borderRadius: BorderRadius.circular(12),
                           ),
                           child: Icon(

@@ -45,7 +45,7 @@ class ProgressIndicatorWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(height / 2),
           child: LinearProgressIndicator(
             value: progress,
-            backgroundColor: progressColor.withOpacity(0.2),
+            backgroundColor: progressColor.withValues(alpha:0.2),
             valueColor: AlwaysStoppedAnimation<Color>(progressColor),
             minHeight: height,
           ),
