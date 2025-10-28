@@ -61,6 +61,36 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        // Info Banner about Duplicate Merging
+        Container(
+          margin: const EdgeInsets.only(bottom: 12),
+          decoration: BoxDecoration(
+            color: Colors.blue.withValues(alpha: 0.1),
+            border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Icon(
+                Icons.info_outline,
+                color: Colors.blue.shade700,
+                size: 20,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Text(
+                  'Los formularios combinados mediante el proceso de deduplicación se reflejan automáticamente aquí. El conteo de formularios se actualizará cuando se completen las fusiones.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.blue.shade900,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+
         // Header
         Card(
           child: Padding(
@@ -77,13 +107,13 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Data Validation & Cleaning',
+                            'Validación y Limpieza de Datos',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
                           Text(
-                            '$totalErrors errors, $totalWarnings warnings',
+                            '$totalErrors errores, $totalWarnings advertencias • ${forms.length} formularios',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
                                 ),
@@ -95,7 +125,7 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
                       IconButton(
                         icon: const Icon(Icons.refresh),
                         onPressed: _validateAll,
-                        tooltip: 'Rescan',
+                        tooltip: 'Actualizar',
                       ),
                   ],
                 ),
@@ -108,7 +138,7 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
                       child: _buildStatChip(
                         context,
                         icon: Icons.error,
-                        label: 'Errors',
+                        label: 'Errores',
                         count: totalErrors,
                         color: Colors.red,
                       ),
@@ -118,7 +148,7 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
                       child: _buildStatChip(
                         context,
                         icon: Icons.warning,
-                        label: 'Warnings',
+                        label: 'Avisos',
                         count: totalWarnings,
                         color: Colors.orange,
                       ),
@@ -128,7 +158,7 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
                       child: _buildStatChip(
                         context,
                         icon: Icons.check_circle,
-                        label: 'Valid',
+                        label: 'Válidos',
                         count: forms.length - totalErrors,
                         color: Colors.green,
                       ),
