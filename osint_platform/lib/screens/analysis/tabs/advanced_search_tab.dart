@@ -219,6 +219,10 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
         return RiskLevel.high;
       case LocationRisk.critical:
         return RiskLevel.critical;
+      case LocationRisk.none:
+        return RiskLevel.none;
+      case LocationRisk.unknown:
+        return RiskLevel.unknown;
     }
   }
 

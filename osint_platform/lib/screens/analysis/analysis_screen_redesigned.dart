@@ -576,7 +576,7 @@ class _AnalysisScreenRedesignedState
     final descriptionController = TextEditingController();
     final locationController = TextEditingController();
     DateTime selectedDate = DateTime.now();
-    TimelineEventType selectedType = TimelineEventType.general;
+    TimelineEventType selectedType = TimelineEventType.other;
     EventPriority selectedPriority = EventPriority.medium;
 
     showDialog(
@@ -657,7 +657,7 @@ class _AnalysisScreenRedesignedState
                         firstDate: DateTime(2000),
                         lastDate: DateTime(2100),
                       );
-                      if (date != null) {
+                      if (date != null && dialogContext.mounted) {
                         final time = await showTimePicker(
                           context: dialogContext,
                           initialTime: TimeOfDay.fromDateTime(selectedDate),
@@ -765,7 +765,7 @@ class _AnalysisScreenRedesignedState
     final descriptionController = TextEditingController();
     final latController = TextEditingController();
     final lonController = TextEditingController();
-    LocationType selectedType = LocationType.poi;
+    GeoLocationType selectedType = GeoLocationType.poi;
     LocationRisk selectedRisk = LocationRisk.medium;
 
     showDialog(
@@ -791,14 +791,14 @@ class _AnalysisScreenRedesignedState
                     autofocus: true,
                   ),
                   const SizedBox(height: 16),
-                  DropdownButtonFormField<LocationType>(
+                  DropdownButtonFormField<GeoLocationType>(
                     decoration: const InputDecoration(
                       labelText: 'Location Type',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
                     initialValue: selectedType,
-                    items: LocationType.values.map((type) {
+                    items: GeoLocationType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
                         child: Text(type.displayName),
