@@ -14,6 +14,7 @@ import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/analysis_tools_tab.dart';
 import 'tabs/reports_tab.dart';
+import '../../widgets/canvas/diagram_canvas_widget.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
   final String investigationId;
@@ -37,7 +38,7 @@ class _AnalysisScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 6, vsync: this);
+    _tabController = TabController(length: 7, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _currentTabIndex = _tabController.index;
@@ -162,6 +163,7 @@ class _AnalysisScreenRedesignedState
             Tab(icon: Icon(Icons.hub), text: 'Graph'),
             Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
             Tab(icon: Icon(Icons.map), text: 'Map'),
+            Tab(icon: Icon(Icons.draw), text: 'Canvas'),
             Tab(icon: Icon(Icons.analytics), text: 'Tools'),
             Tab(icon: Icon(Icons.description), text: 'Reports'),
           ],
@@ -192,6 +194,9 @@ class _AnalysisScreenRedesignedState
             investigationId: widget.investigationId,
             onLocationTap: (location) => _showLocationDetails(context, location),
           ),
+
+          // Canvas Tab
+          const DiagramCanvasWidget(),
 
           // Analysis Tools Tab
           AnalysisToolsTab(investigationId: widget.investigationId),
@@ -230,6 +235,13 @@ class _AnalysisScreenRedesignedState
           onPressed: () => _showAddLocationDialog(context),
           icon: const Icon(Icons.add),
           label: const Text('Add Location'),
+        );
+      case 4: // Canvas tab
+        return FloatingActionButton.extended(
+          heroTag: 'canvas_help',
+          onPressed: () => _showCanvasHelp(context),
+          icon: const Icon(Icons.help_outline),
+          label: const Text('Help'),
         );
       default:
         return null;
@@ -423,6 +435,46 @@ class _AnalysisScreenRedesignedState
     );
   }
 
+  void _showCanvasHelp(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Canvas Help'),
+        content: const SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Canvas de Diagramas - Crea diagramas personalizados:',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 16),
+              Text('• Selecciona un tipo de nodo (Rectángulo, Círculo, Diamante, Texto)'),
+              Text('• Elige un color'),
+              Text('• Haz clic en el canvas para agregar nodos'),
+              Text('• Arrastra los nodos para moverlos'),
+              Text('• Arrastra desde los puntos de conexión para crear enlaces'),
+              Text('• Usa la rueda del mouse para hacer zoom'),
+              Text('• Presiona Delete para eliminar nodos seleccionados'),
+              SizedBox(height: 16),
+              Text(
+                'Perfecto para crear diagramas de flujo, mapas mentales y diagramas policiales.',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Got it'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _showHelpDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -442,6 +494,7 @@ class _AnalysisScreenRedesignedState
               Text('• Graph: Interactive relationship visualization'),
               Text('• Timeline: Chronological events'),
               Text('• Map: Geographic analysis with heatmaps'),
+              Text('• Canvas: Custom diagrams and flowcharts'),
               Text('• Tools: Advanced analysis algorithms'),
               Text('• Reports: Generate and export reports'),
               SizedBox(height: 16),
