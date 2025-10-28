@@ -62,11 +62,11 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
     );
 
     if (result != null && result.isNotEmpty) {
-      final component = diagramEditorContext.canvasReader.model.getComponent(componentId);
+      final component = diagramEditorContext.model.getComponent(componentId);
       if (component != null) {
         final nodeData = component.data as NodeData;
         nodeData.text = result;
-        diagramEditorContext.canvasWriter.model.updateComponent(componentId);
+        diagramEditorContext.model.updateComponent(componentId);
         setState(() {});
       }
     }
