@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:diagram_editor/diagram_editor.dart';
-import 'dart:math' as math;
 
 class DiagramCanvasWidget extends StatefulWidget {
   final Function(DiagramEditorContext)? onSave;
@@ -17,7 +16,6 @@ class DiagramCanvasWidget extends StatefulWidget {
 class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   late DiagramEditorContext diagramEditorContext;
   NodeType _selectedNodeType = NodeType.rectangle;
-  bool _showGrid = true;
   Color _selectedColor = Colors.blue;
 
   @override
@@ -27,7 +25,6 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
       policySet: MyPolicySet(
         onColorSelected: () => _selectedColor,
         onNodeTypeSelected: () => _selectedNodeType,
-        onShowGrid: () => _showGrid,
       ),
     );
   }
@@ -40,7 +37,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: _showGrid ? Colors.grey.shade50 : Colors.white,
+              color: Colors.grey.shade50,
             ),
             child: DiagramEditor(
               diagramEditorContext: diagramEditorContext,
@@ -127,70 +124,11 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
             ),
             const VerticalDivider(),
 
-            // View Controls
-            _buildToolSection(
-              context,
-              title: 'View',
-              children: [
-                _buildToolButton(
-                  context,
-                  icon: _showGrid ? Icons.grid_on : Icons.grid_off,
-                  label: 'Grid',
-                  isActive: _showGrid,
-                  onPressed: () => setState(() => _showGrid = !_showGrid),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.zoom_in,
-                  label: 'Zoom In',
-                  onPressed: () {
-                    final currentScale = diagramEditorContext.canvasReader.state.scale;
-                    diagramEditorContext.canvasWriter.state.setScale(currentScale + 0.1);
-                    setState(() {});
-                  },
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.zoom_out,
-                  label: 'Zoom Out',
-                  onPressed: () {
-                    final currentScale = diagramEditorContext.canvasReader.state.scale;
-                    if (currentScale > 0.2) {
-                      diagramEditorContext.canvasWriter.state.setScale(currentScale - 0.1);
-                      setState(() {});
-                    }
-                  },
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.center_focus_strong,
-                  label: 'Reset Zoom',
-                  onPressed: () {
-                    diagramEditorContext.canvasWriter.state.resetCanvasView();
-                    setState(() {});
-                  },
-                ),
-              ],
-            ),
-            const VerticalDivider(),
-
             // Actions
             _buildToolSection(
               context,
               title: 'Actions',
               children: [
-                _buildToolButton(
-                  context,
-                  icon: Icons.delete_outline,
-                  label: 'Delete Selected',
-                  onPressed: () => _deleteSelected(),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.clear_all,
-                  label: 'Clear All',
-                  onPressed: () => _showClearDialog(context),
-                ),
                 _buildToolButton(
                   context,
                   icon: Icons.save,
@@ -291,46 +229,10 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
     );
   }
 
-  void _deleteSelected() {
-    final selectedIds = List<String>.from(
-      diagramEditorContext.canvasReader.model.getSelectedComponentIds(),
-    );
-    for (var id in selectedIds) {
-      diagramEditorContext.canvasWriter.model.removeComponent(id);
-    }
-    setState(() {});
-  }
-
   void _saveDiagram() {
     widget.onSave?.call(diagramEditorContext);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Diagram saved')),
-    );
-  }
-
-  void _showClearDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Canvas'),
-        content: const Text(
-          'Are you sure you want to clear the entire diagram? This action cannot be undone.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              diagramEditorContext.canvasWriter.model.removeAllComponents();
-              setState(() {});
-              Navigator.pop(context);
-            },
-            child: const Text('Clear'),
-          ),
-        ],
-      ),
     );
   }
 }
@@ -348,12 +250,10 @@ class MyPolicySet extends PolicySet
         LinkAttachmentRectPolicy {
   final Color Function() onColorSelected;
   final NodeType Function() onNodeTypeSelected;
-  final bool Function() onShowGrid;
 
   MyPolicySet({
     required this.onColorSelected,
     required this.onNodeTypeSelected,
-    required this.onShowGrid,
   });
 }
 
@@ -413,24 +313,8 @@ mixin MyCanvasPolicy implements CanvasPolicy {
 mixin MyComponentPolicy implements ComponentPolicy {
   @override
   onComponentTap(String componentId) {
-    canvasWriter.model.unselectAllComponents();
-    canvasWriter.model.selectComponent(componentId);
-  }
-
-  @override
-  onComponentLongPress(String componentId) {
-    _showEditDialog(componentId);
-  }
-
-  void _showEditDialog(String componentId) {
-    final component = canvasReader.model.getComponent(componentId);
-    if (component == null) return;
-
-    final nodeData = component.data as NodeData;
-    final textController = TextEditingController(text: nodeData.text);
-
-    // Note: This requires a BuildContext. In a real implementation,
-    // you would need to pass context through the policy or use a different approach
+    // Component tap is handled by the CanvasControlPolicy
+    // which provides default selection behavior
   }
 }
 
