@@ -132,7 +132,7 @@ class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
               boxShadow: state == ServiceState.running
                   ? [
                       BoxShadow(
-                        color: _getStateColor(state).withOpacity(0.5),
+                        color: _getStateColor(state).withValues(alpha:0.5),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),

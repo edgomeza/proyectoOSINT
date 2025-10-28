@@ -99,13 +99,13 @@ class PhaseNavigation extends ConsumerWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    Theme.of(context).colorScheme.primary.withOpacity(0.2),
-                    Theme.of(context).colorScheme.secondary.withOpacity(0.2),
+                    Theme.of(context).colorScheme.primary.withValues(alpha:0.2),
+                    Theme.of(context).colorScheme.secondary.withValues(alpha:0.2),
                   ],
                 ),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                  color: Theme.of(context).colorScheme.primary.withValues(alpha:0.5),
                   width: 1.5,
                 ),
               ),
@@ -222,7 +222,7 @@ class PhaseNavigation extends ConsumerWidget {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withOpacity(0.3),
+            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.3),
           ),
         ),
         child: buttonContent,
