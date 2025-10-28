@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:osint_platform/models/relationship.dart';
 import '../../../providers/graph_provider.dart';
 import '../../../services/graph_analysis_service.dart';
 import '../../../models/entity_node.dart';
@@ -17,7 +18,6 @@ class AnalysisToolsTab extends ConsumerStatefulWidget {
 }
 
 class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
-  String? _selectedTool;
   List<EntityNode>? _pathResult;
   List<EntityNode>? _searchResult;
   List<({EntityNode node, int connections})>? _centralNodesResult;
@@ -141,7 +141,7 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha:0.2),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(icon, color: color, size: 32),
@@ -174,7 +174,7 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
   void _showShortestPathDialog(
     BuildContext context,
     List<EntityNode> nodes,
-    List relationships,
+    List<Relationship> relationships,
   ) {
     if (nodes.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -280,7 +280,7 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
     );
   }
 
-  void _analyzeCentralNodes(List<EntityNode> nodes, List relationships) {
+  void _analyzeCentralNodes(List<EntityNode> nodes, List<Relationship> relationships) {
     final result = GraphAnalysisService.findCentralNodes(
       nodes,
       relationships,
@@ -289,7 +289,7 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
     setState(() => _centralNodesResult = result);
   }
 
-  void _analyzeComponents(List<EntityNode> nodes, List relationships) {
+  void _analyzeComponents(List<EntityNode> nodes, List<Relationship> relationships) {
     final result = GraphAnalysisService.findConnectedComponents(
       nodes,
       relationships,
@@ -305,7 +305,7 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
     setState(() => _duplicatesResult = result);
   }
 
-  void _analyzeBridgeNodes(List<EntityNode> nodes, List relationships) {
+  void _analyzeBridgeNodes(List<EntityNode> nodes, List<Relationship> relationships) {
     final result = GraphAnalysisService.findBridgeNodes(nodes, relationships);
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Found ${result.length} bridge nodes')),

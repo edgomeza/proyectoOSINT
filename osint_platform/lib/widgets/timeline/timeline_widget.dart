@@ -194,7 +194,7 @@ class _DynamicTimelineWidgetState
       isFirst: isFirst,
       isLast: isLast,
       beforeLineStyle: LineStyle(
-        color: color.withOpacity(0.5),
+        color: color.withValues(alpha:0.5),
         thickness: 2,
       ),
       indicatorStyle: IndicatorStyle(
@@ -203,7 +203,7 @@ class _DynamicTimelineWidgetState
         indicator: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [color.withOpacity(0.8), color],
+              colors: [color.withValues(alpha:0.8), color],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -214,7 +214,7 @@ class _DynamicTimelineWidgetState
             ),
             boxShadow: [
               BoxShadow(
-                color: color.withOpacity(0.3),
+                color: color.withValues(alpha:0.3),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
@@ -236,7 +236,7 @@ class _DynamicTimelineWidgetState
             color: Theme.of(context).colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(12),
             border: Border.all(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha:0.3),
               width: 1,
             ),
           ),
@@ -356,7 +356,7 @@ class _DynamicTimelineWidgetState
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.2),
+        color: color.withValues(alpha:0.2),
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color, width: 1),
       ),

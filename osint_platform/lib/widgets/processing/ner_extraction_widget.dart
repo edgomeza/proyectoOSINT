@@ -106,8 +106,8 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                       ),
                       decoration: BoxDecoration(
                         color: _isServiceAvailable
-                            ? Colors.green.withOpacity(0.2)
-                            : Colors.red.withOpacity(0.2),
+                            ? Colors.green.withValues(alpha:0.2)
+                            : Colors.red.withValues(alpha:0.2),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: _isServiceAvailable ? Colors.green : Colors.red,
@@ -140,7 +140,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.orange.withOpacity(0.1),
+                      color: Colors.orange.withValues(alpha:0.1),
                       borderRadius: BorderRadius.circular(8),
                       border: Border.all(color: Colors.orange),
                     ),
@@ -169,7 +169,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                         Container(
                           padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.05),
+                            color: Colors.black.withValues(alpha:0.05),
                             borderRadius: BorderRadius.circular(4),
                           ),
                           child: const Text(
@@ -275,7 +275,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                 children: _result!.entityCounts.entries.map((entry) {
                   return Chip(
                     label: Text('${entry.key}: ${entry.value}'),
-                    backgroundColor: Colors.blue.withOpacity(0.1),
+                    backgroundColor: Colors.blue.withValues(alpha:0.1),
                   );
                 }).toList(),
               ),
@@ -319,7 +319,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getEntityColor(entity.label).withOpacity(0.2),
+            color: _getEntityColor(entity.label).withValues(alpha:0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -334,7 +334,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
           children: [
             Chip(
               label: Text('${(entity.confidence * 100).toInt()}%'),
-              backgroundColor: Colors.green.withOpacity(0.1),
+              backgroundColor: Colors.green.withValues(alpha:0.1),
             ),
             IconButton(
               icon: const Icon(Icons.add_circle_outline),

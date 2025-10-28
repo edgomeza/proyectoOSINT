@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_painter/flutter_painter.dart';
+import 'package:flutter_painter_v2/flutter_painter.dart';
 
 class DiagramCanvasWidget extends StatefulWidget {
   final Function(PainterController)? onSave;
@@ -310,7 +310,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.5),
+                      color: color.withValues(alpha:0.5),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -325,7 +325,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   Widget _buildGridBackground() {
     return CustomPaint(
       painter: GridPainter(
-        gridColor: Theme.of(context).colorScheme.outline.withOpacity(0.1),
+        gridColor: Theme.of(context).colorScheme.outline.withValues(alpha:0.1),
       ),
       size: Size.infinite,
     );

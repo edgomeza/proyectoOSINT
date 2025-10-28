@@ -81,7 +81,7 @@ class _ProcessingScreenRedesignedState
               investigation.name,
               style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.7),
               ),
             ),
           ],

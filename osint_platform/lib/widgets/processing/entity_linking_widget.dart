@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:osint_platform/models/data_form_status.dart';
 import '../../models/data_form.dart';
 import '../../models/entity_node.dart';
 import '../../models/relationship.dart';
@@ -93,7 +94,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     labelText: 'Select Form',
                     border: OutlineInputBorder(),
                   ),
-                  value: _selectedForm,
+                  initialValue: _selectedForm,
                   items: forms.map((form) {
                     final label = form.fields['name']?.toString() ??
                         'Form ${form.id.substring(0, 8)}';
@@ -141,7 +142,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     labelText: 'Source Entity',
                     border: OutlineInputBorder(),
                   ),
-                  value: _sourceNode,
+                  initialValue: _sourceNode,
                   items: nodes.map((node) {
                     return DropdownMenuItem(
                       value: node,
@@ -160,7 +161,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     labelText: 'Relationship Type',
                     border: OutlineInputBorder(),
                   ),
-                  value: _relationshipType,
+                  initialValue: _relationshipType,
                   items: RelationshipType.values.map((type) {
                     return DropdownMenuItem(
                       value: type,
@@ -179,7 +180,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     labelText: 'Target Entity',
                     border: OutlineInputBorder(),
                   ),
-                  value: _targetNode,
+                  initialValue: _targetNode,
                   items: nodes
                       .where((node) => node.id != _sourceNode?.id)
                       .map((node) {
@@ -256,7 +257,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getNodeColor(node.type).withOpacity(0.2),
+            color: _getNodeColor(node.type).withValues(alpha:0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Icon(
@@ -274,7 +275,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
             if (node.confidence < 1.0)
               Chip(
                 label: Text('${(node.confidence * 100).toInt()}%'),
-                backgroundColor: Colors.amber.withOpacity(0.2),
+                backgroundColor: Colors.amber.withValues(alpha:0.2),
               ),
             IconButton(
               icon: const Icon(Icons.delete),

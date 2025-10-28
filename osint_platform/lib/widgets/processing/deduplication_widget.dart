@@ -208,7 +208,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: _getSimilarityColor(match.similarity).withOpacity(0.2),
+            color: _getSimilarityColor(match.similarity).withValues(alpha:0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(
@@ -281,7 +281,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                     children: match.matchingFields.map((field) {
                       return Chip(
                         label: Text(field, style: const TextStyle(fontSize: 11)),
-                        backgroundColor: Colors.green.withOpacity(0.1),
+                        backgroundColor: Colors.green.withValues(alpha:0.1),
                         side: BorderSide(color: Colors.green.shade300),
                       );
                     }).toList(),
@@ -300,7 +300,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                   ),
                   const SizedBox(height: 8),
                   ...match.conflicts.map((conflict) => Card(
-                        color: Colors.orange.withOpacity(0.05),
+                        color: Colors.orange.withValues(alpha:0.05),
                         child: Padding(
                           padding: const EdgeInsets.all(12),
                           child: Column(

@@ -102,9 +102,9 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
                                 color: Theme.of(context)
                                     .colorScheme
                                     .primary
-                                    .withOpacity(0.6),
+                                    .withValues(alpha:0.6),
                                 borderStrokeWidth: 1,
-                                borderColor: Colors.white.withOpacity(0.4),
+                                borderColor: Colors.white.withValues(alpha:0.4),
                               ),
                             ],
                           ),
@@ -277,7 +277,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
                   shape: BoxShape.circle,
                   boxShadow: [
                     BoxShadow(
-                      color: color.withOpacity(0.4),
+                      color: color.withValues(alpha:0.4),
                       blurRadius: 10,
                       spreadRadius: 2,
                     ),
@@ -290,7 +290,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
                 height: 32,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
-                    colors: [color.withOpacity(0.9), color],
+                    colors: [color.withValues(alpha:0.9), color],
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                   ),
@@ -388,7 +388,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
       default:
         baseColor = Colors.blue.shade600;
     }
-    return baseColor.withOpacity(intensity);
+    return baseColor.withValues(alpha:intensity);
   }
 
   Widget _buildEmptyState() {
@@ -535,7 +535,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
     if (Theme.of(context).brightness == Brightness.dark) {
       return ColorFiltered(
         colorFilter: ColorFilter.mode(
-          Colors.black.withOpacity(0.3),
+          Colors.black.withValues(alpha:0.3),
           BlendMode.darken,
         ),
         child: tileWidget,

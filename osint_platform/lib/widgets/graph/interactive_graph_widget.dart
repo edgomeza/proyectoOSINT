@@ -180,7 +180,7 @@ class _InteractiveGraphWidgetState
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: [color.withOpacity(0.8), color],
+            colors: [color.withValues(alpha:0.8), color],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -194,7 +194,7 @@ class _InteractiveGraphWidgetState
           ),
           boxShadow: [
             BoxShadow(
-              color: color.withOpacity(0.3),
+              color: color.withValues(alpha:0.3),
               blurRadius: 8,
               offset: const Offset(0, 2),
             ),

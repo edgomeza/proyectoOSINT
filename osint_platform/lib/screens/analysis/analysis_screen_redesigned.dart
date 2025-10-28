@@ -80,7 +80,7 @@ class _AnalysisScreenRedesignedState
     // Get statistics
     final graphStats = ref.watch(graphStatsProvider);
     final timelineStats = ref.watch(timelineStatsProvider);
-    final geoStats = ref.watch(geoStatsProvider);
+    ref.watch(geoStatsProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -97,7 +97,7 @@ class _AnalysisScreenRedesignedState
               investigation.name,
               style: TextStyle(
                 fontSize: 12,
-                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                color: Theme.of(context).colorScheme.onSurface.withValues(alpha:0.7),
               ),
             ),
           ],

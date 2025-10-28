@@ -103,7 +103,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           // Last Generated Report
           if (_lastGeneratedPath != null)
             Card(
-              color: Colors.green.withOpacity(0.1),
+              color: Colors.green.withValues(alpha:0.1),
               child: Padding(
                 padding: const EdgeInsets.all(16),
                 child: Column(
@@ -218,7 +218,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: color.withOpacity(0.2),
+                  color: color.withValues(alpha:0.2),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Icon(icon, color: color, size: 32),

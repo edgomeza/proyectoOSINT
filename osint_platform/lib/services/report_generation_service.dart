@@ -175,6 +175,7 @@ class ReportGenerationService {
   }
 
   // Private helper methods
+// -----------------------------------------------------------------------------
 
   static pw.Widget _buildCoverPage(Investigation investigation) {
     final dateFormat = DateFormat('MMMM dd, yyyy');
@@ -251,20 +252,21 @@ class ReportGenerationService {
         pw.SizedBox(height: 10),
         _buildStatisticsTable(nodes, relationships),
         pw.SizedBox(height: 20),
+        
+        // Bloque de Objetivos: Usa el método helper
         if (investigation.objectives.isNotEmpty) ...[
           _buildSectionHeader('Objectives', fontSize: 16),
           pw.SizedBox(height: 10),
-          pw.BulletList(
-            investigation.objectives.map((obj) => pw.Text(obj)).toList(),
-          ),
+          _buildBulletList(investigation.objectives), 
         ],
+        
         pw.SizedBox(height: 20),
+        
+        // Bloque de Preguntas Clave: Usa el método helper
         if (investigation.keyQuestions.isNotEmpty) ...[
           _buildSectionHeader('Key Questions', fontSize: 16),
           pw.SizedBox(height: 10),
-          pw.BulletList(
-            investigation.keyQuestions.map((q) => pw.Text(q)).toList(),
-          ),
+          _buildBulletList(investigation.keyQuestions),
         ],
       ],
     );
@@ -650,5 +652,39 @@ class ReportGenerationService {
     final filename = '${name.replaceAll(' ', '_')}_$timestamp.pdf';
 
     return File('${reportsDir.path}/$filename');
+  }
+  
+  static pw.Widget _buildBulletList(List<String> items) {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: items.map((text) {
+        return pw.Padding(
+          // Espacio entre elementos de la lista
+          padding: const pw.EdgeInsets.only(bottom: 5), 
+          child: pw.Row(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              // La Viñeta (Bullet)
+              pw.Container(
+                width: 5,
+                height: 5,
+                margin: const pw.EdgeInsets.only(top: 5, right: 8),
+                decoration: const pw.BoxDecoration(
+                  color: PdfColors.black,
+                  shape: pw.BoxShape.circle,
+                ),
+              ),
+              // El Contenido del Texto
+              pw.Expanded(
+                child: pw.Text(
+                  text,
+                  style: const pw.TextStyle(fontSize: 12),
+                ),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
+    );
   }
 }

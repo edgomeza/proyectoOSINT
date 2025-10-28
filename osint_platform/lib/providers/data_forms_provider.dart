@@ -64,6 +64,10 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
           form,
     ];
   }
+
+  void update(DataForm cleaned) {}
+
+  void remove(String id) {}
 }
 
 // Provider de formularios de datos
