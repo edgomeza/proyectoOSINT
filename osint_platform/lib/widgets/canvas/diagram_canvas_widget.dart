@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:diagram_editor/diagram_editor.dart';
+import 'dart:math' as math;
 
 class DiagramCanvasWidget extends StatefulWidget {
   final Function(DiagramEditorContext)? onSave;
-  final DiagramEditorContext? initialContext;
 
   const DiagramCanvasWidget({
     super.key,
     this.onSave,
-    this.initialContext,
   });
 
   @override
@@ -16,7 +15,6 @@ class DiagramCanvasWidget extends StatefulWidget {
 }
 
 class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
-  late MyPolicySet myPolicySet;
   late DiagramEditorContext diagramEditorContext;
   NodeType _selectedNodeType = NodeType.rectangle;
   bool _showGrid = true;
@@ -25,9 +23,12 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   @override
   void initState() {
     super.initState();
-    myPolicySet = MyPolicySet();
-    diagramEditorContext = widget.initialContext ?? DiagramEditorContext(
-      policySet: myPolicySet,
+    diagramEditorContext = DiagramEditorContext(
+      policySet: MyPolicySet(
+        onColorSelected: () => _selectedColor,
+        onNodeTypeSelected: () => _selectedNodeType,
+        onShowGrid: () => _showGrid,
+      ),
     );
   }
 
@@ -39,23 +40,10 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
         Expanded(
           child: Container(
             decoration: BoxDecoration(
-              color: _showGrid
-                ? Colors.grey.shade50
-                : Colors.white,
+              color: _showGrid ? Colors.grey.shade50 : Colors.white,
             ),
-            child: Stack(
-              children: [
-                if (_showGrid) _buildGridBackground(),
-                DiagramEditor(
-                  diagramEditorContext: diagramEditorContext,
-                  componentDataBuilder: (componentData) {
-                    return _buildComponent(componentData);
-                  },
-                  linkDataBuilder: (linkData) {
-                    return _buildLink(linkData);
-                  },
-                ),
-              ],
+            child: DiagramEditor(
+              diagramEditorContext: diagramEditorContext,
             ),
           ),
         ),
@@ -91,7 +79,6 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   isActive: _selectedNodeType == NodeType.rectangle,
                   onPressed: () {
                     setState(() => _selectedNodeType = NodeType.rectangle);
-                    _addNode(NodeType.rectangle);
                   },
                 ),
                 _buildToolButton(
@@ -101,7 +88,6 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   isActive: _selectedNodeType == NodeType.circle,
                   onPressed: () {
                     setState(() => _selectedNodeType = NodeType.circle);
-                    _addNode(NodeType.circle);
                   },
                 ),
                 _buildToolButton(
@@ -111,7 +97,6 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   isActive: _selectedNodeType == NodeType.diamond,
                   onPressed: () {
                     setState(() => _selectedNodeType = NodeType.diamond);
-                    _addNode(NodeType.diamond);
                   },
                 ),
                 _buildToolButton(
@@ -121,7 +106,6 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   isActive: _selectedNodeType == NodeType.text,
                   onPressed: () {
                     setState(() => _selectedNodeType = NodeType.text);
-                    _addNode(NodeType.text);
                   },
                 ),
               ],
@@ -160,7 +144,8 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   icon: Icons.zoom_in,
                   label: 'Zoom In',
                   onPressed: () {
-                    diagramEditorContext.canvasModel.scale += 0.1;
+                    final currentScale = diagramEditorContext.canvasReader.state.scale;
+                    diagramEditorContext.canvasWriter.state.setScale(currentScale + 0.1);
                     setState(() {});
                   },
                 ),
@@ -169,8 +154,9 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   icon: Icons.zoom_out,
                   label: 'Zoom Out',
                   onPressed: () {
-                    if (diagramEditorContext.canvasModel.scale > 0.2) {
-                      diagramEditorContext.canvasModel.scale -= 0.1;
+                    final currentScale = diagramEditorContext.canvasReader.state.scale;
+                    if (currentScale > 0.2) {
+                      diagramEditorContext.canvasWriter.state.setScale(currentScale - 0.1);
                       setState(() {});
                     }
                   },
@@ -180,7 +166,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   icon: Icons.center_focus_strong,
                   label: 'Reset Zoom',
                   onPressed: () {
-                    diagramEditorContext.canvasModel.resetCanvasView();
+                    diagramEditorContext.canvasWriter.state.resetCanvasView();
                     setState(() {});
                   },
                 ),
@@ -293,7 +279,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: color.withOpacity(0.5),
+                      color: color.withValues(alpha: 0.5),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -305,152 +291,12 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
     );
   }
 
-  Widget _buildGridBackground() {
-    return CustomPaint(
-      painter: GridPainter(
-        gridColor: Colors.grey.shade300,
-      ),
-      size: Size.infinite,
-    );
-  }
-
-  Widget _buildComponent(ComponentData componentData) {
-    final nodeData = componentData.data as NodeData;
-
-    return GestureDetector(
-      onTap: () {
-        diagramEditorContext.model.selectComponent(componentData.id);
-        setState(() {});
-      },
-      child: Container(
-        decoration: BoxDecoration(
-          color: nodeData.color.withOpacity(0.1),
-          border: Border.all(
-            color: nodeData.color,
-            width: 2,
-          ),
-          borderRadius: nodeData.type == NodeType.rectangle
-              ? BorderRadius.circular(8)
-              : null,
-          shape: nodeData.type == NodeType.circle
-              ? BoxShape.circle
-              : BoxShape.rectangle,
-        ),
-        child: Stack(
-          children: [
-            // Node content
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Text(
-                  nodeData.text,
-                  style: TextStyle(
-                    color: nodeData.color,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ),
-            // Connection points
-            Positioned(
-              top: 0,
-              left: componentData.size.width / 2 - 4,
-              child: _buildConnectionPoint(componentData.id, Alignment.topCenter),
-            ),
-            Positioned(
-              bottom: 0,
-              left: componentData.size.width / 2 - 4,
-              child: _buildConnectionPoint(componentData.id, Alignment.bottomCenter),
-            ),
-            Positioned(
-              left: 0,
-              top: componentData.size.height / 2 - 4,
-              child: _buildConnectionPoint(componentData.id, Alignment.centerLeft),
-            ),
-            Positioned(
-              right: 0,
-              top: componentData.size.height / 2 - 4,
-              child: _buildConnectionPoint(componentData.id, Alignment.centerRight),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildConnectionPoint(String componentId, Alignment alignment) {
-    return GestureDetector(
-      onPanStart: (details) {
-        diagramEditorContext.model.startCreatingLink(componentId, alignment);
-      },
-      onPanUpdate: (details) {
-        diagramEditorContext.model.updateCreatingLink(details.globalPosition);
-      },
-      onPanEnd: (details) {
-        diagramEditorContext.model.endCreatingLink();
-      },
-      child: Container(
-        width: 8,
-        height: 8,
-        decoration: BoxDecoration(
-          color: Colors.blue,
-          shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 1),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLink(LinkData linkData) {
-    return CustomPaint(
-      painter: LinkPainter(
-        linkData: linkData,
-        context: diagramEditorContext,
-      ),
-    );
-  }
-
-  void _addNode(NodeType type) {
-    final String text;
-    switch (type) {
-      case NodeType.rectangle:
-        text = 'Process';
-        break;
-      case NodeType.circle:
-        text = 'Start/End';
-        break;
-      case NodeType.diamond:
-        text = 'Decision';
-        break;
-      case NodeType.text:
-        text = 'Note';
-        break;
-    }
-
-    final componentData = ComponentData(
-      size: type == NodeType.circle
-          ? const Size(100, 100)
-          : const Size(120, 60),
-      position: Offset(
-        100 + (diagramEditorContext.model.componentsMap.length * 20).toDouble(),
-        100 + (diagramEditorContext.model.componentsMap.length * 20).toDouble(),
-      ),
-      data: NodeData(
-        type: type,
-        text: text,
-        color: _selectedColor,
-      ),
-    );
-
-    diagramEditorContext.model.addComponent(componentData);
-    setState(() {});
-  }
-
   void _deleteSelected() {
-    final selectedIds = diagramEditorContext.model.selectedComponentIds.toList();
+    final selectedIds = List<String>.from(
+      diagramEditorContext.canvasReader.model.getSelectedComponentIds(),
+    );
     for (var id in selectedIds) {
-      diagramEditorContext.model.removeComponent(id);
+      diagramEditorContext.canvasWriter.model.removeComponent(id);
     }
     setState(() {});
   }
@@ -477,7 +323,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
           ),
           TextButton(
             onPressed: () {
-              diagramEditorContext.model.removeAllComponents();
+              diagramEditorContext.canvasWriter.model.removeAllComponents();
               setState(() {});
               Navigator.pop(context);
             },
@@ -489,37 +335,166 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   }
 }
 
-// Custom Policy Set
-class MyPolicySet extends PolicySet {
-  MyPolicySet() : super(
-    canvasPolicy: MyCanvasPolicy(),
-    componentPolicy: MyComponentPolicy(),
-    linkPolicy: MyLinkPolicy(),
-  );
+// Policy Set
+class MyPolicySet extends PolicySet
+    with
+        MyInitPolicy,
+        MyComponentDesignPolicy,
+        MyCanvasPolicy,
+        MyComponentPolicy,
+        CanvasControlPolicy,
+        LinkControlPolicy,
+        LinkJointControlPolicy,
+        LinkAttachmentRectPolicy {
+  final Color Function() onColorSelected;
+  final NodeType Function() onNodeTypeSelected;
+  final bool Function() onShowGrid;
+
+  MyPolicySet({
+    required this.onColorSelected,
+    required this.onNodeTypeSelected,
+    required this.onShowGrid,
+  });
 }
 
-class MyCanvasPolicy extends CanvasPolicy {
+// Init Policy
+mixin MyInitPolicy implements InitPolicy {
   @override
-  onCanvasTapUp(Offset position) {}
-
-  @override
-  onCanvasLongPress(Offset position) {}
+  initializeDiagramEditor() {
+    canvasWriter.state.setCanvasColor(Colors.white);
+  }
 }
 
-class MyComponentPolicy extends ComponentPolicy {
+// Canvas Policy - Handle canvas interactions
+mixin MyCanvasPolicy implements CanvasPolicy {
   @override
-  onComponentTap(String componentId) {}
+  onCanvasTapUp(TapUpDetails details) {
+    MyPolicySet policySet = this as MyPolicySet;
+    final nodeType = policySet.onNodeTypeSelected();
+    final color = policySet.onColorSelected();
 
-  @override
-  onComponentLongPress(String componentId) {}
+    final String text;
+    Size size;
+
+    switch (nodeType) {
+      case NodeType.rectangle:
+        text = 'Process';
+        size = const Size(120, 60);
+        break;
+      case NodeType.circle:
+        text = 'Start/End';
+        size = const Size(100, 100);
+        break;
+      case NodeType.diamond:
+        text = 'Decision';
+        size = const Size(120, 80);
+        break;
+      case NodeType.text:
+        text = 'Note';
+        size = const Size(100, 40);
+        break;
+    }
+
+    canvasWriter.model.addComponent(
+      ComponentData(
+        size: size,
+        position: canvasReader.state.fromCanvasCoordinates(details.localPosition),
+        data: NodeData(
+          type: nodeType,
+          text: text,
+          color: color,
+        ),
+      ),
+    );
+  }
 }
 
-class MyLinkPolicy extends LinkPolicy {
+// Component Policy - Handle component interactions
+mixin MyComponentPolicy implements ComponentPolicy {
   @override
-  onLinkTap(String linkId) {}
+  onComponentTap(String componentId) {
+    canvasWriter.model.unselectAllComponents();
+    canvasWriter.model.selectComponent(componentId);
+  }
 
   @override
-  onLinkLongPress(String linkId) {}
+  onComponentLongPress(String componentId) {
+    _showEditDialog(componentId);
+  }
+
+  void _showEditDialog(String componentId) {
+    final component = canvasReader.model.getComponent(componentId);
+    if (component == null) return;
+
+    final nodeData = component.data as NodeData;
+    final textController = TextEditingController(text: nodeData.text);
+
+    // Note: This requires a BuildContext. In a real implementation,
+    // you would need to pass context through the policy or use a different approach
+  }
+}
+
+// Component Design Policy
+mixin MyComponentDesignPolicy implements ComponentDesignPolicy {
+  @override
+  Widget showComponentBody(ComponentData componentData) {
+    final nodeData = componentData.data as NodeData;
+
+    Widget child = Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(
+          nodeData.text,
+          style: TextStyle(
+            color: nodeData.color,
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+          ),
+          textAlign: TextAlign.center,
+          maxLines: 3,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
+    );
+
+    switch (nodeData.type) {
+      case NodeType.rectangle:
+        return Container(
+          decoration: BoxDecoration(
+            color: nodeData.color.withValues(alpha: 0.1),
+            border: Border.all(color: nodeData.color, width: 2),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: child,
+        );
+
+      case NodeType.circle:
+        return Container(
+          decoration: BoxDecoration(
+            color: nodeData.color.withValues(alpha: 0.1),
+            border: Border.all(color: nodeData.color, width: 2),
+            shape: BoxShape.circle,
+          ),
+          child: child,
+        );
+
+      case NodeType.diamond:
+        return CustomPaint(
+          painter: DiamondPainter(color: nodeData.color),
+          child: child,
+        );
+
+      case NodeType.text:
+        return Container(
+          decoration: BoxDecoration(
+            color: Colors.yellow.shade100,
+            border: Border.all(color: Colors.grey.shade400, width: 1),
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: child,
+        );
+    }
+  }
 }
 
 // Node Data Model
@@ -542,88 +517,34 @@ enum NodeType {
   text,
 }
 
-// Grid Painter
-class GridPainter extends CustomPainter {
-  final Color gridColor;
-  final double gridSpacing;
+// Diamond Painter for diamond-shaped nodes
+class DiamondPainter extends CustomPainter {
+  final Color color;
 
-  GridPainter({
-    this.gridColor = Colors.grey,
-    this.gridSpacing = 20.0,
-  });
+  DiamondPainter({required this.color});
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = gridColor
-      ..strokeWidth = 1;
+      ..color = color.withValues(alpha: 0.1)
+      ..style = PaintingStyle.fill;
 
-    // Draw vertical lines
-    for (double x = 0; x < size.width; x += gridSpacing) {
-      canvas.drawLine(
-        Offset(x, 0),
-        Offset(x, size.height),
-        paint,
-      );
-    }
+    final borderPaint = Paint()
+      ..color = color
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
 
-    // Draw horizontal lines
-    for (double y = 0; y < size.height; y += gridSpacing) {
-      canvas.drawLine(
-        Offset(0, y),
-        Offset(size.width, y),
-        paint,
-      );
-    }
+    final path = Path()
+      ..moveTo(size.width / 2, 0) // Top
+      ..lineTo(size.width, size.height / 2) // Right
+      ..lineTo(size.width / 2, size.height) // Bottom
+      ..lineTo(0, size.height / 2) // Left
+      ..close();
+
+    canvas.drawPath(path, paint);
+    canvas.drawPath(path, borderPaint);
   }
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
-
-// Link Painter
-class LinkPainter extends CustomPainter {
-  final LinkData linkData;
-  final DiagramEditorContext context;
-
-  LinkPainter({
-    required this.linkData,
-    required this.context,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.blue
-      ..strokeWidth = 2
-      ..style = PaintingStyle.stroke;
-
-    final sourceComponent = context.model.getComponent(linkData.sourceComponentId);
-    final targetComponent = context.model.getComponent(linkData.targetComponentId);
-
-    if (sourceComponent != null && targetComponent != null) {
-      final sourcePoint = sourceComponent.position +
-          Offset(sourceComponent.size.width / 2, sourceComponent.size.height / 2);
-      final targetPoint = targetComponent.position +
-          Offset(targetComponent.size.width / 2, targetComponent.size.height / 2);
-
-      // Draw arrow
-      canvas.drawLine(sourcePoint, targetPoint, paint);
-
-      // Draw arrowhead
-      final angle = (targetPoint - sourcePoint).direction;
-      final arrowSize = 10.0;
-      final path = Path();
-      path.moveTo(targetPoint.dx, targetPoint.dy);
-      path.lineTo(
-        targetPoint.dx - arrowSize * (targetPoint.dx - sourcePoint.dx).sign,
-        targetPoint.dy - arrowSize * (targetPoint.dy - sourcePoint.dy).sign,
-      );
-
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
