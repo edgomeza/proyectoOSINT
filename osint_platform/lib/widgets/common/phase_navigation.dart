@@ -16,38 +16,9 @@ class PhaseNavigation extends ConsumerWidget {
   });
 
   bool _hasDataForPhase(InvestigationPhase phase, List<dynamic> forms) {
-    // Planning siempre tiene datos (los objetivos y preguntas)
-    if (phase == InvestigationPhase.planning) {
-      return true;
-    }
-
-    // Collection tiene datos si hay formularios en draft o en collection
-    if (phase == InvestigationPhase.collection) {
-      return forms.any((form) =>
-        form.status.index <= 1 // draft o inCollection
-      );
-    }
-
-    // Processing tiene datos si hay formularios en processing o reviewed
-    if (phase == InvestigationPhase.processing) {
-      return forms.any((form) =>
-        form.status.index >= 2 && form.status.index <= 3 // inProcessing o reviewed
-      );
-    }
-
-    // Analysis tiene datos si hay formularios enviados a ES
-    if (phase == InvestigationPhase.analysis) {
-      return forms.any((form) =>
-        form.status.index >= 4 // sentToES
-      );
-    }
-
-    // Reports siempre está disponible si hay datos en cualquier fase
-    if (phase == InvestigationPhase.reports) {
-      return forms.isNotEmpty;
-    }
-
-    return false;
+    // Todas las fases están siempre disponibles para permitir acceso completo
+    // sin restricciones de datos
+    return true;
   }
 
   @override

@@ -3,8 +3,8 @@ import 'package:go_router/go_router.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/planning/planning_screen.dart';
 import '../screens/collection/collection_screen.dart';
-import '../screens/processing/processing_screen.dart';
-import '../screens/analysis/analysis_screen.dart';
+import '../screens/processing/processing_screen_redesigned.dart';
+import '../screens/analysis/analysis_screen_redesigned.dart';
 import '../screens/reports/reports_screen.dart';
 
 final GoRouter appRouter = GoRouter(
@@ -37,7 +37,7 @@ final GoRouter appRouter = GoRouter(
       name: 'processing',
       builder: (context, state) {
         final id = state.pathParameters['id']!;
-        return ProcessingScreen(investigationId: id);
+        return ProcessingScreenRedesigned(investigationId: id);
       },
     ),
     GoRoute(
@@ -45,7 +45,7 @@ final GoRouter appRouter = GoRouter(
       name: 'analysis',
       builder: (context, state) {
         final id = state.pathParameters['id']!;
-        return AnalysisScreen(investigationId: id);
+        return AnalysisScreenRedesigned(investigationId: id);
       },
     ),
     GoRoute(
