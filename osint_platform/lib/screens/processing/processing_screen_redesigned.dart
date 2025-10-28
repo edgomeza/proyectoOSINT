@@ -5,7 +5,6 @@ import '../../widgets/common/navigation_drawer.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../models/investigation_phase.dart';
 import '../../providers/investigations_provider.dart';
-import '../../widgets/processing/data_validation_widget.dart';
 import '../../widgets/processing/deduplication_widget.dart';
 import '../../widgets/processing/entity_linking_widget.dart';
 import '../../widgets/processing/ner_extraction_widget.dart';
@@ -31,7 +30,7 @@ class _ProcessingScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
   }
 
   @override
@@ -97,7 +96,6 @@ class _ProcessingScreenRedesignedState
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.verified), text: 'Validation'),
             Tab(icon: Icon(Icons.content_copy), text: 'Deduplication'),
             Tab(icon: Icon(Icons.psychology), text: 'NER Extraction'),
             Tab(icon: Icon(Icons.link), text: 'Entity Linking'),
@@ -108,14 +106,6 @@ class _ProcessingScreenRedesignedState
       body: TabBarView(
         controller: _tabController,
         children: [
-          // Validation Tab
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: DataValidationWidget(
-              investigationId: widget.investigationId,
-            ),
-          ),
-
           // Deduplication Tab
           Padding(
             padding: const EdgeInsets.all(16),
@@ -159,11 +149,10 @@ class _ProcessingScreenRedesignedState
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'The Processing screen helps you clean, validate, and organize your collected data:',
+                'The Processing screen helps you organize and analyze your collected data:',
                 style: TextStyle(fontWeight: FontWeight.bold),
               ),
               SizedBox(height: 16),
-              Text('• Validation: Check and clean data quality'),
               Text('• Deduplication: Find and merge duplicate records'),
               Text('• NER Extraction: Extract entities from text using AI'),
               Text('• Entity Linking: Convert forms to entities and create relationships'),
@@ -174,22 +163,17 @@ class _ProcessingScreenRedesignedState
               ),
               SizedBox(height: 8),
               Text(
-                '1. Validation: Validates data formats, cleans HTML, standardizes dates/phones/emails',
+                '1. Deduplication: Uses AI to find similar records and suggests merging strategies',
                 style: TextStyle(fontSize: 12),
               ),
               SizedBox(height: 4),
               Text(
-                '2. Deduplication: Uses AI to find similar records and suggests merging strategies',
+                '2. NER Extraction: Extract people, organizations, locations, emails, and more from text',
                 style: TextStyle(fontSize: 12),
               ),
               SizedBox(height: 4),
               Text(
-                '3. NER Extraction: Extract people, organizations, locations, emails, and more from text',
-                style: TextStyle(fontSize: 12),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '4. Entity Linking: Create graph entities and relationships for analysis',
+                '3. Entity Linking: Create graph entities and relationships for analysis',
                 style: TextStyle(fontSize: 12),
               ),
               SizedBox(height: 16),
