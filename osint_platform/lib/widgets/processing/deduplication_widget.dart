@@ -459,11 +459,14 @@ class _MergeDialogState extends State<_MergeDialog> {
             const Text('Select merge strategy:'),
             const SizedBox(height: 12),
             ...MergeStrategy.values.map((strategy) {
+              // ignore: deprecated_member_use
               return RadioListTile<MergeStrategy>(
                 title: Text(_getStrategyName(strategy)),
                 subtitle: Text(_getStrategyDescription(strategy)),
                 value: strategy,
+                // ignore: deprecated_member_use
                 groupValue: _strategy,
+                // ignore: deprecated_member_use
                 onChanged: (value) {
                   setState(() => _strategy = value!);
                 },
