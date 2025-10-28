@@ -361,7 +361,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                       labelText: 'Entity Type',
                       border: OutlineInputBorder(),
                     ),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: EntityNodeType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -382,7 +382,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                       labelText: 'Risk Level',
                       border: OutlineInputBorder(),
                     ),
-                    value: selectedRiskLevel,
+                    initialValue: selectedRiskLevel,
                     items: RiskLevel.values.map((risk) {
                       return DropdownMenuItem(
                         value: risk,

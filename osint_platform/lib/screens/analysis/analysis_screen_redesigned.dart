@@ -4,6 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../widgets/common/navigation_drawer.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../models/investigation_phase.dart';
+import '../../models/entity_node.dart';
+import '../../models/timeline_event.dart';
+import '../../models/geo_location.dart';
 import '../../providers/investigations_provider.dart';
 import '../../providers/graph_provider.dart';
 import '../../providers/timeline_provider.dart';
@@ -444,7 +447,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: EntityNodeType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -464,7 +467,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.warning),
                     ),
-                    value: selectedRiskLevel,
+                    initialValue: selectedRiskLevel,
                     items: RiskLevel.values.map((risk) {
                       return DropdownMenuItem(
                         value: risk,
@@ -605,7 +608,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: TimelineEventType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -625,7 +628,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.priority_high),
                     ),
-                    value: selectedPriority,
+                    initialValue: selectedPriority,
                     items: EventPriority.values.map((priority) {
                       return DropdownMenuItem(
                         value: priority,
@@ -794,7 +797,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
-                    value: selectedType,
+                    initialValue: selectedType,
                     items: LocationType.values.map((type) {
                       return DropdownMenuItem(
                         value: type,
@@ -814,7 +817,7 @@ class _AnalysisScreenRedesignedState
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.warning),
                     ),
-                    value: selectedRisk,
+                    initialValue: selectedRisk,
                     items: LocationRisk.values.map((risk) {
                       return DropdownMenuItem(
                         value: risk,
