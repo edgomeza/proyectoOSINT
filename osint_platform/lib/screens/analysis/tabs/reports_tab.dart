@@ -60,7 +60,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                 'Complete report with all entities, relationships, timeline, and geographic data',
             icon: Icons.description,
             color: Colors.blue,
-            onGenerate: () => _generateFullReport(context),
+            onGenerate: _generateFullReport,
           ),
           const SizedBox(height: 12),
           _buildReportCard(
@@ -69,7 +69,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
             description: 'Concise overview with key statistics and highlights',
             icon: Icons.summarize,
             color: Colors.green,
-            onGenerate: () => _generateSummaryReport(context),
+            onGenerate: _generateSummaryReport,
           ),
           const SizedBox(height: 12),
           _buildReportCard(
@@ -256,7 +256,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     );
   }
 
-  Future<void> _generateFullReport(BuildContext context) async {
+  Future<void> _generateFullReport() async {
     setState(() => _isGenerating = true);
 
     try {
@@ -309,7 +309,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     }
   }
 
-  Future<void> _generateSummaryReport(BuildContext context) async {
+  Future<void> _generateSummaryReport() async {
     setState(() => _isGenerating = true);
 
     try {

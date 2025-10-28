@@ -453,11 +453,14 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // ignore: deprecated_member_use
             RadioListTile<SortOption>(
               title: const Text('Prioridad Inteligente'),
               subtitle: const Text('Algoritmo de priorización automática'),
               value: SortOption.smartPriority,
+              // ignore: deprecated_member_use
               groupValue: _sortOption,
+              // ignore: deprecated_member_use
               onChanged: (value) {
                 setState(() {
                   _sortOption = value!;
@@ -465,11 +468,14 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
                 Navigator.pop(context);
               },
             ),
+            // ignore: deprecated_member_use
             RadioListTile<SortOption>(
               title: const Text('Fecha de actualización'),
               subtitle: const Text('Más recientes primero'),
               value: SortOption.date,
+              // ignore: deprecated_member_use
               groupValue: _sortOption,
+              // ignore: deprecated_member_use
               onChanged: (value) {
                 setState(() {
                   _sortOption = value!;
@@ -477,11 +483,14 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
                 Navigator.pop(context);
               },
             ),
+            // ignore: deprecated_member_use
             RadioListTile<SortOption>(
               title: const Text('Completitud'),
               subtitle: const Text('Más completos primero'),
               value: SortOption.completeness,
+              // ignore: deprecated_member_use
               groupValue: _sortOption,
+              // ignore: deprecated_member_use
               onChanged: (value) {
                 setState(() {
                   _sortOption = value!;
@@ -489,11 +498,14 @@ class _ProcessingScreenState extends ConsumerState<ProcessingScreen> {
                 Navigator.pop(context);
               },
             ),
+            // ignore: deprecated_member_use
             RadioListTile<SortOption>(
               title: const Text('Categoría'),
               subtitle: const Text('Agrupados por tipo'),
               value: SortOption.category,
+              // ignore: deprecated_member_use
               groupValue: _sortOption,
+              // ignore: deprecated_member_use
               onChanged: (value) {
                 setState(() {
                   _sortOption = value!;
