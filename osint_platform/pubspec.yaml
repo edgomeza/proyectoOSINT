@@ -65,8 +65,8 @@ dependencies:
   # Timeline
   timeline_tile: ^2.0.0
 
-  # Drawing/Canvas
-  flutter_painter_v2: ^2.1.0+1
+  # Diagram Editor
+  diagram_editor: ^0.1.4
 
   # PDF Generation
   pdf: ^3.11.1
