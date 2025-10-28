@@ -221,6 +221,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
               ? Center(
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Icon(
                         Icons.hub_outlined,
@@ -235,6 +236,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.outline,
                         ),
+                        textAlign: TextAlign.center,
                       ),
                     ],
                   ),
