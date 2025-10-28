@@ -465,6 +465,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           padding: const EdgeInsets.only(bottom: 16),
           child: DataFormCard(
             form: form,
+            onTap: () => _showFormDetailsDialog(form),
+            onEdit: () => _showEditFormDialog(form),
             onDelete: () {
               ref.read(dataFormsProvider.notifier).removeDataForm(form.id);
               ScaffoldMessenger.of(context).showSnackBar(
@@ -483,16 +485,168 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                   duration: Duration(seconds: 2),
                 ),
               );
-              // Navegar automáticamente a processing
-              Future.delayed(const Duration(milliseconds: 500), () {
-                if (context.mounted) {
-                  context.go('/investigation/${widget.investigationId}/processing');
-                }
-              });
             },
           ),
         );
       },
+    );
+  }
+
+  void _showFormDetailsDialog(DataForm form) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(form.category.displayName),
+        content: SizedBox(
+          width: 500,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Detalles del formulario',
+                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 16),
+                ...form.fields.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          entry.key,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.surface,
+                            border: Border.all(
+                              color: Theme.of(context).dividerColor,
+                            ),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Text(
+                            entry.value?.toString() ?? '(vacío)',
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }),
+              ],
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cerrar'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEditFormDialog(DataForm form) {
+    final editControllers = <String, TextEditingController>{};
+
+    // Crear controladores para cada campo existente
+    for (var entry in form.fields.entries) {
+      editControllers[entry.key] = TextEditingController(
+        text: entry.value?.toString() ?? '',
+      );
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Editar ${form.category.displayName}'),
+        content: SizedBox(
+          width: 500,
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: form.fields.entries.map((entry) {
+                final controller = editControllers[entry.key]!;
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: TextField(
+                    controller: controller,
+                    decoration: InputDecoration(
+                      labelText: entry.key,
+                      border: const OutlineInputBorder(),
+                    ),
+                    maxLines: null,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              for (var controller in editControllers.values) {
+                controller.dispose();
+              }
+              Navigator.pop(context);
+            },
+            child: const Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              // Recopilar datos editados
+              final updatedFields = <String, dynamic>{};
+              for (var entry in editControllers.entries) {
+                updatedFields[entry.key] = entry.value.text;
+              }
+
+              // Crear formulario actualizado
+              final updatedForm = DataForm(
+                id: form.id,
+                investigationId: form.investigationId,
+                category: form.category,
+                fields: updatedFields,
+                status: form.status,
+                createdAt: form.createdAt,
+                confidence: form.confidence,
+                notes: form.notes,
+                tags: form.tags,
+              );
+
+              // Actualizar en el provider
+              ref.read(dataFormsProvider.notifier).update(updatedForm);
+
+              // Limpiar controladores
+              for (var controller in editControllers.values) {
+                controller.dispose();
+              }
+
+              Navigator.pop(context);
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Formulario actualizado exitosamente'),
+                  backgroundColor: Colors.green,
+                ),
+              );
+            },
+            child: const Text('Guardar'),
+          ),
+        ],
+      ),
     );
   }
 }

@@ -225,15 +225,16 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     children: [
                       Icon(
                         Icons.hub_outlined,
-                        size: 64,
+                        size: 48,
                         color: Theme.of(context).colorScheme.outline,
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       const Text('No entities yet'),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 4),
                       Text(
                         'Convert data forms to entities to get started',
                         style: TextStyle(
+                          fontSize: 12,
                           color: Theme.of(context).colorScheme.outline,
                         ),
                         textAlign: TextAlign.center,
@@ -324,31 +325,178 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
   }
 
   void _convertToEntity(BuildContext context, DataForm form) {
-    final label = form.fields['name']?.toString() ?? 'Unnamed Entity';
-
-    final node = EntityNode(
-      label: label,
-      type: _mapCategoryToEntityType(form.category),
-      confidence: form.confidence,
-      description: form.notes,
-      tags: form.tags,
-      attributes: {
-        ...form.fields,
-        'investigationId': widget.investigationId,
-        'sourceFormId': form.id,
-      },
+    final nameController = TextEditingController(
+      text: form.fields['name']?.toString() ?? form.fields['nombre']?.toString() ?? '',
     );
+    final descriptionController = TextEditingController(
+      text: form.notes ?? '',
+    );
+    EntityNodeType selectedType = _mapCategoryToEntityType(form.category);
+    RiskLevel selectedRiskLevel = RiskLevel.medium;
 
-    ref.read(entityNodesProvider.notifier).addNode(node);
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Create Entity from Form'),
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Entity Name *',
+                      hintText: 'Enter a name for this entity',
+                      border: OutlineInputBorder(),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<EntityNodeType>(
+                    decoration: const InputDecoration(
+                      labelText: 'Entity Type',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: selectedType,
+                    items: EntityNodeType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          selectedType = value;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<RiskLevel>(
+                    decoration: const InputDecoration(
+                      labelText: 'Risk Level',
+                      border: OutlineInputBorder(),
+                    ),
+                    value: selectedRiskLevel,
+                    items: RiskLevel.values.map((risk) {
+                      return DropdownMenuItem(
+                        value: risk,
+                        child: Text(risk.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() {
+                          selectedRiskLevel = value;
+                        });
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Optional description',
+                      border: OutlineInputBorder(),
+                    ),
+                    maxLines: 3,
+                  ),
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Form Data (${form.fields.length} fields)',
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 8),
+                  ...form.fields.entries.take(3).map((entry) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 4),
+                      child: Text(
+                        '${entry.key}: ${entry.value}',
+                        style: const TextStyle(fontSize: 12),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    );
+                  }),
+                  if (form.fields.length > 3)
+                    Text(
+                      '... and ${form.fields.length - 3} more fields',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Theme.of(context).colorScheme.outline,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                nameController.dispose();
+                descriptionController.dispose();
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                final entityName = nameController.text.trim();
+                if (entityName.isEmpty) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter an entity name'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Entity "$label" created successfully'),
-        backgroundColor: Colors.green,
+                final node = EntityNode(
+                  label: entityName,
+                  type: selectedType,
+                  riskLevel: selectedRiskLevel,
+                  confidence: form.confidence,
+                  description: descriptionController.text.trim(),
+                  tags: form.tags,
+                  attributes: {
+                    ...form.fields,
+                    'investigationId': widget.investigationId,
+                    'sourceFormId': form.id,
+                  },
+                );
+
+                ref.read(entityNodesProvider.notifier).addNode(node);
+
+                nameController.dispose();
+                descriptionController.dispose();
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text('Entity "$entityName" created successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+
+                setState(() => _selectedForm = null);
+              },
+              child: const Text('Create Entity'),
+            ),
+          ],
+        ),
       ),
     );
-
-    setState(() => _selectedForm = null);
   }
 
   EntityNodeType _mapCategoryToEntityType(DataFormCategory category) {
