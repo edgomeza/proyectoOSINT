@@ -258,7 +258,7 @@ class OverviewTab extends ConsumerWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    investigation.status.name.toUpperCase(),
+                    investigation.status.displayName.toUpperCase(),
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,

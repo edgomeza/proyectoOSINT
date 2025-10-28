@@ -220,7 +220,7 @@ class ReportGenerationService {
             ),
             pw.SizedBox(height: 10),
             pw.Text(
-              'Status: ${investigation.status.name.toUpperCase()}',
+              'Status: ${investigation.status.displayName.toUpperCase()}',
               style: const pw.TextStyle(
                 fontSize: 14,
                 color: PdfColors.white,
@@ -313,8 +313,8 @@ class ReportGenerationService {
         _buildDetailRow('Name', investigation.name),
         _buildDetailRow('Created', dateFormat.format(investigation.createdAt)),
         _buildDetailRow('Last Updated', dateFormat.format(investigation.updatedAt)),
-        _buildDetailRow('Current Phase', investigation.currentPhase.name),
-        _buildDetailRow('Status', investigation.status.name),
+        _buildDetailRow('Current Phase', investigation.currentPhase.displayName),
+        _buildDetailRow('Status', investigation.status.displayName),
         _buildDetailRow('Completeness', '${(investigation.completeness * 100).toInt()}%'),
       ],
     );
