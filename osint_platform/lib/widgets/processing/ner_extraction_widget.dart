@@ -31,7 +31,9 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
 
   Future<void> _checkServiceHealth() async {
     final isAvailable = await _nerService.checkHealth();
-    setState(() => _isServiceAvailable = isAvailable);
+    if (mounted) {
+      setState(() => _isServiceAvailable = isAvailable);
+    }
   }
 
   Future<void> _extractEntities() async {
@@ -45,12 +47,16 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
     try {
       final result = await _nerService.extractEntities(_textController.text);
 
-      setState(() {
-        _result = result;
-        _isProcessing = false;
-      });
+      if (mounted) {
+        setState(() {
+          _result = result;
+          _isProcessing = false;
+        });
+      }
     } catch (e) {
-      setState(() => _isProcessing = false);
+      if (mounted) {
+        setState(() => _isProcessing = false);
+      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

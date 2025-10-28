@@ -17,6 +17,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   late DiagramEditorContext diagramEditorContext;
   NodeType _selectedNodeType = NodeType.rectangle;
   Color _selectedColor = Colors.blue;
+  bool _isLinkingMode = false;
 
   @override
   void initState() {
@@ -25,8 +26,50 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
       policySet: MyPolicySet(
         onColorSelected: () => _selectedColor,
         onNodeTypeSelected: () => _selectedNodeType,
+        onEditNodeText: _editNodeText,
       ),
     );
+  }
+
+  Future<void> _editNodeText(String componentId, String currentText) async {
+    final controller = TextEditingController(text: currentText);
+
+    final result = await showDialog<String>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Edit Node Text'),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            labelText: 'Text',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+          maxLines: 3,
+          onSubmitted: (value) => Navigator.of(context).pop(value),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.of(context).pop(controller.text),
+            child: const Text('Save'),
+          ),
+        ],
+      ),
+    );
+
+    if (result != null && result.isNotEmpty) {
+      final component = diagramEditorContext.model.getComponent(componentId);
+      if (component != null) {
+        final nodeData = component.data as NodeData;
+        nodeData.text = result;
+        diagramEditorContext.model.updateComponent(componentId);
+        setState(() {});
+      }
+    }
   }
 
   @override
@@ -129,6 +172,23 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
               context,
               title: 'Actions',
               children: [
+                _buildToolButton(
+                  context,
+                  icon: Icons.link,
+                  label: 'Connect Nodes (Click two nodes to connect)',
+                  isActive: _isLinkingMode,
+                  onPressed: () {
+                    setState(() => _isLinkingMode = !_isLinkingMode);
+                    if (_isLinkingMode) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Linking mode: Click two nodes to connect them with an arrow'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    }
+                  },
+                ),
                 _buildToolButton(
                   context,
                   icon: Icons.save,
@@ -250,10 +310,12 @@ class MyPolicySet extends PolicySet
         LinkAttachmentRectPolicy {
   final Color Function() onColorSelected;
   final NodeType Function() onNodeTypeSelected;
+  final Function(String, String) onEditNodeText;
 
   MyPolicySet({
     required this.onColorSelected,
     required this.onNodeTypeSelected,
+    required this.onEditNodeText,
   });
 }
 
@@ -315,6 +377,16 @@ mixin MyComponentPolicy implements ComponentPolicy {
   onComponentTap(String componentId) {
     // Component tap is handled by the CanvasControlPolicy
     // which provides default selection behavior
+  }
+
+  @override
+  onComponentDoubleTap(String componentId) {
+    MyPolicySet policySet = this as MyPolicySet;
+    final component = canvasReader.model.getComponent(componentId);
+    if (component != null) {
+      final nodeData = component.data as NodeData;
+      policySet.onEditNodeText(componentId, nodeData.text);
+    }
   }
 }
 

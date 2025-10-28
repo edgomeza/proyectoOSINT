@@ -12,7 +12,7 @@ import '../../widgets/graph/interactive_graph_widget.dart';
 import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
-import 'tabs/analysis_tools_tab.dart';
+import 'tabs/advanced_search_tab.dart';
 import 'tabs/reports_tab.dart';
 import '../../widgets/canvas/diagram_canvas_widget.dart';
 
@@ -164,7 +164,7 @@ class _AnalysisScreenRedesignedState
             Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
             Tab(icon: Icon(Icons.map), text: 'Map'),
             Tab(icon: Icon(Icons.draw), text: 'Canvas'),
-            Tab(icon: Icon(Icons.analytics), text: 'Tools'),
+            Tab(icon: Icon(Icons.search), text: 'Search'),
             Tab(icon: Icon(Icons.description), text: 'Reports'),
           ],
         ),
@@ -198,8 +198,8 @@ class _AnalysisScreenRedesignedState
           // Canvas Tab
           const DiagramCanvasWidget(),
 
-          // Analysis Tools Tab
-          AnalysisToolsTab(investigationId: widget.investigationId),
+          // Advanced Search Tab
+          AdvancedSearchTab(investigationId: widget.investigationId),
 
           // Reports Tab
           ReportsTab(investigationId: widget.investigationId),
@@ -409,28 +409,569 @@ class _AnalysisScreenRedesignedState
   }
 
   void _showAddNodeDialog(BuildContext context) {
-    // Placeholder - will be implemented with entity creation form
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Entity creation form - to be implemented'),
+    final nameController = TextEditingController();
+    final descriptionController = TextEditingController();
+    EntityNodeType selectedType = EntityNodeType.person;
+    RiskLevel selectedRiskLevel = RiskLevel.medium;
+    double selectedConfidence = 0.8;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add New Entity'),
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Entity Name *',
+                      hintText: 'Enter entity name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.person),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<EntityNodeType>(
+                    decoration: const InputDecoration(
+                      labelText: 'Entity Type',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.category),
+                    ),
+                    value: selectedType,
+                    items: EntityNodeType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedType = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<RiskLevel>(
+                    decoration: const InputDecoration(
+                      labelText: 'Risk Level',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.warning),
+                    ),
+                    value: selectedRiskLevel,
+                    items: RiskLevel.values.map((risk) {
+                      return DropdownMenuItem(
+                        value: risk,
+                        child: Text(risk.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedRiskLevel = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Confidence: ${(selectedConfidence * 100).toInt()}%',
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      Slider(
+                        value: selectedConfidence,
+                        min: 0.0,
+                        max: 1.0,
+                        divisions: 10,
+                        label: '${(selectedConfidence * 100).toInt()}%',
+                        onChanged: (value) {
+                          setDialogState(() => selectedConfidence = value);
+                        },
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Optional description',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                nameController.dispose();
+                descriptionController.dispose();
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter an entity name'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final node = EntityNode(
+                  label: name,
+                  type: selectedType,
+                  riskLevel: selectedRiskLevel,
+                  confidence: selectedConfidence,
+                  description: descriptionController.text.trim(),
+                  attributes: {
+                    'investigationId': widget.investigationId,
+                    'createdManually': true,
+                  },
+                );
+
+                ref.read(entityNodesProvider.notifier).addNode(node);
+
+                nameController.dispose();
+                descriptionController.dispose();
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text('Entity "$name" added successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add Entity'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showAddEventDialog(BuildContext context) {
-    // Placeholder - will be implemented with event creation form
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Event creation form - to be implemented'),
+    final titleController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final locationController = TextEditingController();
+    DateTime selectedDate = DateTime.now();
+    TimelineEventType selectedType = TimelineEventType.general;
+    EventPriority selectedPriority = EventPriority.medium;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add New Event'),
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: titleController,
+                    decoration: const InputDecoration(
+                      labelText: 'Event Title *',
+                      hintText: 'Enter event title',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.title),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<TimelineEventType>(
+                    decoration: const InputDecoration(
+                      labelText: 'Event Type',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.category),
+                    ),
+                    value: selectedType,
+                    items: TimelineEventType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedType = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<EventPriority>(
+                    decoration: const InputDecoration(
+                      labelText: 'Priority',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.priority_high),
+                    ),
+                    value: selectedPriority,
+                    items: EventPriority.values.map((priority) {
+                      return DropdownMenuItem(
+                        value: priority,
+                        child: Text(priority.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedPriority = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  ListTile(
+                    contentPadding: EdgeInsets.zero,
+                    leading: const Icon(Icons.calendar_today),
+                    title: const Text('Date & Time'),
+                    subtitle: Text(
+                      '${selectedDate.day}/${selectedDate.month}/${selectedDate.year} ${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}',
+                    ),
+                    trailing: const Icon(Icons.edit),
+                    onTap: () async {
+                      final date = await showDatePicker(
+                        context: dialogContext,
+                        initialDate: selectedDate,
+                        firstDate: DateTime(2000),
+                        lastDate: DateTime(2100),
+                      );
+                      if (date != null) {
+                        final time = await showTimePicker(
+                          context: dialogContext,
+                          initialTime: TimeOfDay.fromDateTime(selectedDate),
+                        );
+                        if (time != null) {
+                          setDialogState(() {
+                            selectedDate = DateTime(
+                              date.year,
+                              date.month,
+                              date.day,
+                              time.hour,
+                              time.minute,
+                            );
+                          });
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  TextField(
+                    controller: locationController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location',
+                      hintText: 'Optional location',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.location_on),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Optional description',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                titleController.dispose();
+                descriptionController.dispose();
+                locationController.dispose();
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                final title = titleController.text.trim();
+                if (title.isEmpty) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter an event title'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final event = TimelineEvent(
+                  title: title,
+                  timestamp: selectedDate,
+                  type: selectedType,
+                  priority: selectedPriority,
+                  description: descriptionController.text.trim(),
+                  location: locationController.text.trim().isEmpty
+                      ? null
+                      : locationController.text.trim(),
+                  investigationId: widget.investigationId,
+                );
+
+                ref.read(timelineEventsProvider.notifier).addEvent(event);
+
+                titleController.dispose();
+                descriptionController.dispose();
+                locationController.dispose();
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text('Event "$title" added successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add Event'),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   void _showAddLocationDialog(BuildContext context) {
-    // Placeholder - will be implemented with location creation form
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Location creation form - to be implemented'),
+    final nameController = TextEditingController();
+    final addressController = TextEditingController();
+    final descriptionController = TextEditingController();
+    final latController = TextEditingController();
+    final lonController = TextEditingController();
+    LocationType selectedType = LocationType.poi;
+    LocationRisk selectedRisk = LocationRisk.medium;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Add New Location'),
+          content: SizedBox(
+            width: 500,
+            child: SingleChildScrollView(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextField(
+                    controller: nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Location Name *',
+                      hintText: 'Enter location name',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.place),
+                    ),
+                    autofocus: true,
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<LocationType>(
+                    decoration: const InputDecoration(
+                      labelText: 'Location Type',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.category),
+                    ),
+                    value: selectedType,
+                    items: LocationType.values.map((type) {
+                      return DropdownMenuItem(
+                        value: type,
+                        child: Text(type.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedType = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  DropdownButtonFormField<LocationRisk>(
+                    decoration: const InputDecoration(
+                      labelText: 'Risk Level',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.warning),
+                    ),
+                    value: selectedRisk,
+                    items: LocationRisk.values.map((risk) {
+                      return DropdownMenuItem(
+                        value: risk,
+                        child: Text(risk.displayName),
+                      );
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        setDialogState(() => selectedRisk = value);
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: TextField(
+                          controller: latController,
+                          decoration: const InputDecoration(
+                            labelText: 'Latitude *',
+                            hintText: 'e.g. 40.7128',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.location_searching),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: TextField(
+                          controller: lonController,
+                          decoration: const InputDecoration(
+                            labelText: 'Longitude *',
+                            hintText: 'e.g. -74.0060',
+                            border: OutlineInputBorder(),
+                            prefixIcon: Icon(Icons.location_searching),
+                          ),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                            signed: true,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: addressController,
+                    decoration: const InputDecoration(
+                      labelText: 'Address',
+                      hintText: 'Optional street address',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.home),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: descriptionController,
+                    decoration: const InputDecoration(
+                      labelText: 'Description',
+                      hintText: 'Optional description',
+                      border: OutlineInputBorder(),
+                      prefixIcon: Icon(Icons.description),
+                    ),
+                    maxLines: 3,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                nameController.dispose();
+                addressController.dispose();
+                descriptionController.dispose();
+                latController.dispose();
+                lonController.dispose();
+                Navigator.pop(context);
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                final name = nameController.text.trim();
+                if (name.isEmpty) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter a location name'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final lat = double.tryParse(latController.text.trim());
+                final lon = double.tryParse(lonController.text.trim());
+
+                if (lat == null || lon == null) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Please enter valid coordinates'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
+                  ScaffoldMessenger.of(dialogContext).showSnackBar(
+                    const SnackBar(
+                      content: Text('Coordinates out of valid range'),
+                      backgroundColor: Colors.orange,
+                    ),
+                  );
+                  return;
+                }
+
+                final location = GeoLocation(
+                  name: name,
+                  latitude: lat,
+                  longitude: lon,
+                  type: selectedType,
+                  risk: selectedRisk,
+                  address: addressController.text.trim().isEmpty
+                      ? null
+                      : addressController.text.trim(),
+                  description: descriptionController.text.trim().isEmpty
+                      ? null
+                      : descriptionController.text.trim(),
+                  investigationId: widget.investigationId,
+                );
+
+                ref.read(geoLocationsProvider.notifier).addLocation(location);
+
+                nameController.dispose();
+                addressController.dispose();
+                descriptionController.dispose();
+                latController.dispose();
+                lonController.dispose();
+                Navigator.pop(dialogContext);
+
+                ScaffoldMessenger.of(this.context).showSnackBar(
+                  SnackBar(
+                    content: Text('Location "$name" added successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Add Location'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -495,7 +1036,7 @@ class _AnalysisScreenRedesignedState
               Text('• Timeline: Chronological events'),
               Text('• Map: Geographic analysis with heatmaps'),
               Text('• Canvas: Custom diagrams and flowcharts'),
-              Text('• Tools: Advanced analysis algorithms'),
+              Text('• Search: Advanced search across all data'),
               Text('• Reports: Generate and export reports'),
               SizedBox(height: 16),
               Text(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:osint_platform/models/investigation_phase.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/common/theme_toggle_button.dart';
+import '../../widgets/common/language_selector.dart';
 import '../../widgets/common/elk_services_indicator.dart';
 import '../../models/investigation.dart';
 import '../../models/investigation_status.dart';
@@ -65,6 +66,8 @@ class HomeScreen extends ConsumerWidget {
         actions: [
           const ELKServicesIndicator(),
           const SizedBox(width: 12),
+          const LanguageSelector(),
+          const SizedBox(width: 8),
           const ThemeToggleButton(),
           const SizedBox(width: 8),
         ],

@@ -253,7 +253,7 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 12),
 
         // Forms List
         Text(
@@ -266,7 +266,14 @@ class _DataValidationWidgetState extends ConsumerState<DataValidationWidget> {
 
         Expanded(
           child: forms.isEmpty
-              ? const Center(child: Text('No forms to validate'))
+              ? Center(
+                  child: Text(
+                    'No forms to validate',
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+                  ),
+                )
               : ListView.builder(
                   itemCount: forms.length,
                   itemBuilder: (context, index) {
