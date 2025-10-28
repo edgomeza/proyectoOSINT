@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_painter_v2/flutter_painter.dart';
+import 'package:diagram_editor/diagram_editor.dart';
 
 class DiagramCanvasWidget extends StatefulWidget {
-  final Function(PainterController)? onSave;
-  final PainterController? initialController;
+  final Function(DiagramEditorContext)? onSave;
+  final DiagramEditorContext? initialContext;
 
   const DiagramCanvasWidget({
     super.key,
     this.onSave,
-    this.initialController,
+    this.initialContext,
   });
 
   @override
@@ -16,48 +16,19 @@ class DiagramCanvasWidget extends StatefulWidget {
 }
 
 class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
-  late PainterController _controller;
+  late MyPolicySet myPolicySet;
+  late DiagramEditorContext diagramEditorContext;
+  NodeType _selectedNodeType = NodeType.rectangle;
   bool _showGrid = true;
-  DrawMode _currentMode = DrawMode.line;
+  Color _selectedColor = Colors.blue;
 
   @override
   void initState() {
     super.initState();
-    _controller = widget.initialController ??
-        PainterController(
-          settings: PainterSettings(
-            text: TextSettings(
-              textStyle: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-            freeStyle: const FreeStyleSettings(
-              color: Colors.blue,
-              strokeWidth: 3,
-            ),
-            shape: ShapeSettings(
-              paint: Paint()
-                ..strokeWidth = 3
-                ..color = Colors.blue
-                ..style = PaintingStyle.stroke,
-            ),
-            scale: const ScaleSettings(
-              enabled: true,
-              minScale: 0.5,
-              maxScale: 5.0,
-            ),
-          ),
-        );
-  }
-
-  @override
-  void dispose() {
-    if (widget.initialController == null) {
-      _controller.dispose();
-    }
-    super.dispose();
+    myPolicySet = MyPolicySet();
+    diagramEditorContext = widget.initialContext ?? DiagramEditorContext(
+      policySet: myPolicySet,
+    );
   }
 
   @override
@@ -66,15 +37,26 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
       children: [
         _buildToolbar(context),
         Expanded(
-          child: Stack(
-            children: [
-              // Grid background (optional)
-              if (_showGrid) _buildGridBackground(),
-              // Canvas
-              FlutterPainter(
-                controller: _controller,
-              ),
-            ],
+          child: Container(
+            decoration: BoxDecoration(
+              color: _showGrid
+                ? Colors.grey.shade50
+                : Colors.white,
+            ),
+            child: Stack(
+              children: [
+                if (_showGrid) _buildGridBackground(),
+                DiagramEditor(
+                  diagramEditorContext: diagramEditorContext,
+                  componentDataBuilder: (componentData) {
+                    return _buildComponent(componentData);
+                  },
+                  linkDataBuilder: (linkData) {
+                    return _buildLink(linkData);
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ],
@@ -97,45 +79,50 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            // Drawing Tools
+            // Node Types
             _buildToolSection(
               context,
-              title: 'Draw',
+              title: 'Add Nodes',
               children: [
                 _buildToolButton(
                   context,
-                  icon: Icons.edit,
-                  label: 'Free',
-                  isActive: _currentMode == DrawMode.line,
-                  onPressed: () => _setDrawMode(DrawMode.line),
+                  icon: Icons.rectangle_outlined,
+                  label: 'Rectangle',
+                  isActive: _selectedNodeType == NodeType.rectangle,
+                  onPressed: () {
+                    setState(() => _selectedNodeType = NodeType.rectangle);
+                    _addNode(NodeType.rectangle);
+                  },
                 ),
                 _buildToolButton(
                   context,
                   icon: Icons.circle_outlined,
                   label: 'Circle',
-                  isActive: _currentMode == DrawMode.circle,
-                  onPressed: () => _setDrawMode(DrawMode.circle),
+                  isActive: _selectedNodeType == NodeType.circle,
+                  onPressed: () {
+                    setState(() => _selectedNodeType = NodeType.circle);
+                    _addNode(NodeType.circle);
+                  },
                 ),
                 _buildToolButton(
                   context,
-                  icon: Icons.rectangle_outlined,
-                  label: 'Rectangle',
-                  isActive: _currentMode == DrawMode.rectangle,
-                  onPressed: () => _setDrawMode(DrawMode.rectangle),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.arrow_forward,
-                  label: 'Arrow',
-                  isActive: _currentMode == DrawMode.arrow,
-                  onPressed: () => _setDrawMode(DrawMode.arrow),
+                  icon: Icons.change_history_outlined,
+                  label: 'Diamond',
+                  isActive: _selectedNodeType == NodeType.diamond,
+                  onPressed: () {
+                    setState(() => _selectedNodeType = NodeType.diamond);
+                    _addNode(NodeType.diamond);
+                  },
                 ),
                 _buildToolButton(
                   context,
                   icon: Icons.text_fields,
                   label: 'Text',
-                  isActive: _currentMode == DrawMode.text,
-                  onPressed: () => _setDrawMode(DrawMode.text),
+                  isActive: _selectedNodeType == NodeType.text,
+                  onPressed: () {
+                    setState(() => _selectedNodeType = NodeType.text);
+                    _addNode(NodeType.text);
+                  },
                 ),
               ],
             ),
@@ -146,39 +133,12 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
               context,
               title: 'Color',
               children: [
-                _buildColorButton(Colors.black),
                 _buildColorButton(Colors.blue),
                 _buildColorButton(Colors.red),
                 _buildColorButton(Colors.green),
                 _buildColorButton(Colors.orange),
                 _buildColorButton(Colors.purple),
-              ],
-            ),
-            const VerticalDivider(),
-
-            // Line Width
-            _buildToolSection(
-              context,
-              title: 'Width',
-              children: [
-                _buildToolButton(
-                  context,
-                  icon: Icons.horizontal_rule,
-                  label: 'Thin',
-                  onPressed: () => _setStrokeWidth(2),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.remove,
-                  label: 'Medium',
-                  onPressed: () => _setStrokeWidth(4),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.drag_handle,
-                  label: 'Thick',
-                  onPressed: () => _setStrokeWidth(6),
-                ),
+                _buildColorButton(Colors.black),
               ],
             ),
             const VerticalDivider(),
@@ -195,6 +155,35 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
                   isActive: _showGrid,
                   onPressed: () => setState(() => _showGrid = !_showGrid),
                 ),
+                _buildToolButton(
+                  context,
+                  icon: Icons.zoom_in,
+                  label: 'Zoom In',
+                  onPressed: () {
+                    diagramEditorContext.canvasModel.scale += 0.1;
+                    setState(() {});
+                  },
+                ),
+                _buildToolButton(
+                  context,
+                  icon: Icons.zoom_out,
+                  label: 'Zoom Out',
+                  onPressed: () {
+                    if (diagramEditorContext.canvasModel.scale > 0.2) {
+                      diagramEditorContext.canvasModel.scale -= 0.1;
+                      setState(() {});
+                    }
+                  },
+                ),
+                _buildToolButton(
+                  context,
+                  icon: Icons.center_focus_strong,
+                  label: 'Reset Zoom',
+                  onPressed: () {
+                    diagramEditorContext.canvasModel.resetCanvasView();
+                    setState(() {});
+                  },
+                ),
               ],
             ),
             const VerticalDivider(),
@@ -206,20 +195,14 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
               children: [
                 _buildToolButton(
                   context,
-                  icon: Icons.undo,
-                  label: 'Undo',
-                  onPressed: _controller.canUndo ? () => _controller.undo() : null,
+                  icon: Icons.delete_outline,
+                  label: 'Delete Selected',
+                  onPressed: () => _deleteSelected(),
                 ),
                 _buildToolButton(
                   context,
-                  icon: Icons.redo,
-                  label: 'Redo',
-                  onPressed: _controller.canRedo ? () => _controller.redo() : null,
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.clear,
-                  label: 'Clear',
+                  icon: Icons.clear_all,
+                  label: 'Clear All',
                   onPressed: () => _showClearDialog(context),
                 ),
                 _buildToolButton(
@@ -291,12 +274,12 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   }
 
   Widget _buildColorButton(Color color) {
-    final isActive = _controller.settings.freeStyle.color == color;
+    final isActive = _selectedColor == color;
 
     return Padding(
       padding: const EdgeInsets.only(right: 4),
       child: InkWell(
-        onTap: () => _setColor(color),
+        onTap: () => setState(() => _selectedColor = color),
         child: Container(
           width: 32,
           height: 32,
@@ -310,7 +293,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
             boxShadow: isActive
                 ? [
                     BoxShadow(
-                      color: color.withValues(alpha:0.5),
+                      color: color.withOpacity(0.5),
                       blurRadius: 8,
                       spreadRadius: 2,
                     ),
@@ -325,59 +308,155 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   Widget _buildGridBackground() {
     return CustomPaint(
       painter: GridPainter(
-        gridColor: Theme.of(context).colorScheme.outline.withValues(alpha:0.1),
+        gridColor: Colors.grey.shade300,
       ),
       size: Size.infinite,
     );
   }
 
-  void _setDrawMode(DrawMode mode) {
-    setState(() {
-      _currentMode = mode;
+  Widget _buildComponent(ComponentData componentData) {
+    final nodeData = componentData.data as NodeData;
 
-      switch (mode) {
-        case DrawMode.line:
-          _controller.freeStyleMode = FreeStyleMode.draw;
-          break;
-        case DrawMode.circle:
-          _controller.shapeFactory = CircleFactory();
-          break;
-        case DrawMode.rectangle:
-          _controller.shapeFactory = RectangleFactory();
-          break;
-        case DrawMode.arrow:
-          _controller.shapeFactory = ArrowFactory();
-          break;
-        case DrawMode.text:
-          _controller.addText();
-          break;
-      }
-    });
+    return GestureDetector(
+      onTap: () {
+        diagramEditorContext.model.selectComponent(componentData.id);
+        setState(() {});
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: nodeData.color.withOpacity(0.1),
+          border: Border.all(
+            color: nodeData.color,
+            width: 2,
+          ),
+          borderRadius: nodeData.type == NodeType.rectangle
+              ? BorderRadius.circular(8)
+              : null,
+          shape: nodeData.type == NodeType.circle
+              ? BoxShape.circle
+              : BoxShape.rectangle,
+        ),
+        child: Stack(
+          children: [
+            // Node content
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  nodeData.text,
+                  style: TextStyle(
+                    color: nodeData.color,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+            // Connection points
+            Positioned(
+              top: 0,
+              left: componentData.size.width / 2 - 4,
+              child: _buildConnectionPoint(componentData.id, Alignment.topCenter),
+            ),
+            Positioned(
+              bottom: 0,
+              left: componentData.size.width / 2 - 4,
+              child: _buildConnectionPoint(componentData.id, Alignment.bottomCenter),
+            ),
+            Positioned(
+              left: 0,
+              top: componentData.size.height / 2 - 4,
+              child: _buildConnectionPoint(componentData.id, Alignment.centerLeft),
+            ),
+            Positioned(
+              right: 0,
+              top: componentData.size.height / 2 - 4,
+              child: _buildConnectionPoint(componentData.id, Alignment.centerRight),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
-  void _setColor(Color color) {
-    setState(() {
-      _controller.freeStyleColor = color;
-      _controller.shapePaint = Paint()
-        ..strokeWidth = _controller.shapePaint?.strokeWidth ?? 3
-        ..color = color
-        ..style = PaintingStyle.stroke;
-      _controller.textStyle = _controller.textStyle.copyWith(color: color);
-    });
+  Widget _buildConnectionPoint(String componentId, Alignment alignment) {
+    return GestureDetector(
+      onPanStart: (details) {
+        diagramEditorContext.model.startCreatingLink(componentId, alignment);
+      },
+      onPanUpdate: (details) {
+        diagramEditorContext.model.updateCreatingLink(details.globalPosition);
+      },
+      onPanEnd: (details) {
+        diagramEditorContext.model.endCreatingLink();
+      },
+      child: Container(
+        width: 8,
+        height: 8,
+        decoration: BoxDecoration(
+          color: Colors.blue,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 1),
+        ),
+      ),
+    );
   }
 
-  void _setStrokeWidth(double width) {
-    setState(() {
-      _controller.freeStyleStrokeWidth = width;
-      _controller.shapePaint = Paint()
-        ..strokeWidth = width
-        ..color = _controller.shapePaint?.color ?? Colors.blue
-        ..style = PaintingStyle.stroke;
-    });
+  Widget _buildLink(LinkData linkData) {
+    return CustomPaint(
+      painter: LinkPainter(
+        linkData: linkData,
+        context: diagramEditorContext,
+      ),
+    );
+  }
+
+  void _addNode(NodeType type) {
+    final String text;
+    switch (type) {
+      case NodeType.rectangle:
+        text = 'Process';
+        break;
+      case NodeType.circle:
+        text = 'Start/End';
+        break;
+      case NodeType.diamond:
+        text = 'Decision';
+        break;
+      case NodeType.text:
+        text = 'Note';
+        break;
+    }
+
+    final componentData = ComponentData(
+      size: type == NodeType.circle
+          ? const Size(100, 100)
+          : const Size(120, 60),
+      position: Offset(
+        100 + (diagramEditorContext.model.componentsMap.length * 20).toDouble(),
+        100 + (diagramEditorContext.model.componentsMap.length * 20).toDouble(),
+      ),
+      data: NodeData(
+        type: type,
+        text: text,
+        color: _selectedColor,
+      ),
+    );
+
+    diagramEditorContext.model.addComponent(componentData);
+    setState(() {});
+  }
+
+  void _deleteSelected() {
+    final selectedIds = diagramEditorContext.model.selectedComponentIds.toList();
+    for (var id in selectedIds) {
+      diagramEditorContext.model.removeComponent(id);
+    }
+    setState(() {});
   }
 
   void _saveDiagram() {
-    widget.onSave?.call(_controller);
+    widget.onSave?.call(diagramEditorContext);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Diagram saved')),
     );
@@ -389,7 +468,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
       builder: (context) => AlertDialog(
         title: const Text('Clear Canvas'),
         content: const Text(
-          'Are you sure you want to clear the entire canvas? This action cannot be undone.',
+          'Are you sure you want to clear the entire diagram? This action cannot be undone.',
         ),
         actions: [
           TextButton(
@@ -398,7 +477,8 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
           ),
           TextButton(
             onPressed: () {
-              _controller.clearDrawables();
+              diagramEditorContext.model.removeAllComponents();
+              setState(() {});
               Navigator.pop(context);
             },
             child: const Text('Clear'),
@@ -409,14 +489,60 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   }
 }
 
-enum DrawMode {
-  line,
-  circle,
+// Custom Policy Set
+class MyPolicySet extends PolicySet {
+  MyPolicySet() : super(
+    canvasPolicy: MyCanvasPolicy(),
+    componentPolicy: MyComponentPolicy(),
+    linkPolicy: MyLinkPolicy(),
+  );
+}
+
+class MyCanvasPolicy extends CanvasPolicy {
+  @override
+  onCanvasTapUp(Offset position) {}
+
+  @override
+  onCanvasLongPress(Offset position) {}
+}
+
+class MyComponentPolicy extends ComponentPolicy {
+  @override
+  onComponentTap(String componentId) {}
+
+  @override
+  onComponentLongPress(String componentId) {}
+}
+
+class MyLinkPolicy extends LinkPolicy {
+  @override
+  onLinkTap(String linkId) {}
+
+  @override
+  onLinkLongPress(String linkId) {}
+}
+
+// Node Data Model
+class NodeData {
+  final NodeType type;
+  String text;
+  Color color;
+
+  NodeData({
+    required this.type,
+    required this.text,
+    required this.color,
+  });
+}
+
+enum NodeType {
   rectangle,
-  arrow,
+  circle,
+  diamond,
   text,
 }
 
+// Grid Painter
 class GridPainter extends CustomPainter {
   final Color gridColor;
   final double gridSpacing;
@@ -453,4 +579,51 @@ class GridPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+}
+
+// Link Painter
+class LinkPainter extends CustomPainter {
+  final LinkData linkData;
+  final DiagramEditorContext context;
+
+  LinkPainter({
+    required this.linkData,
+    required this.context,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.blue
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke;
+
+    final sourceComponent = context.model.getComponent(linkData.sourceComponentId);
+    final targetComponent = context.model.getComponent(linkData.targetComponentId);
+
+    if (sourceComponent != null && targetComponent != null) {
+      final sourcePoint = sourceComponent.position +
+          Offset(sourceComponent.size.width / 2, sourceComponent.size.height / 2);
+      final targetPoint = targetComponent.position +
+          Offset(targetComponent.size.width / 2, targetComponent.size.height / 2);
+
+      // Draw arrow
+      canvas.drawLine(sourcePoint, targetPoint, paint);
+
+      // Draw arrowhead
+      final angle = (targetPoint - sourcePoint).direction;
+      final arrowSize = 10.0;
+      final path = Path();
+      path.moveTo(targetPoint.dx, targetPoint.dy);
+      path.lineTo(
+        targetPoint.dx - arrowSize * (targetPoint.dx - sourcePoint.dx).sign,
+        targetPoint.dy - arrowSize * (targetPoint.dy - sourcePoint.dy).sign,
+      );
+
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
