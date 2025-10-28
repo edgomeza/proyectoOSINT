@@ -500,9 +500,12 @@ class _AnalysisToolsTabState extends ConsumerState<AnalysisToolsTab> {
             ..._duplicatesResult!.map((result) => ListTile(
                   title: Text('${result.node1.label} ↔ ${result.node2.label}'),
                   subtitle: Text('Similarity: ${(result.similarity * 100).toInt()}%'),
-                  trailing: LinearProgressIndicator(
-                    value: result.similarity,
-                    backgroundColor: Colors.grey.shade200,
+                  trailing: SizedBox(
+                    width: 100,
+                    child: LinearProgressIndicator(
+                      value: result.similarity,
+                      backgroundColor: Colors.grey.shade200,
+                    ),
                   ),
                 )),
           ],

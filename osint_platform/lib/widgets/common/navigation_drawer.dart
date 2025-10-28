@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../providers/investigations_provider.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/locale_provider.dart';
 import '../../models/investigation_phase.dart';
 
 class AppNavigationDrawer extends ConsumerWidget {
@@ -266,9 +267,53 @@ class AppNavigationDrawer extends ConsumerWidget {
                 ),
               ),
             ),
+            FadeInUp(
+              delay: const Duration(milliseconds: 50),
+              child: _buildLanguageSelector(context, ref),
+            ),
             const SizedBox(height: 8),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelector(BuildContext context, WidgetRef ref) {
+    final currentLocale = ref.watch(localeProvider);
+    final isSpanish = currentLocale.languageCode == 'es';
+
+    return ListTile(
+      leading: Icon(
+        Icons.language,
+        color: Theme.of(context).colorScheme.primary,
+      ),
+      title: Text(isSpanish ? 'Idioma' : 'Language'),
+      subtitle: Text(
+        isSpanish ? 'Español' : 'English',
+        style: TextStyle(
+          fontSize: 12,
+          color: Theme.of(context).colorScheme.primary,
+        ),
+      ),
+      trailing: SegmentedButton<String>(
+        segments: const [
+          ButtonSegment<String>(
+            value: 'es',
+            label: Text('ES'),
+          ),
+          ButtonSegment<String>(
+            value: 'en',
+            label: Text('EN'),
+          ),
+        ],
+        selected: {currentLocale.languageCode},
+        onSelectionChanged: (Set<String> newSelection) {
+          if (newSelection.first == 'es') {
+            ref.read(localeProvider.notifier).setLocale(const Locale('es', 'ES'));
+          } else {
+            ref.read(localeProvider.notifier).setLocale(const Locale('en', 'US'));
+          }
+        },
       ),
     );
   }
