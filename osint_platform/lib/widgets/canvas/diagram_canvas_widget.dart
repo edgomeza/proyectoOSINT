@@ -31,7 +31,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
     );
   }
 
-  Future<void> _editNodeText(String componentId, String currentText) async {
+  Future<String?> _editNodeText(String componentId, String currentText) async {
     final controller = TextEditingController(text: currentText);
 
     final result = await showDialog<String>(
@@ -61,15 +61,7 @@ class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
       ),
     );
 
-    if (result != null && result.isNotEmpty) {
-      final component = diagramEditorContext.model.getComponent(componentId);
-      if (component != null) {
-        final nodeData = component.data as NodeData;
-        nodeData.text = result;
-        diagramEditorContext.model.updateComponent(componentId);
-        setState(() {});
-      }
-    }
+    return result;
   }
 
   @override
@@ -310,7 +302,7 @@ class MyPolicySet extends PolicySet
         LinkAttachmentRectPolicy {
   final Color Function() onColorSelected;
   final NodeType Function() onNodeTypeSelected;
-  final Function(String, String) onEditNodeText;
+  final Future<String?> Function(String, String) onEditNodeText;
 
   MyPolicySet({
     required this.onColorSelected,
@@ -379,13 +371,14 @@ mixin MyComponentPolicy implements ComponentPolicy {
     // which provides default selection behavior
   }
 
-  @override
-  onComponentDoubleTap(String componentId) {
+  onComponentDoubleTap(String componentId) async {
     MyPolicySet policySet = this as MyPolicySet;
     final component = canvasReader.model.getComponent(componentId);
-    if (component != null) {
-      final nodeData = component.data as NodeData;
-      policySet.onEditNodeText(componentId, nodeData.text);
+    final nodeData = component.data as NodeData;
+    final newText = await policySet.onEditNodeText(componentId, nodeData.text);
+    if (newText != null && newText.isNotEmpty) {
+      nodeData.text = newText;
+      canvasWriter.model.updateComponent(componentId);
     }
   }
 }
