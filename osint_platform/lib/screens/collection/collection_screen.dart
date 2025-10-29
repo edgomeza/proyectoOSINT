@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
-import '../../widgets/common/navigation_drawer.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/category_selector.dart';
+import '../../widgets/common/app_layout_wrapper.dart';
+import '../../widgets/common/modern_app_bar.dart';
 import '../../models/investigation_phase.dart';
 import '../../widgets/common/dynamic_field_input.dart';
 import '../../widgets/cards/data_form_card.dart';
@@ -220,29 +221,43 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
     final savedForms = ref.watch(dataFormsByInvestigationProvider(widget.investigationId));
 
     if (investigation == null) {
-      return Scaffold(
-        appBar: AppBar(
+      return AppLayoutWrapper(
+        appBar: ModernAppBar(
+          title: 'Recopilación',
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.go('/'),
             tooltip: 'Volver al inicio',
           ),
-          title: const Text('Recopilación'),
         ),
-        body: const Center(
+        child: const Center(
           child: Text('Investigación no encontrada'),
         ),
       );
     }
 
-    return Scaffold(
+    return AppLayoutWrapper(
       appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
           tooltip: 'Volver al inicio',
         ),
-        title: const Text('Recopilación'),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Recopilación',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+            ),
+            Text(
+              investigation.name,
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+            ),
+          ],
+        ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
@@ -251,8 +266,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           ],
         ),
       ),
-      drawer: const AppNavigationDrawer(),
-      body: TabBarView(
+      child: TabBarView(
         controller: _tabController,
         children: [
           _buildCreateNewTab(),

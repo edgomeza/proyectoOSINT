@@ -4,8 +4,9 @@ import 'package:animate_do/animate_do.dart';
 import 'package:go_router/go_router.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/common/phase_badge.dart';
-import '../../widgets/common/navigation_drawer.dart';
 import '../../widgets/common/phase_navigation.dart';
+import '../../widgets/common/app_layout_wrapper.dart';
+import '../../widgets/common/modern_app_bar.dart';
 import '../../models/investigation_phase.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
@@ -81,29 +82,30 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
     final investigation = ref.watch(investigationByIdProvider(widget.investigationId));
 
     if (investigation == null) {
-      return Scaffold(
-        appBar: AppBar(
+      return AppLayoutWrapper(
+        appBar: ModernAppBar(
+          title: 'Planificación',
           leading: IconButton(
             icon: const Icon(Icons.arrow_back),
             onPressed: () => context.go('/'),
             tooltip: 'Volver al inicio',
           ),
-          title: const Text('Planificación'),
         ),
-        body: const Center(
+        child: const Center(
           child: Text('Investigación no encontrada'),
         ),
       );
     }
 
-    return Scaffold(
-      appBar: AppBar(
+    return AppLayoutWrapper(
+      appBar: ModernAppBar(
+        title: 'Planificación',
+        subtitle: investigation.name,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
           tooltip: 'Volver al inicio',
         ),
-        title: const Text('Planificación'),
         actions: [
           IconButton(
             onPressed: _saveChanges,
@@ -112,8 +114,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
           ),
         ],
       ),
-      drawer: const AppNavigationDrawer(),
-      body: SafeArea(
+      child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
           child: Form(
