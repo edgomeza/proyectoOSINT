@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../providers/theme_provider.dart';
-import '../../config/theme.dart';
 import 'theme_toggle_button.dart';
 import 'language_selector.dart';
 import 'elk_services_indicator.dart';

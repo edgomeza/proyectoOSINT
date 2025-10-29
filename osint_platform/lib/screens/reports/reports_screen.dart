@@ -25,6 +25,10 @@ class ReportsScreen extends ConsumerWidget {
           tooltip: 'Volver al inicio',
         ),
       ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: investigationId,
+        currentPhase: InvestigationPhase.reports,
+      ),
       child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -59,10 +63,6 @@ class ReportsScreen extends ConsumerWidget {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: PhaseNavigation(
-        investigationId: investigationId,
-        currentPhase: InvestigationPhase.reports,
       ),
     );
   }

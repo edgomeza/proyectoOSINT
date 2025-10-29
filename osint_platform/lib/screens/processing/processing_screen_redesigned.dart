@@ -110,6 +110,10 @@ class _ProcessingScreenRedesignedState
           ],
         ),
       ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.processing,
+      ),
       child: TabBarView(
         controller: _tabController,
         children: [
@@ -137,10 +141,6 @@ class _ProcessingScreenRedesignedState
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: PhaseNavigation(
-        investigationId: widget.investigationId,
-        currentPhase: InvestigationPhase.processing,
       ),
     );
   }

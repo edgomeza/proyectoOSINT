@@ -114,6 +114,10 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
           ),
         ],
       ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.planning,
+      ),
       child: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
@@ -334,10 +338,6 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
             ),
           ),
         ),
-      ),
-      bottomNavigationBar: PhaseNavigation(
-        investigationId: widget.investigationId,
-        currentPhase: InvestigationPhase.planning,
       ),
     );
   }

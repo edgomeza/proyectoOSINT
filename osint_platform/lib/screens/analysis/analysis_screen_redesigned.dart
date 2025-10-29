@@ -180,6 +180,11 @@ class _AnalysisScreenRedesignedState
           ],
         ),
       ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.analysis,
+      ),
+      floatingActionButton: _buildFloatingActionButton(context),
       child: TabBarView(
         controller: _tabController,
         children: [
@@ -215,11 +220,6 @@ class _AnalysisScreenRedesignedState
           ReportsTab(investigationId: widget.investigationId),
         ],
       ),
-      bottomNavigationBar: PhaseNavigation(
-        investigationId: widget.investigationId,
-        currentPhase: InvestigationPhase.analysis,
-      ),
-      floatingActionButton: _buildFloatingActionButton(context),
     );
   }
 

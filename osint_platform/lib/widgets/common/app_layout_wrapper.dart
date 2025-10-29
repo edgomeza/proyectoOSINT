@@ -5,19 +5,21 @@ import '../../config/theme.dart';
 import 'nexo_floating_button.dart';
 
 class AppLayoutWrapper extends ConsumerWidget {
-  final Widget child;
   final PreferredSizeWidget? appBar;
   final Widget? floatingActionButton;
   final FloatingActionButtonLocation? floatingActionButtonLocation;
+  final Widget? bottomNavigationBar;
   final bool showNexoButton;
+  final Widget child;
 
   const AppLayoutWrapper({
     super.key,
-    required this.child,
     this.appBar,
     this.floatingActionButton,
     this.floatingActionButtonLocation,
+    this.bottomNavigationBar,
     this.showNexoButton = true,
+    required this.child,
   });
 
   @override
@@ -36,6 +38,7 @@ class AppLayoutWrapper extends ConsumerWidget {
           ),
           floatingActionButton: floatingActionButton,
           floatingActionButtonLocation: floatingActionButtonLocation,
+          bottomNavigationBar: bottomNavigationBar,
         ),
         if (showNexoButton) const NexoFloatingButton(),
       ],
