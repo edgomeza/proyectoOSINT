@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/home/home_screen_redesigned.dart';
+import '../screens/nexo/nexo_chat_screen.dart';
 import '../screens/planning/planning_screen.dart';
 import '../screens/collection/collection_screen.dart';
 import '../screens/processing/processing_screen_redesigned.dart';
@@ -14,7 +16,17 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/',
       name: 'home',
-      builder: (context, state) => HomeScreen(),
+      builder: (context, state) => const HomeScreenRedesigned(),
+    ),
+    GoRoute(
+      path: '/investigations',
+      name: 'investigations',
+      builder: (context, state) => const HomeScreen(),
+    ),
+    GoRoute(
+      path: '/nexo',
+      name: 'nexo',
+      builder: (context, state) => const NexoChatScreen(),
     ),
     GoRoute(
       path: '/investigation/:id/planning',
