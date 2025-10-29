@@ -17,7 +17,6 @@ import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/advanced_search_tab.dart';
-import 'tabs/reports_tab.dart';
 import '../../widgets/canvas/diagram_canvas_widget.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
@@ -42,7 +41,7 @@ class _AnalysisScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _currentTabIndex = _tabController.index;
@@ -163,20 +162,19 @@ class _AnalysisScreenRedesignedState
           IconButton(
             icon: const Icon(Icons.help_outline),
             onPressed: () => _showHelpDialog(context),
-            tooltip: 'Help',
+            tooltip: 'Ayuda',
           ),
         ],
         bottom: TabBar(
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
-            Tab(icon: Icon(Icons.hub), text: 'Graph'),
+            Tab(icon: Icon(Icons.dashboard), text: 'Resumen'),
+            Tab(icon: Icon(Icons.hub), text: 'Grafo'),
             Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
-            Tab(icon: Icon(Icons.map), text: 'Map'),
+            Tab(icon: Icon(Icons.map), text: 'Mapa'),
             Tab(icon: Icon(Icons.draw), text: 'Canvas'),
-            Tab(icon: Icon(Icons.search), text: 'Search'),
-            Tab(icon: Icon(Icons.description), text: 'Reports'),
+            Tab(icon: Icon(Icons.search), text: 'Búsqueda'),
           ],
         ),
       ),
@@ -215,9 +213,6 @@ class _AnalysisScreenRedesignedState
 
           // Advanced Search Tab
           AdvancedSearchTab(investigationId: widget.investigationId),
-
-          // Reports Tab
-          ReportsTab(investigationId: widget.investigationId),
         ],
       ),
     );
@@ -230,28 +225,28 @@ class _AnalysisScreenRedesignedState
           heroTag: 'add_node',
           onPressed: () => _showAddNodeDialog(context),
           icon: const Icon(Icons.add),
-          label: const Text('Add Entity'),
+          label: const Text('Agregar Entidad'),
         );
       case 2: // Timeline tab
         return FloatingActionButton.extended(
           heroTag: 'add_event',
           onPressed: () => _showAddEventDialog(context),
           icon: const Icon(Icons.add),
-          label: const Text('Add Event'),
+          label: const Text('Agregar Evento'),
         );
       case 3: // Map tab
         return FloatingActionButton.extended(
           heroTag: 'add_location',
           onPressed: () => _showAddLocationDialog(context),
           icon: const Icon(Icons.add),
-          label: const Text('Add Location'),
+          label: const Text('Agregar Ubicación'),
         );
       case 4: // Canvas tab
         return FloatingActionButton.extended(
           heroTag: 'canvas_help',
           onPressed: () => _showCanvasHelp(context),
           icon: const Icon(Icons.help_outline),
-          label: const Text('Help'),
+          label: const Text('Ayuda'),
         );
       default:
         return null;
@@ -299,7 +294,7 @@ class _AnalysisScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
@@ -315,9 +310,9 @@ class _AnalysisScreenRedesignedState
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDetailRow('Type', edge.type.displayName),
-            _buildDetailRow('Confidence', '${(edge.confidence * 100).toInt()}%'),
-            _buildDetailRow('Weight', edge.weight.toString()),
+            _buildDetailRow('Tipo', edge.type.displayName),
+            _buildDetailRow('Confianza', '${(edge.confidence * 100).toInt()}%'),
+            _buildDetailRow('Peso', edge.weight.toString()),
             if (edge.description != null) ...[
               const SizedBox(height: 8),
               Text(edge.description!),
@@ -327,7 +322,7 @@ class _AnalysisScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
@@ -344,11 +339,11 @@ class _AnalysisScreenRedesignedState
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailRow('Date', event.timestamp.toString()),
-              _buildDetailRow('Type', event.type.displayName),
-              _buildDetailRow('Priority', event.priority.displayName),
+              _buildDetailRow('Fecha', event.timestamp.toString()),
+              _buildDetailRow('Tipo', event.type.displayName),
+              _buildDetailRow('Prioridad', event.priority.displayName),
               if (event.location != null)
-                _buildDetailRow('Location', event.location!),
+                _buildDetailRow('Ubicación', event.location!),
               if (event.description != null) ...[
                 const SizedBox(height: 8),
                 Text(event.description!),
@@ -359,7 +354,7 @@ class _AnalysisScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Cerrar'),
           ),
         ],
       ),
@@ -375,14 +370,14 @@ class _AnalysisScreenRedesignedState
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            _buildDetailRow('Type', location.type.displayName),
-            _buildDetailRow('Risk', location.risk.displayName),
+            _buildDetailRow('Tipo', location.type.displayName),
+            _buildDetailRow('Riesgo', location.risk.displayName),
             _buildDetailRow(
-              'Coordinates',
+              'Coordenadas',
               '${location.latitude.toStringAsFixed(6)}, ${location.longitude.toStringAsFixed(6)}',
             ),
             if (location.address != null)
-              _buildDetailRow('Address', location.address!),
+              _buildDetailRow('Dirección', location.address!),
             if (location.description != null) ...[
               const SizedBox(height: 8),
               Text(location.description!),
@@ -392,7 +387,7 @@ class _AnalysisScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Close'),
+            child: const Text('Cerrar'),
           ),
         ],
       ),

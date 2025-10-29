@@ -35,7 +35,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     );
 
     if (investigation == null) {
-      return const Center(child: Text('Investigation not found'));
+      return const Center(child: Text('Investigación no encontrada'));
     }
 
     return SingleChildScrollView(
@@ -85,9 +85,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           // Report Types
           _buildReportCard(
             context,
-            title: 'Full Investigation Report',
+            title: 'Informe Completo de Investigación',
             description:
-                'Complete report with all entities, relationships, timeline, and geographic data',
+                'Informe completo con todas las entidades, relaciones, línea de tiempo y datos geográficos',
             icon: Icons.description,
             color: Colors.blue,
             onGenerate: _generateFullReport,
@@ -95,8 +95,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           const SizedBox(height: 12),
           _buildReportCard(
             context,
-            title: 'Summary Report',
-            description: 'Concise overview with key statistics and highlights',
+            title: 'Informe Resumido',
+            description: 'Resumen con estadísticas clave y hallazgos principales',
             icon: Icons.summarize,
             color: Colors.green,
             onGenerate: _generateSummaryReport,
@@ -104,8 +104,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           const SizedBox(height: 12),
           _buildReportCard(
             context,
-            title: 'Custom Report',
-            description: 'Select specific sections to include',
+            title: 'Informe Personalizado',
+            description: 'Selecciona secciones específicas para incluir',
             icon: Icons.tune,
             color: Colors.purple,
             onGenerate: () => _showCustomReportDialog(context),
@@ -122,7 +122,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                     const CircularProgressIndicator(),
                     const SizedBox(height: 16),
                     Text(
-                      'Generating report...',
+                      'Generando informe...',
                       style: Theme.of(context).textTheme.titleMedium,
                     ),
                   ],
@@ -145,7 +145,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'Report Generated Successfully',
+                            'Informe Generado Exitosamente',
                             style: Theme.of(context)
                                 .textTheme
                                 .titleMedium
@@ -159,7 +159,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'Saved to: $_lastGeneratedPath',
+                      'Guardado en: $_lastGeneratedPath',
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                     const SizedBox(height: 12),
@@ -168,12 +168,12 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
                         // Open file location
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
-                            content: Text('Check your documents/reports folder'),
+                            content: Text('Revisa tu carpeta de documentos/informes'),
                           ),
                         );
                       },
                       icon: const Icon(Icons.folder_open),
-                      label: const Text('Open Location'),
+                      label: const Text('Abrir Ubicación'),
                     ),
                   ],
                 ),
@@ -526,33 +526,33 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Custom Report'),
+        title: const Text('Informe Personalizado'),
         content: const SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               CheckboxListTile(
-                title: Text('Executive Summary'),
+                title: Text('Resumen Ejecutivo'),
                 value: true,
                 onChanged: null,
               ),
               CheckboxListTile(
-                title: Text('Entities'),
+                title: Text('Entidades'),
                 value: true,
                 onChanged: null,
               ),
               CheckboxListTile(
-                title: Text('Relationships'),
+                title: Text('Relaciones'),
                 value: true,
                 onChanged: null,
               ),
               CheckboxListTile(
-                title: Text('Timeline'),
+                title: Text('Línea de Tiempo'),
                 value: true,
                 onChanged: null,
               ),
               CheckboxListTile(
-                title: Text('Geographic Analysis'),
+                title: Text('Análisis Geográfico'),
                 value: true,
                 onChanged: null,
               ),
@@ -562,7 +562,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
