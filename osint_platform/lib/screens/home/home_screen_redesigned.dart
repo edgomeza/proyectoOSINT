@@ -265,7 +265,7 @@ class HomeScreenRedesigned extends ConsumerWidget {
                       ),
                       child: const NexoAvatar(size: 56),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     const Text(
                       'Nexo AI',
                       style: TextStyle(
@@ -274,7 +274,7 @@ class HomeScreenRedesigned extends ConsumerWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       'Tu asistente inteligente',
                       style: TextStyle(
@@ -354,7 +354,7 @@ class HomeScreenRedesigned extends ConsumerWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 14),
                     const Text(
                       'Investigaciones',
                       style: TextStyle(
@@ -363,7 +363,7 @@ class HomeScreenRedesigned extends ConsumerWidget {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 8),
+                    const SizedBox(height: 6),
                     Text(
                       'Gestiona tus casos',
                       style: TextStyle(
