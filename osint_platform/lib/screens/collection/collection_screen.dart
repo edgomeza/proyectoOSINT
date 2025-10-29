@@ -6,6 +6,7 @@ import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/category_selector.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
+import '../../widgets/common/phase_navigation_buttons.dart';
 import '../../models/investigation_phase.dart';
 import '../../widgets/common/dynamic_field_input.dart';
 import '../../widgets/cards/data_form_card.dart';
@@ -224,11 +225,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       return AppLayoutWrapper(
         appBar: ModernAppBar(
           title: 'Recopilación',
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
-            tooltip: 'Volver al inicio',
-          ),
+          leading: const PhaseNavigationButtons(),
         ),
         child: const Center(
           child: Text('Investigación no encontrada'),
@@ -240,11 +237,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Volver al inicio',
-        ),
+        leading: const PhaseNavigationButtons(),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
