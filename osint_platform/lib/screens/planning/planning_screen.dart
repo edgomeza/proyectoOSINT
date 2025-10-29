@@ -7,6 +7,7 @@ import '../../widgets/common/phase_badge.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
+import '../../widgets/common/phase_navigation_buttons.dart';
 import '../../models/investigation_phase.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
@@ -85,11 +86,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
       return AppLayoutWrapper(
         appBar: ModernAppBar(
           title: 'Planificación',
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
-            tooltip: 'Volver al inicio',
-          ),
+          leading: const PhaseNavigationButtons(),
         ),
         child: const Center(
           child: Text('Investigación no encontrada'),
@@ -101,11 +98,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
       appBar: ModernAppBar(
         title: 'Planificación',
         subtitle: investigation.name,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Volver al inicio',
-        ),
+        leading: const PhaseNavigationButtons(),
         actions: [
           IconButton(
             onPressed: _saveChanges,
