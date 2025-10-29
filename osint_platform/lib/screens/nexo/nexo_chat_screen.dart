@@ -5,6 +5,7 @@ import '../../providers/theme_provider.dart';
 import '../../config/theme.dart';
 import '../../widgets/common/theme_toggle_button.dart';
 import '../../widgets/common/language_selector.dart';
+import '../../widgets/common/nexo_avatar.dart';
 
 class Message {
   final String content;
@@ -203,11 +204,7 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
                   : AppTheme.lightPrimaryGradient,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.smart_toy_outlined,
-              size: 28,
-              color: Colors.white,
-            ),
+            child: const NexoAvatar(size: 28),
           ),
 
           const SizedBox(width: 12),
@@ -273,11 +270,7 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
                     : AppTheme.lightPrimaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(
-                Icons.smart_toy_outlined,
-                size: 64,
-                color: Colors.white,
-              ),
+              child: const NexoAvatar(size: 64),
             ),
             const SizedBox(height: 24),
             Text(
@@ -317,11 +310,7 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
                       : AppTheme.lightPrimaryGradient,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.smart_toy_outlined,
-                  size: 20,
-                  color: Colors.white,
-                ),
+                child: const NexoAvatar(size: 20),
               ),
               const SizedBox(width: 8),
             ],
@@ -389,11 +378,7 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
                   : AppTheme.lightPrimaryGradient,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.smart_toy_outlined,
-              size: 20,
-              color: Colors.white,
-            ),
+            child: const NexoAvatar(size: 20),
           ),
           const SizedBox(width: 8),
           Container(
