@@ -197,14 +197,15 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
 
           // Avatar de Nexo
           Container(
-            padding: const EdgeInsets.all(12),
+            width: 52,
+            height: 52,
             decoration: BoxDecoration(
               gradient: isDarkMode
                   ? AppTheme.darkPrimaryGradient
                   : AppTheme.lightPrimaryGradient,
               shape: BoxShape.circle,
             ),
-            child: const NexoAvatar(size: 28),
+            child: const NexoAvatar(size: 52),
           ),
 
           const SizedBox(width: 12),
@@ -263,14 +264,15 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              padding: const EdgeInsets.all(32),
+              width: 128,
+              height: 128,
               decoration: BoxDecoration(
                 gradient: isDarkMode
                     ? AppTheme.darkPrimaryGradient
                     : AppTheme.lightPrimaryGradient,
                 shape: BoxShape.circle,
               ),
-              child: const NexoAvatar(size: 64),
+              child: const NexoAvatar(size: 128),
             ),
             const SizedBox(height: 24),
             Text(
@@ -303,14 +305,15 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
           children: [
             if (!message.isUser) ...[
               Container(
-                padding: const EdgeInsets.all(8),
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                   gradient: isDarkMode
                       ? AppTheme.darkPrimaryGradient
                       : AppTheme.lightPrimaryGradient,
                   shape: BoxShape.circle,
                 ),
-                child: const NexoAvatar(size: 20),
+                child: const NexoAvatar(size: 36),
               ),
               const SizedBox(width: 8),
             ],
@@ -371,14 +374,15 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
       child: Row(
         children: [
           Container(
-            padding: const EdgeInsets.all(8),
+            width: 36,
+            height: 36,
             decoration: BoxDecoration(
               gradient: isDarkMode
                   ? AppTheme.darkPrimaryGradient
                   : AppTheme.lightPrimaryGradient,
               shape: BoxShape.circle,
             ),
-            child: const NexoAvatar(size: 20),
+            child: const NexoAvatar(size: 36),
           ),
           const SizedBox(width: 8),
           Container(

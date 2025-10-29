@@ -11,6 +11,7 @@ import '../../widgets/common/nexo_floating_button.dart';
 import '../../models/investigation.dart';
 import '../../models/investigation_status.dart';
 import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
@@ -354,14 +355,15 @@ class HomeScreen extends ConsumerWidget {
             onPressed: () {
               if (nameController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
+                const uuid = Uuid();
                 final newInvestigation = Investigation(
                   name: nameController.text,
                   description: descriptionController.text,
                   status: InvestigationStatus.active,
                   isActive: true,
-                  id: UniqueKey().toString(),
+                  id: uuid.v4(),
                   currentPhase: InvestigationPhase.planning,
-                  createdAt: DateTime.now(), 
+                  createdAt: DateTime.now(),
                   completeness: 0.0,
                 );
 
