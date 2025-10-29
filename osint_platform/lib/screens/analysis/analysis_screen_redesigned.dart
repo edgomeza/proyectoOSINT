@@ -17,7 +17,6 @@ import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/advanced_search_tab.dart';
-import '../../widgets/canvas/diagram_canvas_widget.dart';
 import '../../widgets/common/phase_navigation_buttons.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
@@ -166,7 +165,6 @@ class _AnalysisScreenRedesignedState
             Tab(icon: Icon(Icons.hub), text: 'Grafo'),
             Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
             Tab(icon: Icon(Icons.map), text: 'Mapa'),
-            Tab(icon: Icon(Icons.draw), text: 'Canvas'),
             Tab(icon: Icon(Icons.search), text: 'Búsqueda'),
           ],
         ),
@@ -201,9 +199,6 @@ class _AnalysisScreenRedesignedState
             onLocationTap: (location) => _showLocationDetails(context, location),
           ),
 
-          // Canvas Tab
-          const DiagramCanvasWidget(),
-
           // Advanced Search Tab
           AdvancedSearchTab(investigationId: widget.investigationId),
         ],
@@ -233,13 +228,6 @@ class _AnalysisScreenRedesignedState
           onPressed: () => _showAddLocationDialog(context),
           icon: const Icon(Icons.add),
           label: const Text('Agregar Ubicación'),
-        );
-      case 4: // Canvas tab
-        return FloatingActionButton.extended(
-          heroTag: 'canvas_help',
-          onPressed: () => _showCanvasHelp(context),
-          icon: const Icon(Icons.help_outline),
-          label: const Text('Ayuda'),
         );
       default:
         return null;
@@ -974,46 +962,6 @@ class _AnalysisScreenRedesignedState
     );
   }
 
-  void _showCanvasHelp(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Canvas Help'),
-        content: const SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                'Canvas de Diagramas - Crea diagramas personalizados:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              SizedBox(height: 16),
-              Text('• Selecciona un tipo de nodo (Rectángulo, Círculo, Diamante, Texto)'),
-              Text('• Elige un color'),
-              Text('• Haz clic en el canvas para agregar nodos'),
-              Text('• Arrastra los nodos para moverlos'),
-              Text('• Arrastra desde los puntos de conexión para crear enlaces'),
-              Text('• Usa la rueda del mouse para hacer zoom'),
-              Text('• Presiona Delete para eliminar nodos seleccionados'),
-              SizedBox(height: 16),
-              Text(
-                'Perfecto para crear diagramas de flujo, mapas mentales y diagramas policiales.',
-                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
-          ),
-        ],
-      ),
-    );
-  }
-
   void _showHelpDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -1033,9 +981,7 @@ class _AnalysisScreenRedesignedState
               Text('• Graph: Interactive relationship visualization'),
               Text('• Timeline: Chronological events'),
               Text('• Map: Geographic analysis with heatmaps'),
-              Text('• Canvas: Custom diagrams and flowcharts'),
               Text('• Search: Advanced search across all data'),
-              Text('• Reports: Generate and export reports'),
               SizedBox(height: 16),
               Text(
                 'Use the tabs to switch between different analysis views.',
