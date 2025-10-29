@@ -7,6 +7,7 @@ import '../../providers/investigations_provider.dart';
 import '../../widgets/common/theme_toggle_button.dart';
 import '../../widgets/common/language_selector.dart';
 import '../../widgets/common/elk_services_indicator.dart';
+import '../../widgets/common/nexo_floating_button.dart';
 import '../../models/investigation.dart';
 import '../../models/investigation_status.dart';
 import 'package:intl/intl.dart';
@@ -18,7 +19,9 @@ class HomeScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final investigations = ref.watch(investigationsProvider);
 
-    return Scaffold(
+    return Stack(
+      children: [
+        Scaffold(
       appBar: AppBar(
         title: FadeInLeft(
           child: Row(
@@ -77,12 +80,19 @@ class HomeScreen extends ConsumerWidget {
           : _buildInvestigationsGrid(context, ref, investigations),
       floatingActionButton: FadeInUp(
         delay: const Duration(milliseconds: 300),
-        child: FloatingActionButton.extended(
-          onPressed: () => _showCreateInvestigationDialog(context, ref),
-          icon: const Icon(Icons.add),
-          label: const Text('Nueva Investigación'),
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 70),
+          child: FloatingActionButton.extended(
+            heroTag: 'new_investigation',
+            onPressed: () => _showCreateInvestigationDialog(context, ref),
+            icon: const Icon(Icons.add),
+            label: const Text('Nueva Investigación'),
+          ),
         ),
       ),
+        ),
+        const NexoFloatingButton(),
+      ],
     );
   }
 

@@ -2,25 +2,68 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  // Colores principales - Dark mode
-  static const Color darkPrimary = Color(0xFF6C63FF);
-  static const Color darkSecondary = Color(0xFF00D9FF);
+  // Colores principales - Dark mode (Degradado Azul)
+  static const Color darkPrimary = Color(0xFF2196F3); // Azul
+  static const Color darkSecondary = Color(0xFF1976D2); // Azul más oscuro
   static const Color darkBackground = Color(0xFF0A0E27);
   static const Color darkSurface = Color(0xFF1A1F3A);
-  static const Color darkCard = Color(0xFF252B48);
+  static const Color darkCard = Color(0xFF1E2746);
+  static const Color darkAccent = Color(0xFF42A5F5); // Azul claro para acentos
 
-  // Colores principales - Light mode
-  static const Color lightPrimary = Color(0xFF6C63FF);
-  static const Color lightSecondary = Color(0xFF00B8D4);
-  static const Color lightBackground = Color(0xFFF8F9FA);
+  // Colores principales - Light mode (Degradado Naranja Claro)
+  static const Color lightPrimary = Color(0xFFFF9800); // Naranja
+  static const Color lightSecondary = Color(0xFFFF6F00); // Naranja oscuro
+  static const Color lightBackground = Color(0xFFFFF8F0);
   static const Color lightSurface = Color(0xFFFFFFFF);
-  static const Color lightCard = Color(0xFFF0F2F5);
+  static const Color lightCard = Color(0xFFFFF3E0);
+  static const Color lightAccent = Color(0xFFFFB74D); // Naranja claro para acentos
 
   // Colores de estado
   static const Color success = Color(0xFF00E676);
   static const Color warning = Color(0xFFFFAB00);
   static const Color error = Color(0xFFFF5252);
   static const Color info = Color(0xFF2196F3);
+
+  // Degradados
+  static LinearGradient get darkGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF0A0E27),
+          Color(0xFF1A1F3A),
+          Color(0xFF1E3A5F),
+        ],
+      );
+
+  static LinearGradient get lightGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFFFF8F0),
+          Color(0xFFFFEEDD),
+          Color(0xFFFFE4CC),
+        ],
+      );
+
+  static LinearGradient get darkPrimaryGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFF2196F3),
+          Color(0xFF1976D2),
+          Color(0xFF0D47A1),
+        ],
+      );
+
+  static LinearGradient get lightPrimaryGradient => const LinearGradient(
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: [
+          Color(0xFFFFB74D),
+          Color(0xFFFF9800),
+          Color(0xFFF57C00),
+        ],
+      );
 
   // Tema oscuro moderno
   static ThemeData get darkTheme {
