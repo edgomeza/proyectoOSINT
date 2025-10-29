@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:animate_do/animate_do.dart';
 import '../../providers/theme_provider.dart';
 import '../../providers/nexo_button_position_provider.dart';
 import '../../config/theme.dart';
@@ -61,9 +60,7 @@ class _NexoFloatingButtonState extends ConsumerState<NexoFloatingButton>
 
           ref.read(nexoButtonPositionProvider.notifier).updatePosition(clampedX, clampedY);
         },
-        child: FadeInUp(
-          child: _buildButton(isDarkMode),
-        ),
+        child: _buildButton(isDarkMode),
       ),
     );
   }

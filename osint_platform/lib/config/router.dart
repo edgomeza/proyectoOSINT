@@ -31,41 +31,86 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/investigation/:id/planning',
       name: 'planning',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = state.pathParameters['id']!;
-        return PlanningScreen(investigationId: id);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: PlanningScreen(investigationId: id),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: '/investigation/:id/collection',
       name: 'collection',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = state.pathParameters['id']!;
-        return CollectionScreen(investigationId: id);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: CollectionScreen(investigationId: id),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: '/investigation/:id/processing',
       name: 'processing',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = state.pathParameters['id']!;
-        return ProcessingScreenRedesigned(investigationId: id);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: ProcessingScreenRedesigned(investigationId: id),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: '/investigation/:id/analysis',
       name: 'analysis',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = state.pathParameters['id']!;
-        return AnalysisScreenRedesigned(investigationId: id);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: AnalysisScreenRedesigned(investigationId: id),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        );
       },
     ),
     GoRoute(
       path: '/investigation/:id/reports',
       name: 'reports',
-      builder: (context, state) {
+      pageBuilder: (context, state) {
         final id = state.pathParameters['id']!;
-        return ReportsScreen(investigationId: id);
+        return CustomTransitionPage(
+          key: state.pageKey,
+          child: ReportsScreen(investigationId: id),
+          transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            return FadeTransition(
+              opacity: animation,
+              child: child,
+            );
+          },
+        );
       },
     ),
   ],
