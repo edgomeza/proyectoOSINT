@@ -49,7 +49,7 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
   void _handleNodeAdded(String componentId, NodeType type, String text, Color color, Offset position, Size size) {
     ref.read(canvasProvider.notifier).addNode(
       componentId: componentId,
-      type: type,
+      nodeType: type.name,
       label: text,
       color: color,
       position: position,
@@ -105,22 +105,18 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
   }
 
   void _handleNodeDoubleTap(String componentId) async {
-    final component = diagramEditorContext.model.getComponent(componentId);
-    final nodeData = component.data as NodeData;
-    final newText = await _editNodeText(componentId, nodeData.text);
+    // Get current node info from provider
+    final canvasNode = ref.read(canvasProvider.notifier).getNodeByComponentId(componentId);
+    if (canvasNode == null) return;
 
-    if (newText != null && newText.isNotEmpty && newText != nodeData.text) {
-      nodeData.text = newText;
-      diagramEditorContext.model.updateComponent(componentId);
+    final newText = await _editNodeText(componentId, canvasNode.label);
 
+    if (newText != null && newText.isNotEmpty && newText != canvasNode.label) {
       // Update in provider
-      final canvasNode = ref.read(canvasProvider.notifier).getNodeByComponentId(componentId);
-      if (canvasNode != null) {
-        ref.read(canvasProvider.notifier).updateNode(
-          canvasNode.id,
-          label: newText,
-        );
-      }
+      ref.read(canvasProvider.notifier).updateNode(
+        canvasNode.id,
+        label: newText,
+      );
 
       await _autoSave();
     }
@@ -162,27 +158,21 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
         (node) => node.componentId == targetComponentId,
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Error: Could not find nodes'),
-          backgroundColor: Colors.red,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Error: Could not find nodes'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
     if (sourceNode == null || targetNode == null) return;
 
-    // Create link in diagram editor
-    final linkId = diagramEditorContext.model.connectTwoComponents(
-      sourceComponentId: sourceComponentId,
-      targetComponentId: targetComponentId,
-      linkStyle: LinkStyle(
-        arrowType: ArrowType.pointedArrow,
-        lineWidth: 2,
-        lineColor: _selectedColor,
-      ),
-    );
+    // Generate a unique link ID
+    final linkId = 'link-${DateTime.now().millisecondsSinceEpoch}';
 
     // Add to provider
     ref.read(canvasProvider.notifier).addConnection(
@@ -193,12 +183,14 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
 
     _autoSave();
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Connection created successfully'),
-        duration: Duration(seconds: 1),
-      ),
-    );
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Connection created successfully'),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    }
   }
 
   Future<String?> _editNodeText(String componentId, String currentText) async {
@@ -502,10 +494,7 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
       ),
     );
 
-    if (confirmed == true) {
-      // Remove from diagram editor
-      diagramEditorContext.model.removeComponent(componentId);
-
+    if (confirmed == true && mounted) {
       // Remove from provider
       _handleDeleteNode(componentId);
 
@@ -513,9 +502,11 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
         _selectedComponentId = null;
       });
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Node deleted')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Node deleted')),
+        );
+      }
     }
   }
 
@@ -542,10 +533,7 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
       ),
     );
 
-    if (confirmed == true) {
-      // Clear diagram editor
-      diagramEditorContext.model.removeAllComponents();
-
+    if (confirmed == true && mounted) {
       // Clear provider
       ref.read(canvasProvider.notifier).clearCanvas();
 
@@ -557,9 +545,11 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
 
       await _autoSave();
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Canvas cleared')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Canvas cleared')),
+        );
+      }
     }
   }
 
@@ -586,16 +576,20 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
 
       widget.onSave?.call(diagramEditorContext);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Diagram saved successfully')),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Diagram saved successfully')),
+        );
+      }
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Cannot save: No investigation selected'),
-          backgroundColor: Colors.orange,
-        ),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Cannot save: No investigation selected'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
     }
   }
 }
@@ -697,7 +691,6 @@ mixin MyComponentPolicy implements ComponentPolicy {
     policySet.onNodeTap(componentId);
   }
 
-  @override
   onComponentDoubleTap(String componentId) async {
     MyPolicySet policySet = this as MyPolicySet;
     policySet.onNodeDoubleTap(componentId);
