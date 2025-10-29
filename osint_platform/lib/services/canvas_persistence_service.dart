@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 import '../providers/canvas_provider.dart';
 
 /// Service for persisting Canvas diagrams to SQLite database
@@ -19,7 +18,7 @@ class CanvasPersistenceService {
   /// Initialize database
   Future<Database> _initDatabase() async {
     final dbPath = await getDatabasesPath();
-    final path = join(dbPath, _dbName);
+    final path = '$dbPath/$_dbName';
 
     return await openDatabase(
       path,

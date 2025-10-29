@@ -1,16 +1,23 @@
-import 'package:diagram_editor/diagram_editor.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entity_node.dart';
 import '../models/relationship.dart';
 import 'graph_provider.dart';
 
+/// Helper function to convert Color to int without deprecated value property
+int _colorToInt(Color color) {
+  return (color.a * 255).round() << 24 |
+      (color.r * 255).round() << 16 |
+      (color.g * 255).round() << 8 |
+      (color.b * 255).round();
+}
+
 /// Canvas Node Model - Maps diagram components to EntityNodes
 class CanvasNode {
   final String id;
   final String componentId; // ID del componente en diagram_editor
   final String entityNodeId; // ID del EntityNode en el grafo
-  final NodeType type;
+  final String nodeType; // Tipo del nodo como string
   final String label;
   final Color color;
   final Offset position;
@@ -20,7 +27,7 @@ class CanvasNode {
     required this.id,
     required this.componentId,
     required this.entityNodeId,
-    required this.type,
+    required this.nodeType,
     required this.label,
     required this.color,
     required this.position,
@@ -37,7 +44,7 @@ class CanvasNode {
       id: id,
       componentId: componentId,
       entityNodeId: entityNodeId,
-      type: type,
+      nodeType: nodeType,
       label: label ?? this.label,
       color: color ?? this.color,
       position: position ?? this.position,
@@ -50,9 +57,9 @@ class CanvasNode {
       'id': id,
       'componentId': componentId,
       'entityNodeId': entityNodeId,
-      'type': type.name,
+      'nodeType': nodeType,
       'label': label,
-      'color': color.value,
+      'color': _colorToInt(color),
       'position': {'dx': position.dx, 'dy': position.dy},
       'size': {'width': size.width, 'height': size.height},
     };
@@ -63,7 +70,7 @@ class CanvasNode {
       id: json['id'],
       componentId: json['componentId'],
       entityNodeId: json['entityNodeId'],
-      type: NodeType.values.firstWhere((e) => e.name == json['type']),
+      nodeType: json['nodeType'],
       label: json['label'],
       color: Color(json['color']),
       position: Offset(
@@ -117,13 +124,6 @@ class CanvasConnection {
       label: json['label'],
     );
   }
-}
-
-enum NodeType {
-  rectangle,
-  circle,
-  diamond,
-  text,
 }
 
 /// Canvas State
@@ -197,7 +197,7 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
   /// Add a node to the canvas
   String addNode({
     required String componentId,
-    required NodeType type,
+    required String nodeType,
     required String label,
     required Color color,
     required Offset position,
@@ -207,13 +207,13 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
     // Create EntityNode in graph
     final entityNode = EntityNode(
       label: label,
-      type: entityType ?? _mapNodeTypeToEntityType(type),
+      type: entityType ?? _mapNodeTypeToEntityType(nodeType),
       x: position.dx,
       y: position.dy,
       attributes: {
         'investigationId': state.investigationId,
-        'canvasType': type.name,
-        'color': color.value,
+        'canvasType': nodeType,
+        'color': _colorToInt(color),
       },
     );
 
@@ -225,7 +225,7 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
       id: DateTime.now().millisecondsSinceEpoch.toString(),
       componentId: componentId,
       entityNodeId: entityNode.id,
-      type: type,
+      nodeType: nodeType,
       label: label,
       color: color,
       position: position,
@@ -270,7 +270,7 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
           y: position?.dy,
           attributes: {
             ...entityNode.attributes,
-            if (color != null) 'color': color.value,
+            if (color != null) 'color': _colorToInt(color),
           },
         ),
       );
@@ -420,9 +420,9 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
           id: node.id,
           componentId: node.id, // Use same ID
           entityNodeId: node.id,
-          type: _mapStringToNodeType(node.attributes['canvasType']),
+          nodeType: node.attributes['canvasType'],
           label: node.label,
-          color: Color(node.attributes['color'] ?? Colors.blue.value),
+          color: Color(node.attributes['color'] ?? _colorToInt(Colors.blue)),
           position: Offset(node.x ?? 0, node.y ?? 0),
           size: const Size(120, 60), // Default size
         );
@@ -455,26 +455,20 @@ class CanvasNotifier extends StateNotifier<CanvasState> {
     state = state.copyWith(isModified: false);
   }
 
-  /// Helper: Map NodeType to EntityNodeType
-  EntityNodeType _mapNodeTypeToEntityType(NodeType type) {
-    switch (type) {
-      case NodeType.rectangle:
+  /// Helper: Map nodeType string to EntityNodeType
+  EntityNodeType _mapNodeTypeToEntityType(String nodeType) {
+    switch (nodeType) {
+      case 'rectangle':
         return EntityNodeType.other;
-      case NodeType.circle:
+      case 'circle':
         return EntityNodeType.event;
-      case NodeType.diamond:
+      case 'diamond':
         return EntityNodeType.other;
-      case NodeType.text:
+      case 'text':
         return EntityNodeType.document;
+      default:
+        return EntityNodeType.other;
     }
-  }
-
-  /// Helper: Map string to NodeType
-  NodeType _mapStringToNodeType(String typeString) {
-    return NodeType.values.firstWhere(
-      (e) => e.name == typeString,
-      orElse: () => NodeType.rectangle,
-    );
   }
 
   /// Get node by component ID
