@@ -168,9 +168,6 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
       }
       return;
     }
-
-    if (sourceNode == null || targetNode == null) return;
-
     // Generate a unique link ID
     final linkId = 'link-${DateTime.now().millisecondsSinceEpoch}';
 
