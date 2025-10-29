@@ -7,6 +7,7 @@ import '../../widgets/common/modern_app_bar.dart';
 import '../../models/investigation_phase.dart';
 import '../../providers/investigations_provider.dart';
 import '../analysis/tabs/reports_tab.dart';
+import '../../widgets/common/phase_navigation_buttons.dart';
 
 class ReportsScreen extends ConsumerWidget {
   final String investigationId;
@@ -24,11 +25,7 @@ class ReportsScreen extends ConsumerWidget {
       return AppLayoutWrapper(
         appBar: ModernAppBar(
           title: 'Informes',
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
-            tooltip: 'Volver al inicio',
-          ),
+          leading: const PhaseNavigationButtons(),
         ),
         child: Center(
           child: Column(
@@ -52,11 +49,7 @@ class ReportsScreen extends ConsumerWidget {
       appBar: ModernAppBar(
         title: 'Informes',
         subtitle: investigation.name,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Volver al inicio',
-        ),
+        leading: const PhaseNavigationButtons(),
       ),
       bottomNavigationBar: PhaseNavigation(
         investigationId: investigationId,

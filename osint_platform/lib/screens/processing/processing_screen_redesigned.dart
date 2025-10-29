@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
+import '../../widgets/common/phase_navigation_buttons.dart';
 import '../../models/investigation_phase.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/processing/deduplication_widget.dart';
@@ -50,11 +51,7 @@ class _ProcessingScreenRedesignedState
       return AppLayoutWrapper(
         appBar: ModernAppBar(
           title: 'Procesamiento',
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
-            tooltip: 'Volver al inicio',
-          ),
+          leading: const PhaseNavigationButtons(),
         ),
         child: Center(
           child: Column(
@@ -78,11 +75,7 @@ class _ProcessingScreenRedesignedState
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Volver al inicio',
-        ),
+        leading: const PhaseNavigationButtons(),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

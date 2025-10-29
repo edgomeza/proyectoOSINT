@@ -18,6 +18,7 @@ import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/advanced_search_tab.dart';
 import '../../widgets/canvas/diagram_canvas_widget.dart';
+import '../../widgets/common/phase_navigation_buttons.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
   final String investigationId;
@@ -65,11 +66,7 @@ class _AnalysisScreenRedesignedState
       return AppLayoutWrapper(
         appBar: ModernAppBar(
           title: 'Análisis',
-          leading: IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () => context.go('/'),
-            tooltip: 'Volver al inicio',
-          ),
+          leading: const PhaseNavigationButtons(),
         ),
         child: Center(
           child: Column(
@@ -98,11 +95,7 @@ class _AnalysisScreenRedesignedState
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => context.go('/'),
-          tooltip: 'Volver al inicio',
-        ),
+        leading: const PhaseNavigationButtons(),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
