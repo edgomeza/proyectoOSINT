@@ -35,7 +35,7 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
     );
 
     if (investigation == null) {
-      return const Center(child: Text('Investigation not found'));
+      return const Center(child: Text('Investigación no encontrada'));
     }
 
     return SingleChildScrollView(
@@ -85,9 +85,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           // Report Types
           _buildReportCard(
             context,
-            title: 'Full Investigation Report',
+            title: 'Informe Completo de Investigación',
             description:
-                'Complete report with all entities, relationships, timeline, and geographic data',
+                'Informe completo con todas las entidades, relaciones, línea de tiempo y datos geográficos',
             icon: Icons.description,
             color: Colors.blue,
             onGenerate: _generateFullReport,
@@ -95,8 +95,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           const SizedBox(height: 12),
           _buildReportCard(
             context,
-            title: 'Summary Report',
-            description: 'Concise overview with key statistics and highlights',
+            title: 'Informe Resumido',
+            description: 'Resumen con estadísticas clave y hallazgos principales',
             icon: Icons.summarize,
             color: Colors.green,
             onGenerate: _generateSummaryReport,
@@ -104,8 +104,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
           const SizedBox(height: 12),
           _buildReportCard(
             context,
-            title: 'Custom Report',
-            description: 'Select specific sections to include',
+            title: 'Informe Personalizado',
+            description: 'Selecciona secciones específicas para incluir',
             icon: Icons.tune,
             color: Colors.purple,
             onGenerate: () => _showCustomReportDialog(context),

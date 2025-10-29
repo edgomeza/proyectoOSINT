@@ -17,7 +17,6 @@ import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/advanced_search_tab.dart';
-import 'tabs/reports_tab.dart';
 import '../../widgets/canvas/diagram_canvas_widget.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
@@ -42,7 +41,7 @@ class _AnalysisScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 7, vsync: this);
+    _tabController = TabController(length: 6, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _currentTabIndex = _tabController.index;
@@ -170,13 +169,12 @@ class _AnalysisScreenRedesignedState
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Overview'),
-            Tab(icon: Icon(Icons.hub), text: 'Graph'),
+            Tab(icon: Icon(Icons.dashboard), text: 'Resumen'),
+            Tab(icon: Icon(Icons.hub), text: 'Grafo'),
             Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
-            Tab(icon: Icon(Icons.map), text: 'Map'),
+            Tab(icon: Icon(Icons.map), text: 'Mapa'),
             Tab(icon: Icon(Icons.draw), text: 'Canvas'),
-            Tab(icon: Icon(Icons.search), text: 'Search'),
-            Tab(icon: Icon(Icons.description), text: 'Reports'),
+            Tab(icon: Icon(Icons.search), text: 'Búsqueda'),
           ],
         ),
       ),
@@ -215,9 +213,6 @@ class _AnalysisScreenRedesignedState
 
           // Advanced Search Tab
           AdvancedSearchTab(investigationId: widget.investigationId),
-
-          // Reports Tab
-          ReportsTab(investigationId: widget.investigationId),
         ],
       ),
     );

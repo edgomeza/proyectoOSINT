@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../providers/theme_provider.dart';
+import '../../providers/nexo_button_position_provider.dart';
 import '../../config/theme.dart';
 import 'nexo_avatar.dart';
 
@@ -40,43 +41,65 @@ class _NexoFloatingButtonState extends ConsumerState<NexoFloatingButton>
   @override
   Widget build(BuildContext context) {
     final isDarkMode = ref.watch(themeModeProvider) == ThemeMode.dark;
+    final position = ref.watch(nexoButtonPositionProvider);
+    final screenSize = MediaQuery.of(context).size;
 
     return Positioned(
-      right: 16,
-      bottom: 16,
-      child: FadeInUp(
-        child: ScaleTransition(
-          scale: _pulseAnimation,
-          child: Container(
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: (isDarkMode ? AppTheme.darkPrimary : AppTheme.lightPrimary)
-                      .withValues(alpha: 0.5),
-                  blurRadius: 20,
-                  spreadRadius: 5,
-                ),
-              ],
+      right: position.x,
+      bottom: position.y,
+      child: Draggable(
+        feedback: _buildButton(isDarkMode, isDragging: true),
+        childWhenDragging: Container(),
+        onDragEnd: (details) {
+          // Calcular nueva posición desde la esquina inferior derecha
+          final newX = screenSize.width - details.offset.dx - 30; // 30 es la mitad del botón
+          final newY = screenSize.height - details.offset.dy - 30;
+
+          // Limitar los bordes
+          final clampedX = newX.clamp(16.0, screenSize.width - 76.0);
+          final clampedY = newY.clamp(16.0, screenSize.height - 76.0);
+
+          ref.read(nexoButtonPositionProvider.notifier).updatePosition(clampedX, clampedY);
+        },
+        child: FadeInUp(
+          child: _buildButton(isDarkMode),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildButton(bool isDarkMode, {bool isDragging = false}) {
+    return ScaleTransition(
+      scale: _pulseAnimation,
+      child: Container(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          boxShadow: [
+            BoxShadow(
+              color: (isDarkMode ? AppTheme.darkPrimary : AppTheme.lightPrimary)
+                  .withValues(alpha: isDragging ? 0.7 : 0.5),
+              blurRadius: 20,
+              spreadRadius: 5,
             ),
-            child: FloatingActionButton(
-              heroTag: 'nexo_fab',
-              onPressed: () {
-                context.push('/nexo');
-              },
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              child: Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  gradient: isDarkMode
-                      ? AppTheme.darkPrimaryGradient
-                      : AppTheme.lightPrimaryGradient,
-                  shape: BoxShape.circle,
-                ),
-                child: const NexoAvatar(size: 40),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isDragging ? null : () {
+              context.push('/nexo');
+            },
+            customBorder: const CircleBorder(),
+            child: Container(
+              width: 60,
+              height: 60,
+              decoration: BoxDecoration(
+                gradient: isDarkMode
+                    ? AppTheme.darkPrimaryGradient
+                    : AppTheme.lightPrimaryGradient,
+                shape: BoxShape.circle,
               ),
+              child: const NexoAvatar(size: 40),
             ),
           ),
         ),
