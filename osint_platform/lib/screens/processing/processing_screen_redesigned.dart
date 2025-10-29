@@ -32,7 +32,7 @@ class _ProcessingScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
@@ -97,6 +97,7 @@ class _ProcessingScreenRedesignedState
           controller: _tabController,
           isScrollable: true,
           tabs: const [
+            Tab(icon: Icon(Icons.storage), text: 'Datos'),
             Tab(icon: Icon(Icons.content_copy), text: 'Deduplicación'),
             Tab(icon: Icon(Icons.psychology), text: 'Extracción NER'),
             Tab(icon: Icon(Icons.link), text: 'Entity Linking'),
@@ -110,6 +111,57 @@ class _ProcessingScreenRedesignedState
       child: TabBarView(
         controller: _tabController,
         children: [
+          // Collected Data Tab
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(
+                    Icons.storage,
+                    size: 64,
+                    color: Colors.blue,
+                  ),
+                  const SizedBox(height: 24),
+                  const Text(
+                    'Gestión de Datos Recopilados',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Aquí podrás ver, crear, editar y eliminar todos los datos\nrecopilados durante la fase de recopilación.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 16,
+                      color: Colors.grey[600],
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Funcionalidad en desarrollo - Próximamente'),
+                          duration: Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.add),
+                    label: const Text('Agregar Datos'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+
           // Deduplication Tab
           Padding(
             padding: const EdgeInsets.all(16),
