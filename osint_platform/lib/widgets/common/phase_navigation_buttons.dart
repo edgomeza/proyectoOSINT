@@ -13,11 +13,18 @@ class PhaseNavigationButtons extends StatelessWidget {
           icon: const Icon(Icons.home_outlined),
           onPressed: () => context.go('/'),
           tooltip: 'Ir al inicio',
+          iconSize: 20,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
         ),
+        const SizedBox(width: 4),
         IconButton(
           icon: const Icon(Icons.folder_outlined),
           onPressed: () => context.go('/investigations'),
           tooltip: 'Ver investigaciones',
+          iconSize: 20,
+          padding: EdgeInsets.zero,
+          constraints: const BoxConstraints(),
         ),
       ],
     );

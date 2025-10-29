@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
-import 'package:go_router/go_router.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/common/phase_badge.dart';
 import '../../widgets/common/phase_navigation.dart';
