@@ -298,6 +298,10 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(16),
                                 ),
+                                textStyle: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               child: _isLoading
                                   ? const SizedBox(
@@ -310,12 +314,6 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                     )
                                   : Text(
                                       widget.isFirstLaunch ? 'Configurar' : 'Desbloquear',
-                                      style: const TextStyle(
-                                        inherit: false,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
                                     ),
                             ),
                           ),
