@@ -266,16 +266,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           ],
         ),
       ),
+      bottomNavigationBar: PhaseNavigation(
+        investigationId: widget.investigationId,
+        currentPhase: InvestigationPhase.collection,
+      ),
       child: TabBarView(
         controller: _tabController,
         children: [
           _buildCreateNewTab(),
           _buildSavedFormsTab(savedForms),
         ],
-      ),
-      bottomNavigationBar: PhaseNavigation(
-        investigationId: widget.investigationId,
-        currentPhase: InvestigationPhase.collection,
       ),
     );
   }
