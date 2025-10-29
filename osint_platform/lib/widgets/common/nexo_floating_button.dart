@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../providers/theme_provider.dart';
 import '../../config/theme.dart';
+import 'nexo_avatar.dart';
 
 class NexoFloatingButton extends ConsumerStatefulWidget {
   const NexoFloatingButton({super.key});
@@ -74,11 +75,7 @@ class _NexoFloatingButtonState extends ConsumerState<NexoFloatingButton>
                       : AppTheme.lightPrimaryGradient,
                   shape: BoxShape.circle,
                 ),
-                child: const Icon(
-                  Icons.smart_toy_outlined,
-                  size: 32,
-                  color: Colors.white,
-                ),
+                child: const NexoAvatar(size: 40),
               ),
             ),
           ),
