@@ -77,6 +77,7 @@ dependencies:
 
   # Database
   sqflite: ^2.4.1
+  sqflite_common_ffi: ^2.3.0
 
   # HTTP/API
   dio: ^5.7.0
