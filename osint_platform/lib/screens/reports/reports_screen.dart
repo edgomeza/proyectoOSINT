@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../widgets/common/navigation_drawer.dart';
 import '../../widgets/common/phase_navigation.dart';
+import '../../widgets/common/app_layout_wrapper.dart';
+import '../../widgets/common/modern_app_bar.dart';
 import '../../models/investigation_phase.dart';
 
 class ReportsScreen extends ConsumerWidget {
@@ -15,17 +16,16 @@ class ReportsScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      appBar: AppBar(
+    return AppLayoutWrapper(
+      appBar: ModernAppBar(
+        title: 'Informes',
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => context.go('/'),
           tooltip: 'Volver al inicio',
         ),
-        title: const Text('Informes'),
       ),
-      drawer: const AppNavigationDrawer(),
-      body: Center(
+      child: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
