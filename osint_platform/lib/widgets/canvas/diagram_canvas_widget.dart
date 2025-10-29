@@ -1,32 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:diagram_editor/diagram_editor.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../providers/canvas_provider.dart';
-import '../../services/canvas_persistence_service.dart';
 
-class DiagramCanvasWidget extends ConsumerStatefulWidget {
-  final String? investigationId;
+class DiagramCanvasWidget extends StatefulWidget {
   final Function(DiagramEditorContext)? onSave;
 
   const DiagramCanvasWidget({
     super.key,
-    this.investigationId,
     this.onSave,
   });
 
   @override
-  ConsumerState<DiagramCanvasWidget> createState() => _DiagramCanvasWidgetState();
+  State<DiagramCanvasWidget> createState() => _DiagramCanvasWidgetState();
 }
 
-class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
+class _DiagramCanvasWidgetState extends State<DiagramCanvasWidget> {
   late DiagramEditorContext diagramEditorContext;
-  final CanvasPersistenceService _persistenceService = CanvasPersistenceService();
-
   NodeType _selectedNodeType = NodeType.rectangle;
   Color _selectedColor = Colors.blue;
   bool _isLinkingMode = false;
-  String? _selectedComponentId;
-  String? _linkingFromComponentId;
 
   @override
   void initState() {
@@ -36,158 +27,8 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
         onColorSelected: () => _selectedColor,
         onNodeTypeSelected: () => _selectedNodeType,
         onEditNodeText: _editNodeText,
-        onNodeTap: _handleNodeTap,
-        onNodeDoubleTap: _handleNodeDoubleTap,
-        onDeleteNode: _handleDeleteNode,
-        onDeleteLink: _handleDeleteLink,
-        onNodeAdded: _handleNodeAdded,
       ),
     );
-    _loadCanvas();
-  }
-
-  void _handleNodeAdded(String componentId, NodeType type, String text, Color color, Offset position, Size size) {
-    ref.read(canvasProvider.notifier).addNode(
-      componentId: componentId,
-      nodeType: type.name,
-      label: text,
-      color: color,
-      position: position,
-      size: size,
-    );
-    _autoSave();
-  }
-
-  Future<void> _loadCanvas() async {
-    if (widget.investigationId != null) {
-      ref.read(canvasProvider.notifier).setInvestigation(widget.investigationId!);
-
-      final savedState = await _persistenceService.loadCanvasByInvestigation(
-        widget.investigationId!,
-      );
-
-      if (savedState != null) {
-        ref.read(canvasProvider.notifier).loadFromGraph(widget.investigationId!);
-      }
-    }
-  }
-
-  void _handleNodeTap(String componentId) {
-    setState(() {
-      _selectedComponentId = componentId;
-    });
-
-    if (_isLinkingMode) {
-      if (_linkingFromComponentId == null) {
-        // First node selected for linking
-        _linkingFromComponentId = componentId;
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Now click on the target node to create connection'),
-            duration: Duration(seconds: 2),
-          ),
-        );
-      } else if (_linkingFromComponentId != componentId) {
-        // Second node selected - create link
-        _createLink(_linkingFromComponentId!, componentId);
-        setState(() {
-          _linkingFromComponentId = null;
-          _isLinkingMode = false;
-        });
-      }
-    }
-
-    // Update provider
-    final canvasNode = ref.read(canvasProvider.notifier).getNodeByComponentId(componentId);
-    if (canvasNode != null) {
-      ref.read(canvasProvider.notifier).selectNode(canvasNode.id);
-    }
-  }
-
-  void _handleNodeDoubleTap(String componentId) async {
-    // Get current node info from provider
-    final canvasNode = ref.read(canvasProvider.notifier).getNodeByComponentId(componentId);
-    if (canvasNode == null) return;
-
-    final newText = await _editNodeText(componentId, canvasNode.label);
-
-    if (newText != null && newText.isNotEmpty && newText != canvasNode.label) {
-      // Update in provider
-      ref.read(canvasProvider.notifier).updateNode(
-        canvasNode.id,
-        label: newText,
-      );
-
-      await _autoSave();
-    }
-  }
-
-  void _handleDeleteNode(String componentId) {
-    final canvasNode = ref.read(canvasProvider.notifier).getNodeByComponentId(componentId);
-    if (canvasNode != null) {
-      ref.read(canvasProvider.notifier).removeNode(canvasNode.id);
-      _autoSave();
-    }
-  }
-
-  void _handleDeleteLink(String linkId) {
-    final canvasState = ref.read(canvasProvider);
-    try {
-      final connection = canvasState.connections.values.firstWhere(
-        (conn) => conn.linkId == linkId,
-      );
-      ref.read(canvasProvider.notifier).removeConnection(connection.id);
-      _autoSave();
-    } catch (e) {
-      // Connection not found, ignore
-    }
-  }
-
-  void _createLink(String sourceComponentId, String targetComponentId) {
-    // Find canvas nodes
-    final canvasState = ref.read(canvasProvider);
-
-    CanvasNode? sourceNode;
-    CanvasNode? targetNode;
-
-    try {
-      sourceNode = canvasState.nodes.values.firstWhere(
-        (node) => node.componentId == sourceComponentId,
-      );
-      targetNode = canvasState.nodes.values.firstWhere(
-        (node) => node.componentId == targetComponentId,
-      );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Error: Could not find nodes'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
-      return;
-    }
-    // Generate a unique link ID
-    final linkId = 'link-${DateTime.now().millisecondsSinceEpoch}';
-
-    // Add to provider
-    ref.read(canvasProvider.notifier).addConnection(
-      linkId: linkId,
-      sourceNodeId: sourceNode.id,
-      targetNodeId: targetNode.id,
-    );
-
-    _autoSave();
-
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Connection created successfully'),
-          duration: Duration(seconds: 1),
-        ),
-      );
-    }
   }
 
   Future<String?> _editNodeText(String componentId, String currentText) async {
@@ -221,17 +62,6 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
     );
 
     return result;
-  }
-
-  Future<void> _autoSave() async {
-    final canvasState = ref.read(canvasProvider);
-    if (widget.investigationId != null && canvasState.isModified) {
-      await _persistenceService.updateCanvas(
-        id: widget.investigationId!,
-        canvasState: canvasState,
-      );
-      ref.read(canvasProvider.notifier).markAsSaved();
-    }
   }
 
   @override
@@ -340,10 +170,7 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
                   label: 'Connect Nodes (Click two nodes to connect)',
                   isActive: _isLinkingMode,
                   onPressed: () {
-                    setState(() {
-                      _isLinkingMode = !_isLinkingMode;
-                      _linkingFromComponentId = null;
-                    });
+                    setState(() => _isLinkingMode = !_isLinkingMode);
                     if (_isLinkingMode) {
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
@@ -356,23 +183,9 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
                 ),
                 _buildToolButton(
                   context,
-                  icon: Icons.delete_outline,
-                  label: 'Delete Selected Node',
-                  onPressed: _selectedComponentId != null
-                      ? () => _confirmDeleteNode(_selectedComponentId!)
-                      : null,
-                ),
-                _buildToolButton(
-                  context,
                   icon: Icons.save,
                   label: 'Save',
                   onPressed: () => _saveDiagram(),
-                ),
-                _buildToolButton(
-                  context,
-                  icon: Icons.clear_all,
-                  label: 'Clear All',
-                  onPressed: () => _confirmClearCanvas(),
                 ),
               ],
             ),
@@ -468,126 +281,11 @@ class _DiagramCanvasWidgetState extends ConsumerState<DiagramCanvasWidget> {
     );
   }
 
-  Future<void> _confirmDeleteNode(String componentId) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Node'),
-        content: const Text('Are you sure you want to delete this node and all its connections?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+  void _saveDiagram() {
+    widget.onSave?.call(diagramEditorContext);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Diagram saved')),
     );
-
-    if (confirmed == true && mounted) {
-      // Remove from provider
-      _handleDeleteNode(componentId);
-
-      setState(() {
-        _selectedComponentId = null;
-      });
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Node deleted')),
-        );
-      }
-    }
-  }
-
-  Future<void> _confirmClearCanvas() async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Clear Canvas'),
-        content: const Text('Are you sure you want to delete all nodes and connections? This action cannot be undone.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-            ),
-            child: const Text('Clear All'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed == true && mounted) {
-      // Clear provider
-      ref.read(canvasProvider.notifier).clearCanvas();
-
-      setState(() {
-        _selectedComponentId = null;
-        _linkingFromComponentId = null;
-        _isLinkingMode = false;
-      });
-
-      await _autoSave();
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Canvas cleared')),
-        );
-      }
-    }
-  }
-
-  Future<void> _saveDiagram() async {
-    final canvasState = ref.read(canvasProvider);
-
-    if (widget.investigationId != null) {
-      final exists = await _persistenceService.canvasExists(widget.investigationId!);
-
-      if (exists) {
-        await _persistenceService.updateCanvas(
-          id: widget.investigationId!,
-          canvasState: canvasState,
-        );
-      } else {
-        await _persistenceService.saveCanvas(
-          id: widget.investigationId!,
-          investigationId: widget.investigationId!,
-          canvasState: canvasState,
-        );
-      }
-
-      ref.read(canvasProvider.notifier).markAsSaved();
-
-      widget.onSave?.call(diagramEditorContext);
-
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Diagram saved successfully')),
-        );
-      }
-    } else {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cannot save: No investigation selected'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-    }
   }
 }
 
@@ -605,21 +303,11 @@ class MyPolicySet extends PolicySet
   final Color Function() onColorSelected;
   final NodeType Function() onNodeTypeSelected;
   final Future<String?> Function(String, String) onEditNodeText;
-  final void Function(String) onNodeTap;
-  final void Function(String) onNodeDoubleTap;
-  final void Function(String) onDeleteNode;
-  final void Function(String) onDeleteLink;
-  final void Function(String, NodeType, String, Color, Offset, Size) onNodeAdded;
 
   MyPolicySet({
     required this.onColorSelected,
     required this.onNodeTypeSelected,
     required this.onEditNodeText,
-    required this.onNodeTap,
-    required this.onNodeDoubleTap,
-    required this.onDeleteNode,
-    required this.onDeleteLink,
-    required this.onNodeAdded,
   });
 }
 
@@ -661,12 +349,10 @@ mixin MyCanvasPolicy implements CanvasPolicy {
         break;
     }
 
-    final position = canvasReader.state.fromCanvasCoordinates(details.localPosition);
-
-    final componentId = canvasWriter.model.addComponent(
+    canvasWriter.model.addComponent(
       ComponentData(
         size: size,
-        position: position,
+        position: canvasReader.state.fromCanvasCoordinates(details.localPosition),
         data: NodeData(
           type: nodeType,
           text: text,
@@ -674,9 +360,6 @@ mixin MyCanvasPolicy implements CanvasPolicy {
         ),
       ),
     );
-
-    // Notify that a node was added
-    policySet.onNodeAdded(componentId, nodeType, text, color, position, size);
   }
 }
 
@@ -684,13 +367,19 @@ mixin MyCanvasPolicy implements CanvasPolicy {
 mixin MyComponentPolicy implements ComponentPolicy {
   @override
   onComponentTap(String componentId) {
-    MyPolicySet policySet = this as MyPolicySet;
-    policySet.onNodeTap(componentId);
+    // Component tap is handled by the CanvasControlPolicy
+    // which provides default selection behavior
   }
 
   onComponentDoubleTap(String componentId) async {
     MyPolicySet policySet = this as MyPolicySet;
-    policySet.onNodeDoubleTap(componentId);
+    final component = canvasReader.model.getComponent(componentId);
+    final nodeData = component.data as NodeData;
+    final newText = await policySet.onEditNodeText(componentId, nodeData.text);
+    if (newText != null && newText.isNotEmpty) {
+      nodeData.text = newText;
+      canvasWriter.model.updateComponent(componentId);
+    }
   }
 }
 
