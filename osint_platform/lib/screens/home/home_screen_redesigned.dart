@@ -6,6 +6,7 @@ import '../../providers/theme_provider.dart';
 import '../../widgets/common/theme_toggle_button.dart';
 import '../../widgets/common/language_selector.dart';
 import '../../widgets/common/elk_services_indicator.dart';
+import '../../widgets/common/nexo_avatar.dart';
 import '../../config/theme.dart';
 
 class HomeScreenRedesigned extends ConsumerWidget {
@@ -250,22 +251,19 @@ class HomeScreenRedesigned extends ConsumerWidget {
 
               // Contenido
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Icono de Nexo (placeholder hasta que se agregue la imagen)
+                    // Icono de Nexo
                     Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.2),
                         shape: BoxShape.circle,
                       ),
-                      child: const Icon(
-                        Icons.smart_toy_outlined,
-                        size: 48,
-                        color: Colors.white,
-                      ),
+                      child: const NexoAvatar(size: 56),
                     ),
                     const SizedBox(height: 16),
                     const Text(
@@ -339,9 +337,10 @@ class HomeScreenRedesigned extends ConsumerWidget {
 
               // Contenido
               Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(20),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     Container(
                       padding: const EdgeInsets.all(16),

@@ -4,7 +4,6 @@ import 'package:encrypt/encrypt.dart' as encrypt;
 import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:sqflite/sqflite.dart';
-import 'package:path/path.dart';
 
 class EncryptionService {
   static final EncryptionService _instance = EncryptionService._internal();
@@ -47,7 +46,7 @@ class EncryptionService {
 
       return true;
     } catch (e) {
-      print('Error setting initial password: $e');
+      // Error setting initial password
       return false;
     }
   }
@@ -68,7 +67,7 @@ class EncryptionService {
 
       return false;
     } catch (e) {
-      print('Error unlocking: $e');
+      // Error unlocking
       return false;
     }
   }
@@ -93,7 +92,7 @@ class EncryptionService {
       // Combinar IV y datos encriptados
       return '${iv.base64}:${encrypted.base64}';
     } catch (e) {
-      print('Error encrypting data: $e');
+      // Error encrypting data
       rethrow;
     }
   }
@@ -116,7 +115,7 @@ class EncryptionService {
       final encrypter = encrypt.Encrypter(encrypt.AES(_encryptionKey!));
       return encrypter.decrypt(encrypted, iv: iv);
     } catch (e) {
-      print('Error decrypting data: $e');
+      // Error decrypting data
       rethrow;
     }
   }
@@ -126,14 +125,11 @@ class EncryptionService {
     if (!_isUnlocked) return;
 
     try {
-      final databasePath = await getDatabasesPath();
-      final dbPath = join(databasePath, 'osint_platform.db');
-
+      await getDatabasesPath();
       // Aquí puedes implementar la lógica para encriptar archivos sensibles
       // Por ahora, solo cerramos la base de datos
-      print('Database encrypted/closed');
     } catch (e) {
-      print('Error encrypting database: $e');
+      // Error encrypting database
     }
   }
 
@@ -144,13 +140,10 @@ class EncryptionService {
     }
 
     try {
-      final databasePath = await getDatabasesPath();
-      final dbPath = join(databasePath, 'osint_platform.db');
-
+      await getDatabasesPath();
       // Aquí puedes implementar la lógica para desencriptar archivos sensibles
-      print('Database decrypted/opened');
     } catch (e) {
-      print('Error decrypting database: $e');
+      // Error decrypting database
       rethrow;
     }
   }
@@ -167,7 +160,7 @@ class EncryptionService {
       _encryptionKey = _generateKeyFromPassword(newPassword);
       return true;
     } catch (e) {
-      print('Error changing password: $e');
+      // Error changing password
       return false;
     }
   }
