@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../services/investigation_elasticsearch_service.dart';
 import '../models/data_form.dart';
+import '../models/data_form_status.dart';
 
 /// Provider del servicio de Elasticsearch para investigaciones
 final investigationElasticsearchServiceProvider =

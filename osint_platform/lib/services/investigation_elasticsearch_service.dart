@@ -1,6 +1,7 @@
 import 'elasticsearch_service.dart';
 import '../models/investigation.dart';
 import '../models/data_form.dart';
+import '../models/data_form_status.dart';
 
 /// Servicio de alto nivel para gestionar investigaciones en Elasticsearch
 class InvestigationElasticsearchService {

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../providers/investigations_provider.dart';
-import '../../widgets/common/phase_badge.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
