@@ -1,5 +1,3 @@
-import 'dart:convert';
-import 'package:uuid/uuid.dart';
 import 'elasticsearch_service.dart';
 import '../models/investigation.dart';
 import '../models/data_form.dart';
@@ -12,7 +10,6 @@ class InvestigationElasticsearchService {
   InvestigationElasticsearchService._internal();
 
   final _elasticsearchService = ElasticsearchService();
-  final _uuid = const Uuid();
 
   /// Obtiene el nombre del índice para una investigación
   String _getIndexName(String investigationId) {
@@ -29,41 +26,17 @@ class InvestigationElasticsearchService {
         'id': {'type': 'keyword'},
         'investigationId': {'type': 'keyword'},
         'category': {'type': 'keyword'},
-        'type': {'type': 'keyword'},
-        'title': {
-          'type': 'text',
-          'fields': {
-            'keyword': {'type': 'keyword'},
-          },
-        },
-        'description': {'type': 'text'},
-        'content': {'type': 'text'},
-        'metadata': {
+        'status': {'type': 'keyword'},
+        'fields': {
           'type': 'object',
           'enabled': true,
         },
-        'entities': {
-          'type': 'nested',
-          'properties': {
-            'text': {'type': 'keyword'},
-            'type': {'type': 'keyword'},
-            'confidence': {'type': 'float'},
-          },
-        },
         'tags': {'type': 'keyword'},
-        'source': {'type': 'keyword'},
-        'url': {'type': 'keyword'},
-        'author': {'type': 'keyword'},
-        'location': {
-          'type': 'object',
-          'properties': {
-            'latitude': {'type': 'float'},
-            'longitude': {'type': 'float'},
-            'name': {'type': 'keyword'},
-          },
-        },
-        'timestamp': {'type': 'date'},
-        'collectedAt': {'type': 'date'},
+        'notes': {'type': 'text'},
+        'priority': {'type': 'integer'},
+        'confidence': {'type': 'float'},
+        'completeness': {'type': 'float'},
+        'smartPriority': {'type': 'integer'},
         'createdAt': {'type': 'date'},
         'updatedAt': {'type': 'date'},
       },
@@ -79,48 +52,25 @@ class InvestigationElasticsearchService {
     // Crear el índice si no existe
     final indexExists = await _elasticsearchService.indexExists(indexName);
     if (!indexExists) {
-      // Si la investigación no existe, crear índice genérico
       await _elasticsearchService.createIndex(indexName);
     }
 
     // Convertir DataForm a documento Elasticsearch
     final document = {
       'id': dataForm.id,
-      'investigationId': investigationId,
-      'category': dataForm.category,
-      'type': 'data_form',
-      'title': dataForm.title,
-      'description': dataForm.description,
-      'content': dataForm.content,
-      'metadata': dataForm.metadata,
-      'tags': dataForm.tags ?? [],
-      'source': dataForm.source,
-      'url': dataForm.url,
-      'author': dataForm.author,
-      'timestamp': dataForm.timestamp?.toIso8601String(),
-      'createdAt': DateTime.now().toIso8601String(),
-      'updatedAt': DateTime.now().toIso8601String(),
+      'investigationId': dataForm.investigationId,
+      'category': dataForm.category.name,
+      'status': dataForm.status.name,
+      'fields': dataForm.fields,
+      'tags': dataForm.tags,
+      'notes': dataForm.notes,
+      'priority': dataForm.priority,
+      'confidence': dataForm.confidence,
+      'completeness': dataForm.completeness,
+      'smartPriority': dataForm.smartPriority,
+      'createdAt': dataForm.createdAt.toIso8601String(),
+      'updatedAt': dataForm.updatedAt.toIso8601String(),
     };
-
-    // Agregar entidades si existen
-    if (dataForm.entities != null && dataForm.entities!.isNotEmpty) {
-      document['entities'] = dataForm.entities!.map((entity) {
-        return {
-          'text': entity.text,
-          'type': entity.type,
-          'confidence': entity.confidence,
-        };
-      }).toList();
-    }
-
-    // Agregar ubicación si existe
-    if (dataForm.location != null) {
-      document['location'] = {
-        'latitude': dataForm.location!.latitude,
-        'longitude': dataForm.location!.longitude,
-        'name': dataForm.location!.name,
-      };
-    }
 
     return await _elasticsearchService.indexDocument(
       indexName,
@@ -143,43 +93,21 @@ class InvestigationElasticsearchService {
     }
 
     final documents = dataForms.map((dataForm) {
-      final document = {
+      return {
         'id': dataForm.id,
-        'investigationId': investigationId,
-        'category': dataForm.category,
-        'type': 'data_form',
-        'title': dataForm.title,
-        'description': dataForm.description,
-        'content': dataForm.content,
-        'metadata': dataForm.metadata,
-        'tags': dataForm.tags ?? [],
-        'source': dataForm.source,
-        'url': dataForm.url,
-        'author': dataForm.author,
-        'timestamp': dataForm.timestamp?.toIso8601String(),
-        'createdAt': DateTime.now().toIso8601String(),
-        'updatedAt': DateTime.now().toIso8601String(),
+        'investigationId': dataForm.investigationId,
+        'category': dataForm.category.name,
+        'status': dataForm.status.name,
+        'fields': dataForm.fields,
+        'tags': dataForm.tags,
+        'notes': dataForm.notes,
+        'priority': dataForm.priority,
+        'confidence': dataForm.confidence,
+        'completeness': dataForm.completeness,
+        'smartPriority': dataForm.smartPriority,
+        'createdAt': dataForm.createdAt.toIso8601String(),
+        'updatedAt': dataForm.updatedAt.toIso8601String(),
       };
-
-      if (dataForm.entities != null && dataForm.entities!.isNotEmpty) {
-        document['entities'] = dataForm.entities!.map((entity) {
-          return {
-            'text': entity.text,
-            'type': entity.type,
-            'confidence': entity.confidence,
-          };
-        }).toList();
-      }
-
-      if (dataForm.location != null) {
-        document['location'] = {
-          'latitude': dataForm.location!.latitude,
-          'longitude': dataForm.location!.longitude,
-          'name': dataForm.location!.name,
-        };
-      }
-
-      return document;
     }).toList();
 
     return await _elasticsearchService.bulkIndexDocuments(indexName, documents);
@@ -189,10 +117,13 @@ class InvestigationElasticsearchService {
   Future<List<DataForm>> searchInInvestigation(
     String investigationId, {
     String? query,
-    String? category,
+    DataFormCategory? category,
+    DataFormStatus? status,
     List<String>? tags,
     DateTime? startDate,
     DateTime? endDate,
+    double? minConfidence,
+    int? minPriority,
     int from = 0,
     int size = 10,
   }) async {
@@ -215,7 +146,8 @@ class InvestigationElasticsearchService {
         },
       },
       'sort': [
-        {'createdAt': 'desc'},
+        {'smartPriority': 'desc'},
+        {'updatedAt': 'desc'},
       ],
     };
 
@@ -227,7 +159,7 @@ class InvestigationElasticsearchService {
       mustClauses.add({
         'multi_match': {
           'query': query,
-          'fields': ['title^3', 'description^2', 'content', 'metadata.*'],
+          'fields': ['fields.*', 'notes', 'tags'],
           'type': 'best_fields',
         },
       });
@@ -236,7 +168,14 @@ class InvestigationElasticsearchService {
     // Filtrar por categoría
     if (category != null) {
       filterClauses.add({
-        'term': {'category': category},
+        'term': {'category': category.name},
+      });
+    }
+
+    // Filtrar por estado
+    if (status != null) {
+      filterClauses.add({
+        'term': {'status': status.name},
       });
     }
 
@@ -251,19 +190,37 @@ class InvestigationElasticsearchService {
     if (startDate != null || endDate != null) {
       final rangeFilter = <String, dynamic>{
         'range': {
-          'timestamp': <String, dynamic>{},
+          'updatedAt': <String, dynamic>{},
         },
       };
 
       if (startDate != null) {
-        rangeFilter['range']['timestamp']['gte'] = startDate.toIso8601String();
+        rangeFilter['range']['updatedAt']['gte'] = startDate.toIso8601String();
       }
 
       if (endDate != null) {
-        rangeFilter['range']['timestamp']['lte'] = endDate.toIso8601String();
+        rangeFilter['range']['updatedAt']['lte'] = endDate.toIso8601String();
       }
 
       filterClauses.add(rangeFilter);
+    }
+
+    // Filtrar por confianza mínima
+    if (minConfidence != null) {
+      filterClauses.add({
+        'range': {
+          'confidence': {'gte': minConfidence},
+        },
+      });
+    }
+
+    // Filtrar por prioridad mínima
+    if (minPriority != null) {
+      filterClauses.add({
+        'range': {
+          'priority': {'gte': minPriority},
+        },
+      });
     }
 
     // Si no hay condiciones, buscar todo
@@ -289,7 +246,10 @@ class InvestigationElasticsearchService {
       return {
         'total': 0,
         'byCategory': {},
+        'byStatus': {},
         'byTag': {},
+        'avgConfidence': 0.0,
+        'avgCompleteness': 0.0,
       };
     }
 
@@ -309,6 +269,19 @@ class InvestigationElasticsearchService {
       },
     );
 
+    // Obtener agregación por estado
+    final statusAgg = await _elasticsearchService.aggregate(
+      indexName,
+      {
+        'statuses': {
+          'terms': {
+            'field': 'status',
+            'size': 50,
+          },
+        },
+      },
+    );
+
     // Obtener agregación por tags
     final tagAgg = await _elasticsearchService.aggregate(
       indexName,
@@ -322,11 +295,32 @@ class InvestigationElasticsearchService {
       },
     );
 
+    // Obtener promedio de confianza y completitud
+    final avgAgg = await _elasticsearchService.aggregate(
+      indexName,
+      {
+        'avg_confidence': {
+          'avg': {'field': 'confidence'},
+        },
+        'avg_completeness': {
+          'avg': {'field': 'completeness'},
+        },
+      },
+    );
+
     final byCategory = <String, int>{};
     if (categoryAgg != null && categoryAgg['categories'] != null) {
       final buckets = categoryAgg['categories']['buckets'] as List;
       for (final bucket in buckets) {
         byCategory[bucket['key'] as String] = bucket['doc_count'] as int;
+      }
+    }
+
+    final byStatus = <String, int>{};
+    if (statusAgg != null && statusAgg['statuses'] != null) {
+      final buckets = statusAgg['statuses']['buckets'] as List;
+      for (final bucket in buckets) {
+        byStatus[bucket['key'] as String] = bucket['doc_count'] as int;
       }
     }
 
@@ -338,10 +332,16 @@ class InvestigationElasticsearchService {
       }
     }
 
+    final avgConfidence = avgAgg?['avg_confidence']?['value'] as double? ?? 0.0;
+    final avgCompleteness = avgAgg?['avg_completeness']?['value'] as double? ?? 0.0;
+
     return {
       'total': total,
       'byCategory': byCategory,
+      'byStatus': byStatus,
       'byTag': byTag,
+      'avgConfidence': avgConfidence,
+      'avgCompleteness': avgCompleteness,
     };
   }
 
@@ -380,34 +380,22 @@ class InvestigationElasticsearchService {
   DataForm _documentToDataForm(Map<String, dynamic> doc) {
     return DataForm(
       id: doc['id'] as String,
-      category: doc['category'] as String,
-      title: doc['title'] as String,
-      description: doc['description'] as String?,
-      content: doc['content'] as String?,
-      metadata: doc['metadata'] as Map<String, dynamic>?,
-      tags: (doc['tags'] as List?)?.cast<String>(),
-      source: doc['source'] as String?,
-      url: doc['url'] as String?,
-      author: doc['author'] as String?,
-      timestamp: doc['timestamp'] != null
-          ? DateTime.parse(doc['timestamp'] as String)
-          : null,
-      entities: doc['entities'] != null
-          ? (doc['entities'] as List).map((e) {
-              return Entity(
-                text: e['text'] as String,
-                type: e['type'] as String,
-                confidence: (e['confidence'] as num?)?.toDouble() ?? 0.0,
-              );
-            }).toList()
-          : null,
-      location: doc['location'] != null
-          ? Location(
-              latitude: (doc['location']['latitude'] as num).toDouble(),
-              longitude: (doc['location']['longitude'] as num).toDouble(),
-              name: doc['location']['name'] as String?,
-            )
-          : null,
+      investigationId: doc['investigationId'] as String,
+      category: DataFormCategory.values.firstWhere(
+        (cat) => cat.name == doc['category'],
+        orElse: () => DataFormCategory.personalData,
+      ),
+      status: DataFormStatus.values.firstWhere(
+        (stat) => stat.name == doc['status'],
+        orElse: () => DataFormStatus.draft,
+      ),
+      fields: Map<String, dynamic>.from(doc['fields'] ?? {}),
+      tags: List<String>.from(doc['tags'] ?? []),
+      notes: doc['notes'] as String?,
+      priority: doc['priority'] as int? ?? 0,
+      confidence: (doc['confidence'] as num?)?.toDouble() ?? 0.5,
+      createdAt: DateTime.parse(doc['createdAt'] as String),
+      updatedAt: DateTime.parse(doc['updatedAt'] as String),
     );
   }
 
@@ -417,8 +405,11 @@ class InvestigationElasticsearchService {
     return await _elasticsearchService.refreshIndex(indexName);
   }
 
-  /// Busca entidades en una investigación
-  Future<Map<String, List<String>>> getEntitiesByType(String investigationId) async {
+  /// Busca campos específicos en los DataForms
+  Future<Map<String, List<dynamic>>> getFieldValues(
+    String investigationId,
+    List<String> fieldNames,
+  ) async {
     final indexName = _getIndexName(investigationId);
 
     // Verificar si el índice existe
@@ -427,52 +418,110 @@ class InvestigationElasticsearchService {
       return {};
     }
 
-    // Obtener agregación por tipo de entidad
-    final result = await _elasticsearchService.aggregate(
-      indexName,
-      {
-        'entity_types': {
-          'nested': {
-            'path': 'entities',
-          },
-          'aggs': {
-            'types': {
-              'terms': {
-                'field': 'entities.type',
-                'size': 50,
-              },
-              'aggs': {
-                'top_entities': {
-                  'terms': {
-                    'field': 'entities.text',
-                    'size': 100,
-                  },
-                },
-              },
+    final results = <String, List<dynamic>>{};
+
+    for (final fieldName in fieldNames) {
+      // Obtener agregación por campo
+      final fieldAgg = await _elasticsearchService.aggregate(
+        indexName,
+        {
+          'field_values': {
+            'terms': {
+              'field': 'fields.$fieldName.keyword',
+              'size': 1000,
             },
           },
         },
-      },
-    );
+      );
 
-    final entitiesByType = <String, List<String>>{};
-
-    if (result != null && result['entity_types'] != null) {
-      final typeBuckets = result['entity_types']['types']['buckets'] as List;
-
-      for (final typeBucket in typeBuckets) {
-        final type = typeBucket['key'] as String;
-        final entities = <String>[];
-
-        final entityBuckets = typeBucket['top_entities']['buckets'] as List;
-        for (final entityBucket in entityBuckets) {
-          entities.add(entityBucket['key'] as String);
+      final values = <dynamic>[];
+      if (fieldAgg != null && fieldAgg['field_values'] != null) {
+        final buckets = fieldAgg['field_values']['buckets'] as List;
+        for (final bucket in buckets) {
+          values.add(bucket['key']);
         }
-
-        entitiesByType[type] = entities;
       }
+
+      results[fieldName] = values;
     }
 
-    return entitiesByType;
+    return results;
+  }
+
+  /// Busca DataForms por campo específico
+  Future<List<DataForm>> searchByField(
+    String investigationId,
+    String fieldName,
+    dynamic fieldValue, {
+    int from = 0,
+    int size = 10,
+  }) async {
+    final indexName = _getIndexName(investigationId);
+
+    // Verificar si el índice existe
+    final indexExists = await _elasticsearchService.indexExists(indexName);
+    if (!indexExists) {
+      return [];
+    }
+
+    final queryDsl = {
+      'from': from,
+      'size': size,
+      'query': {
+        'term': {
+          'fields.$fieldName': fieldValue,
+        },
+      },
+      'sort': [
+        {'updatedAt': 'desc'},
+      ],
+    };
+
+    final result = await _elasticsearchService.advancedSearch(indexName, queryDsl);
+
+    return result.documents.map((doc) {
+      return _documentToDataForm(doc.data);
+    }).toList();
+  }
+
+  /// Obtiene los DataForms con mayor prioridad
+  Future<List<DataForm>> getHighPriorityForms(
+    String investigationId, {
+    int limit = 10,
+  }) async {
+    return await searchInInvestigation(
+      investigationId,
+      size: limit,
+    );
+  }
+
+  /// Obtiene DataForms por estado
+  Future<List<DataForm>> getFormsByStatus(
+    String investigationId,
+    DataFormStatus status, {
+    int from = 0,
+    int size = 10,
+  }) async {
+    return await searchInInvestigation(
+      investigationId,
+      status: status,
+      from: from,
+      size: size,
+    );
+  }
+
+  /// Obtiene DataForms por categoría
+  Future<List<DataForm>> getFormsByCategory(
+    String investigationId,
+    DataFormCategory category, {
+    int from = 0,
+    int size = 10,
+  }) async {
+    return await searchInInvestigation(
+      investigationId,
+      category: category,
+      from: from,
+      size: size,
+    );
   }
 }

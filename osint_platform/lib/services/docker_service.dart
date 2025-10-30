@@ -27,7 +27,6 @@ class DockerService {
   factory DockerService() => _instance;
   DockerService._internal();
 
-  Shell? _shell;
   String? _projectPath;
   Timer? _healthCheckTimer;
 
@@ -45,7 +44,6 @@ class DockerService {
   /// Inicializa el servicio Docker con la ruta del proyecto
   void initialize(String projectPath) {
     _projectPath = projectPath;
-    _shell = Shell(workingDirectory: projectPath);
   }
 
   /// Verifica si Docker está disponible en el sistema
