@@ -8,6 +8,7 @@ import '../../widgets/common/modern_app_bar.dart';
 import '../../widgets/common/phase_navigation_buttons.dart';
 import '../../models/investigation_phase.dart';
 import '../../widgets/common/dynamic_field_input.dart';
+import '../../widgets/common/grouped_fields_widget.dart';
 import '../../widgets/cards/data_form_card.dart';
 import '../../providers/data_forms_provider.dart';
 import '../../providers/investigations_provider.dart';
@@ -317,32 +318,11 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                 ),
               ),
               const SizedBox(height: 20),
-              ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: _currentFields.length,
-                separatorBuilder: (context, index) => const SizedBox(height: 16),
-                itemBuilder: (context, index) {
-                  final field = _currentFields[index];
-                  final controller = _controllers['field_$index'];
-                  final isCustom = field['custom'] == true;
-
-                  if (controller == null) {
-                    return const SizedBox.shrink();
-                  }
-
-                  return FadeIn(
-                    key: ValueKey('field_$index'),
-                    child: DynamicFieldInput(
-                      label: field['label'],
-                      hint: field['hint'],
-                      controller: controller,
-                      isRequired: field['required'] ?? false,
-                      icon: field['icon'],
-                      onRemove: isCustom ? () => _removeField(index) : null,
-                    ),
-                  );
-                },
+              GroupedFieldsWidget(
+                category: _selectedCategory!,
+                controllers: _controllers,
+                fields: _currentFields,
+                onRemoveField: _removeField,
               ),
               const SizedBox(height: 32),
               FadeInUp(

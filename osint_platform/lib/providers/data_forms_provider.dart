@@ -1,11 +1,23 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/data_form.dart';
 import '../models/data_form_status.dart';
+import '../services/elasticsearch_service.dart';
+import '../services/logstash_service.dart';
 
 // Notifier para gestionar formularios de datos
 class DataFormsNotifier extends StateNotifier<List<DataForm>> {
+  final ElasticsearchService _esService = ElasticsearchService();
+  final LogstashService _logstashService = LogstashService();
+
   DataFormsNotifier() : super([]) {
+    _initializeServices();
     _loadMockData();
+  }
+
+  // Inicializar servicios
+  void _initializeServices() {
+    _esService.initialize(host: 'localhost', port: 9200);
+    _logstashService.initialize(host: 'localhost', port: 5000);
   }
 
   // Cargar datos de ejemplo
@@ -15,59 +27,131 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
   }
 
   // Agregar nuevo formulario
-  void addDataForm(DataForm form) {
+  Future<void> addDataForm(DataForm form) async {
+    // Agregar al estado local
     state = [...state, form];
+
+    // Enviar a Elasticsearch
+    try {
+      await _esService.indexDocument(
+        'osint-data-forms',
+        form.toJson(),
+        documentId: form.id,
+      );
+
+      // Enviar a Logstash para análisis
+      await _logstashService.sendDataForm(
+        investigationId: form.investigationId,
+        formId: form.id,
+        category: form.category.name,
+        status: form.status.name,
+        fields: form.fields,
+        additionalData: {
+          'confidence': form.confidence,
+          'priority': form.priority,
+          'tags': form.tags,
+          'notes': form.notes,
+        },
+      );
+    } catch (e) {
+      print('Error al guardar formulario en Elasticsearch: $e');
+    }
   }
 
   // Actualizar formulario existente
-  void updateDataForm(String id, DataForm updatedForm) {
+  Future<void> updateDataForm(String id, DataForm updatedForm) async {
+    final oldForm = state.firstWhere((form) => form.id == id);
+
+    // Actualizar estado local
     state = [
       for (final form in state)
         if (form.id == id) updatedForm else form,
     ];
+
+    // Actualizar en Elasticsearch
+    try {
+      await _esService.updateDocument(
+        'osint-data-forms',
+        id,
+        updatedForm.toJson(),
+      );
+
+      // Enviar evento de edición a Logstash
+      await _logstashService.sendEditEvent(
+        investigationId: updatedForm.investigationId,
+        phase: 'collection',
+        itemType: 'data_form',
+        itemId: id,
+        oldData: oldForm.toJson(),
+        newData: updatedForm.toJson(),
+      );
+    } catch (e) {
+      print('Error al actualizar formulario en Elasticsearch: $e');
+    }
   }
 
   // Eliminar formulario
-  void removeDataForm(String id) {
+  Future<void> removeDataForm(String id) async {
+    final form = state.firstWhere((form) => form.id == id);
+
+    // Eliminar del estado local
     state = state.where((form) => form.id != id).toList();
+
+    // Eliminar de Elasticsearch
+    try {
+      await _esService.deleteDocument('osint-data-forms', id);
+
+      // Enviar evento de eliminación a Logstash
+      await _logstashService.sendDeletionEvent(
+        investigationId: form.investigationId,
+        phase: 'collection',
+        itemType: 'data_form',
+        itemId: id,
+      );
+    } catch (e) {
+      print('Error al eliminar formulario de Elasticsearch: $e');
+    }
   }
 
   // Cambiar estado de formulario
-  void changeStatus(String id, DataFormStatus newStatus) {
-    state = [
-      for (final form in state)
-        if (form.id == id)
-          form.copyWith(status: newStatus)
-        else
-          form,
-    ];
+  Future<void> changeStatus(String id, DataFormStatus newStatus) async {
+    final updatedForm = state.firstWhere((form) => form.id == id).copyWith(status: newStatus);
+    await updateDataForm(id, updatedForm);
   }
 
   // Enviar formularios a procesamiento
-  void sendToProcessing(List<String> formIds) {
-    state = [
-      for (final form in state)
-        if (formIds.contains(form.id))
-          form.copyWith(status: DataFormStatus.collected)
-        else
-          form,
-    ];
+  Future<void> sendToProcessing(List<String> formIds) async {
+    for (final formId in formIds) {
+      final form = state.firstWhere((f) => f.id == formId);
+      final updatedForm = form.copyWith(status: DataFormStatus.sent);
+      await updateDataForm(formId, updatedForm);
+
+      // Enviar evento especial de transferencia a procesamiento
+      await _logstashService.sendEvent(
+        investigationId: form.investigationId,
+        phase: 'processing',
+        eventType: 'data_received_from_collection',
+        data: form.toJson(),
+      );
+    }
   }
 
   // Marcar formularios como revisados
-  void markAsReviewed(List<String> formIds) {
-    state = [
-      for (final form in state)
-        if (formIds.contains(form.id))
-          form.copyWith(status: DataFormStatus.reviewed)
-        else
-          form,
-    ];
+  Future<void> markAsReviewed(List<String> formIds) async {
+    for (final formId in formIds) {
+      await changeStatus(formId, DataFormStatus.reviewed);
+    }
   }
 
-  void update(DataForm cleaned) {}
+  // Método update (alias de updateDataForm)
+  Future<void> update(DataForm updatedForm) async {
+    await updateDataForm(updatedForm.id, updatedForm);
+  }
 
-  void remove(String id) {}
+  // Método remove (alias de removeDataForm)
+  Future<void> remove(String id) async {
+    await removeDataForm(id);
+  }
 }
 
 // Provider de formularios de datos
@@ -94,4 +178,10 @@ final prioritizedDataFormsProvider = Provider.family<List<DataForm>, String>((re
   final sortedForms = List<DataForm>.from(forms);
   sortedForms.sort((a, b) => b.smartPriority.compareTo(a.smartPriority));
   return sortedForms;
+});
+
+// Provider para obtener formularios enviados a procesamiento
+final processingDataFormsProvider = Provider.family<List<DataForm>, String>((ref, investigationId) {
+  final forms = ref.watch(dataFormsByInvestigationProvider(investigationId));
+  return forms.where((form) => form.status == DataFormStatus.sent).toList();
 });

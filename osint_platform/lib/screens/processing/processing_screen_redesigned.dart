@@ -11,6 +11,7 @@ import '../../providers/investigations_provider.dart';
 import '../../widgets/processing/deduplication_widget.dart';
 import '../../widgets/processing/entity_linking_widget.dart';
 import '../../widgets/processing/ner_extraction_widget.dart';
+import '../../widgets/processing/processing_data_list_widget.dart';
 
 class ProcessingScreenRedesigned extends ConsumerStatefulWidget {
   final String investigationId;
@@ -246,115 +247,8 @@ class _ProcessingScreenRedesignedState
   }
 
   Widget _buildDataTab() {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(32),
-        child: FadeIn(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(24),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      Colors.blue.shade50,
-                      Colors.blue.shade100,
-                    ],
-                  ),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.storage_outlined,
-                  size: 64,
-                  color: Colors.blue.shade600,
-                ),
-              ),
-              const SizedBox(height: 24),
-              const Text(
-                'Gestión de Datos Recopilados',
-                style: TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: -0.5,
-                ),
-                textAlign: TextAlign.center,
-              ),
-              const SizedBox(height: 12),
-              Text(
-                'Aquí podrás ver, crear, editar y eliminar todos los datos\nrecopilados durante la fase de recopilación.',
-                textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 15,
-                  color: Colors.grey[600],
-                ),
-              ),
-              const SizedBox(height: 32),
-              MouseRegion(
-                cursor: SystemMouseCursors.click,
-                child: GestureDetector(
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: const Row(
-                          children: [
-                            Icon(Icons.info_outline, color: Colors.white),
-                            SizedBox(width: 12),
-                            Expanded(
-                              child: Text('Funcionalidad en desarrollo - Próximamente'),
-                            ),
-                          ],
-                        ),
-                        backgroundColor: Colors.blue[600],
-                        behavior: SnackBarBehavior.floating,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        margin: const EdgeInsets.all(16),
-                        duration: const Duration(seconds: 2),
-                      ),
-                    );
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Colors.blue.shade600,
-                          Colors.blue.shade700,
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.blue.withAlpha(60),
-                          blurRadius: 12,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(Icons.add, color: Colors.white, size: 20),
-                        SizedBox(width: 8),
-                        Text(
-                          'Agregar Datos',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
+    return ProcessingDataListWidget(
+      investigationId: widget.investigationId,
     );
   }
 
