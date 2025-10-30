@@ -29,11 +29,11 @@ class PhaseBadge extends StatelessWidget {
   IconData _getPhaseIcon() {
     switch (phase) {
       case InvestigationPhase.planning:
-        return Icons.lightbulb_outline;
+        return Icons.edit_note_outlined;
       case InvestigationPhase.collection:
         return Icons.collections_bookmark_outlined;
       case InvestigationPhase.processing:
-        return Icons.settings_outlined;
+        return Icons.sync_outlined;
       case InvestigationPhase.analysis:
         return Icons.analytics_outlined;
       case InvestigationPhase.reports:
@@ -47,17 +47,16 @@ class PhaseBadge extends StatelessWidget {
 
     if (isCompact) {
       return Container(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
         decoration: BoxDecoration(
-          color: color.withValues(alpha:0.2),
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(color: color, width: 1),
+          color: color.withAlpha(15),
+          borderRadius: BorderRadius.circular(8),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(_getPhaseIcon(), size: 14, color: color),
-            const SizedBox(width: 4),
+            const SizedBox(width: 6),
             Text(
               phase.displayName,
               style: TextStyle(
@@ -72,23 +71,22 @@ class PhaseBadge extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
       decoration: BoxDecoration(
-        color: color.withValues(alpha:0.15),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: color, width: 1.5),
+        color: color.withAlpha(15),
+        borderRadius: BorderRadius.circular(12),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(_getPhaseIcon(), size: 20, color: color),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           Text(
             phase.displayName,
             style: TextStyle(
               color: color,
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

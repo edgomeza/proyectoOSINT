@@ -18,27 +18,25 @@ class CategorySelector extends StatelessWidget {
   Widget build(BuildContext context) {
     final categories = availableCategories ?? DataFormCategory.values;
 
-    return FadeInUp(
+    return FadeIn(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Selecciona el tipo de información',
+            'Tipo de información',
             style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Wrap(
             spacing: 12,
             runSpacing: 12,
             children: categories.map((category) {
               final isSelected = selectedCategory == category;
-              return FadeIn(
-                delay: Duration(milliseconds: categories.indexOf(category) * 50),
-                child: _buildCategoryChip(context, category, isSelected),
-              );
+              return _buildCategoryChip(context, category, isSelected);
             }).toList(),
           ),
         ],
@@ -49,51 +47,42 @@ class CategorySelector extends StatelessWidget {
   Widget _buildCategoryChip(BuildContext context, DataFormCategory category, bool isSelected) {
     final color = _getCategoryColor(category);
 
-    return InkWell(
-      onTap: () => onCategorySelected(category),
-      borderRadius: BorderRadius.circular(12),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: isSelected ? color.withValues(alpha:0.15) : Colors.transparent,
-          border: Border.all(
-            color: isSelected ? color : Colors.grey.shade400,
-            width: isSelected ? 2 : 1,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: () => onCategorySelected(category),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: isSelected
+                ? color.withAlpha(15)
+                : Theme.of(context).cardColor,
+            border: Border.all(
+              color: isSelected ? color : Colors.grey[300]!,
+              width: isSelected ? 2 : 1,
+            ),
+            borderRadius: BorderRadius.circular(12),
           ),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _getCategoryIcon(category),
-              color: isSelected ? color : Colors.grey.shade600,
-              size: 20,
-            ),
-            const SizedBox(width: 8),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  category.displayName,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
-                    color: isSelected ? color : Colors.grey.shade800,
-                  ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                _getCategoryIcon(category),
+                color: isSelected ? color : Colors.grey[600],
+                size: 22,
+              ),
+              const SizedBox(width: 12),
+              Text(
+                category.displayName,
+                style: TextStyle(
+                  fontSize: 15,
+                  fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                  color: isSelected ? color : Colors.grey[700],
                 ),
-                if (isSelected)
-                  Text(
-                    category.description,
-                    style: TextStyle(
-                      fontSize: 11,
-                      color: color.withValues(alpha:0.8),
-                    ),
-                  ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );

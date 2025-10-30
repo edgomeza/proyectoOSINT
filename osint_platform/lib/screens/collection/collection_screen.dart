@@ -51,7 +51,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   }
 
   void _onCategorySelected(DataFormCategory category) {
-    // Guardar referencia a los controladores antiguos
     final oldControllers = Map<String, TextEditingController>.from(_controllers);
 
     setState(() {
@@ -59,17 +58,14 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       _currentFields.clear();
       _controllers.clear();
 
-      // Cargar campos predeterminados
       final defaultFields = CategoryFieldsGenerator.getDefaultFields(category);
       _currentFields.addAll(defaultFields);
 
-      // Crear controladores nuevos
       for (var i = 0; i < _currentFields.length; i++) {
         _controllers['field_$i'] = TextEditingController();
       }
     });
 
-    // Dispose de los controladores antiguos DESPUÉS del rebuild
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (var controller in oldControllers.values) {
         controller.dispose();
@@ -80,9 +76,13 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   void _addCustomField() {
     if (_currentFields.length >= 10) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Máximo 10 campos permitidos para evitar sobrecarga cognitiva'),
-          backgroundColor: Colors.orange,
+        SnackBar(
+          content: const Text('Máximo 10 campos permitidos'),
+          backgroundColor: Colors.orange[600],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
       return;
@@ -102,7 +102,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   }
 
   void _removeField(int index) {
-    // Guardar textos y referencias de controladores antiguos
     final savedTexts = <int, String>{};
     for (var i = 0; i < _controllers.length; i++) {
       final controller = _controllers['field_$i'];
@@ -113,25 +112,19 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
     final oldControllers = Map<String, TextEditingController>.from(_controllers);
 
     setState(() {
-      // Remover el campo
       _currentFields.removeAt(index);
       _controllers.clear();
 
-      // Crear nuevos controladores con los valores preservados
       for (var i = 0; i < _currentFields.length; i++) {
         final newController = TextEditingController();
-
-        // Si había un valor en el controlador anterior, preservarlo
         final oldIndex = i >= index ? i + 1 : i;
         if (savedTexts.containsKey(oldIndex)) {
           newController.text = savedTexts[oldIndex]!;
         }
-
         _controllers['field_$i'] = newController;
       }
     });
 
-    // Dispose de los controladores antiguos DESPUÉS del rebuild
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (var controller in oldControllers.values) {
         controller.dispose();
@@ -143,15 +136,18 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
     if (_formKey.currentState?.validate() ?? false) {
       if (_selectedCategory == null) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor selecciona una categoría'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('Por favor selecciona una categoría'),
+            backgroundColor: Colors.orange[600],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
         return;
       }
 
-      // Recopilar datos del formulario
       final fields = <String, dynamic>{};
       for (var i = 0; i < _currentFields.length; i++) {
         final controller = _controllers['field_$i'];
@@ -163,15 +159,18 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
 
       if (fields.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Por favor completa al menos un campo'),
-            backgroundColor: Colors.orange,
+          SnackBar(
+            content: const Text('Por favor completa al menos un campo'),
+            backgroundColor: Colors.orange[600],
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+            ),
           ),
         );
         return;
       }
 
-      // Crear nuevo formulario
       final newForm = DataForm(
         investigationId: widget.investigationId,
         category: _selectedCategory!,
@@ -179,26 +178,24 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
         status: DataFormStatus.draft,
       );
 
-      // Guardar en provider
       ref.read(dataFormsProvider.notifier).addDataForm(newForm);
-
-      // Limpiar formulario
       _resetForm();
-
-      // Cambiar a tab de guardados
       _tabController.animateTo(1);
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Formulario guardado exitosamente'),
-          backgroundColor: Colors.green,
+        SnackBar(
+          content: const Text('Formulario guardado exitosamente'),
+          backgroundColor: Colors.green[600],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
         ),
       );
     }
   }
 
   void _resetForm() {
-    // Guardar referencia a los controladores antiguos
     final oldControllers = Map<String, TextEditingController>.from(_controllers);
 
     setState(() {
@@ -207,7 +204,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       _controllers.clear();
     });
 
-    // Dispose de los controladores antiguos DESPUÉS del rebuild
     WidgetsBinding.instance.addPostFrameCallback((_) {
       for (var controller in oldControllers.values) {
         controller.dispose();
@@ -232,7 +228,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       );
     }
 
-    // Calcular categorías disponibles basándose en los tipos de investigación seleccionados
     List<DataFormCategory>? availableCategories;
     if (investigation.investigationTypes.isNotEmpty) {
       final categoriesSet = <DataFormCategory>{};
@@ -252,19 +247,23 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           children: [
             const Text(
               'Recopilación',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700),
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
             ),
             Text(
               investigation.name,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
         bottom: TabBar(
           controller: _tabController,
           tabs: const [
-            Tab(icon: Icon(Icons.add), text: 'Crear Nuevo'),
-            Tab(icon: Icon(Icons.list), text: 'Guardados'),
+            Tab(icon: Icon(Icons.add_outlined), text: 'Crear'),
+            Tab(icon: Icon(Icons.folder_outlined), text: 'Guardados'),
           ],
         ),
       ),
@@ -284,94 +283,56 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
 
   Widget _buildCreateNewTab(List<DataFormCategory>? availableCategories) {
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
       child: Form(
         key: _formKey,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            FadeInDown(
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.orange.withValues(alpha:0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Icon(
-                      Icons.collections_bookmark_outlined,
-                      color: Colors.orange,
-                      size: 28,
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Recopilación de Datos',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Organiza la información de tu investigación',
-                          style: TextStyle(fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
             CategorySelector(
               selectedCategory: _selectedCategory,
               onCategorySelected: _onCategorySelected,
               availableCategories: availableCategories,
             ),
             if (_selectedCategory != null) ...[
-              const SizedBox(height: 32),
-              FadeInLeft(
+              const SizedBox(height: 40),
+              FadeIn(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     const Text(
-                      'Campos del formulario',
+                      'Campos',
                       style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: -0.5,
                       ),
                     ),
                     TextButton.icon(
                       onPressed: _addCustomField,
-                      icon: const Icon(Icons.add_circle_outline, size: 20),
+                      icon: const Icon(Icons.add, size: 20),
                       label: const Text('Agregar campo'),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-              ListView.builder(
+              const SizedBox(height: 20),
+              ListView.separated(
                 shrinkWrap: true,
                 physics: const NeverScrollableScrollPhysics(),
                 itemCount: _currentFields.length,
+                separatorBuilder: (context, index) => const SizedBox(height: 16),
                 itemBuilder: (context, index) {
                   final field = _currentFields[index];
                   final controller = _controllers['field_$index'];
                   final isCustom = field['custom'] == true;
 
-                  // Si el controlador no existe, no renderizar este campo
                   if (controller == null) {
                     return const SizedBox.shrink();
                   }
 
-                  return Padding(
+                  return FadeIn(
                     key: ValueKey('field_$index'),
-                    padding: const EdgeInsets.only(bottom: 16),
                     child: DynamicFieldInput(
                       label: field['label'],
                       hint: field['hint'],
@@ -383,24 +344,37 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                   );
                 },
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: 32),
               FadeInUp(
                 child: Row(
                   children: [
                     Expanded(
-                      child: OutlinedButton.icon(
+                      child: OutlinedButton(
                         onPressed: _resetForm,
-                        icon: const Icon(Icons.refresh),
-                        label: const Text('Reiniciar'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text('Reiniciar'),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: 16),
                     Expanded(
                       flex: 2,
-                      child: ElevatedButton.icon(
+                      child: FilledButton(
                         onPressed: _saveForm,
-                        icon: const Icon(Icons.save),
-                        label: const Text('Guardar Formulario'),
+                        style: FilledButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: const Text(
+                          'Guardar',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                        ),
                       ),
                     ),
                   ],
@@ -408,22 +382,22 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
               ),
             ],
             if (_selectedCategory == null) ...[
-              const SizedBox(height: 40),
+              const SizedBox(height: 80),
               FadeIn(
                 child: Center(
                   child: Column(
                     children: [
                       Icon(
-                        Icons.touch_app,
-                        size: 60,
-                        color: Colors.grey[400],
+                        Icons.touch_app_outlined,
+                        size: 64,
+                        color: Colors.grey[300],
                       ),
                       const SizedBox(height: 16),
                       Text(
                         'Selecciona una categoría para comenzar',
                         style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
+                          fontSize: 15,
+                          color: Colors.grey[500],
                         ),
                       ),
                     ],
@@ -431,7 +405,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                 ),
               ),
             ],
-            const SizedBox(height: 32),
           ],
         ),
       ),
@@ -447,21 +420,21 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
             children: [
               Icon(
                 Icons.folder_open_outlined,
-                size: 80,
-                color: Colors.grey[400],
+                size: 64,
+                color: Colors.grey[300],
               ),
               const SizedBox(height: 16),
               Text(
                 'No hay formularios guardados',
                 style: TextStyle(
-                  fontSize: 18,
+                  fontSize: 17,
                   fontWeight: FontWeight.w600,
                   color: Colors.grey[600],
                 ),
               ),
               const SizedBox(height: 8),
               Text(
-                'Crea tu primer formulario en la pestaña "Crear Nuevo"',
+                'Crea tu primer formulario en la pestaña "Crear"',
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.grey[500],
@@ -473,13 +446,14 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
+    return ListView.separated(
+      padding: const EdgeInsets.all(24),
       itemCount: forms.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 16),
       itemBuilder: (context, index) {
         final form = forms[index];
-        return Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+        return FadeIn(
+          delay: Duration(milliseconds: index * 50),
           child: DataFormCard(
             form: form,
             onTap: () => _showFormDetailsDialog(form),
@@ -487,19 +461,27 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
             onDelete: () {
               ref.read(dataFormsProvider.notifier).removeDataForm(form.id);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Formulario eliminado'),
-                  backgroundColor: Colors.red,
+                SnackBar(
+                  content: const Text('Formulario eliminado'),
+                  backgroundColor: Colors.red[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               );
             },
             onSendToProcessing: () {
               ref.read(dataFormsProvider.notifier).sendToProcessing([form.id]);
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Formulario enviado a procesamiento'),
-                  backgroundColor: Colors.green,
-                  duration: Duration(seconds: 2),
+                SnackBar(
+                  content: const Text('Formulario enviado a procesamiento'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  duration: const Duration(seconds: 2),
                 ),
               );
             },
@@ -578,7 +560,6 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
   void _showEditFormDialog(DataForm form) {
     final editControllers = <String, TextEditingController>{};
 
-    // Crear controladores para cada campo existente
     for (var entry in form.fields.entries) {
       editControllers[entry.key] = TextEditingController(
         text: entry.value?.toString() ?? '',
@@ -624,13 +605,11 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
           ),
           ElevatedButton(
             onPressed: () {
-              // Recopilar datos editados
               final updatedFields = <String, dynamic>{};
               for (var entry in editControllers.entries) {
                 updatedFields[entry.key] = entry.value.text;
               }
 
-              // Crear formulario actualizado
               final updatedForm = DataForm(
                 id: form.id,
                 investigationId: form.investigationId,
@@ -643,10 +622,8 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
                 tags: form.tags,
               );
 
-              // Actualizar en el provider
               ref.read(dataFormsProvider.notifier).update(updatedForm);
 
-              // Limpiar controladores
               for (var controller in editControllers.values) {
                 controller.dispose();
               }
@@ -654,9 +631,13 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Formulario actualizado exitosamente'),
-                  backgroundColor: Colors.green,
+                SnackBar(
+                  content: const Text('Formulario actualizado exitosamente'),
+                  backgroundColor: Colors.green[600],
+                  behavior: SnackBarBehavior.floating,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
               );
             },
