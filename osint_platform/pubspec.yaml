@@ -82,6 +82,9 @@ dependencies:
   # HTTP/API
   dio: ^5.7.0
 
+  # Process management for Docker
+  process_run: ^1.2.0
+
   # Data processing
   collection: ^1.18.0
 

@@ -7,6 +7,7 @@ import 'config/router.dart';
 import 'config/theme.dart';
 import 'providers/theme_provider.dart';
 import 'providers/locale_provider.dart';
+import 'providers/elk_stack_provider.dart';
 import 'l10n/app_localizations.dart';
 import 'services/encryption_service.dart';
 import 'screens/auth/lock_screen.dart';
@@ -50,6 +51,7 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
+    _stopELKServices();
     super.dispose();
   }
 
@@ -59,9 +61,40 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
       // App está cerrando o en background, encriptar y bloquear
       _encryptionService.encryptDatabase();
       _encryptionService.lock();
+      _stopELKServices();
       setState(() {
         _isUnlocked = false;
       });
+    }
+  }
+
+  String _getProjectPath() {
+    // Obtener la ruta del proyecto Docker (directorio padre de osint_platform)
+    final currentPath = Directory.current.path;
+
+    // Si estamos en osint_platform, ir al directorio padre
+    if (currentPath.endsWith('osint_platform')) {
+      return Directory(currentPath).parent.path;
+    }
+
+    // Si no, asumir que ya estamos en el directorio del proyecto
+    return currentPath;
+  }
+
+  void _initializeELKServices() {
+    try {
+      final projectPath = _getProjectPath();
+      ref.read(elkStackProvider.notifier).initialize(projectPath);
+    } catch (e) {
+      debugPrint('Error initializing ELK services: $e');
+    }
+  }
+
+  void _stopELKServices() {
+    try {
+      ref.read(elkStackProvider.notifier).stopServices();
+    } catch (e) {
+      debugPrint('Error stopping ELK services: $e');
     }
   }
 
@@ -77,6 +110,9 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
     setState(() {
       _isUnlocked = true;
     });
+
+    // Inicializar servicios ELK después de desbloquear
+    _initializeELKServices();
   }
 
   @override
