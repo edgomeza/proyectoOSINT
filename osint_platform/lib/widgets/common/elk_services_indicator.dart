@@ -1,65 +1,9 @@
 import 'package:flutter/material.dart';
-import 'dart:async';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../providers/elk_stack_provider.dart';
 
-enum ServiceState {
-  stopped,    // Rojo
-  starting,   // Naranja
-  running,    // Verde
-}
-
-class ELKServicesIndicator extends StatefulWidget {
+class ELKServicesIndicator extends ConsumerWidget {
   const ELKServicesIndicator({super.key});
-
-  @override
-  State<ELKServicesIndicator> createState() => _ELKServicesIndicatorState();
-}
-
-class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
-  ServiceState _elasticsearchState = ServiceState.stopped;
-  ServiceState _kibanaState = ServiceState.stopped;
-  ServiceState _logstashState = ServiceState.stopped;
-
-  @override
-  void initState() {
-    super.initState();
-    _startServices();
-  }
-
-  Future<void> _startServices() async {
-    // Simular inicio de servicios
-    // En producción, esto ejecutaría docker-compose o comandos reales
-
-    // Iniciar Elasticsearch
-    setState(() {
-      _elasticsearchState = ServiceState.starting;
-    });
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _elasticsearchState = ServiceState.running;
-        _logstashState = ServiceState.starting;
-      });
-    }
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _logstashState = ServiceState.running;
-        _kibanaState = ServiceState.starting;
-      });
-    }
-
-    await Future.delayed(const Duration(seconds: 2));
-
-    if (mounted) {
-      setState(() {
-        _kibanaState = ServiceState.running;
-      });
-    }
-  }
 
   Color _getStateColor(ServiceState state) {
     switch (state) {
@@ -69,6 +13,8 @@ class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
         return Colors.orange;
       case ServiceState.running:
         return Colors.green;
+      case ServiceState.error:
+        return Colors.red.shade900;
     }
   }
 
@@ -80,12 +26,15 @@ class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
         return 'Iniciando...';
       case ServiceState.running:
         return 'En ejecución';
+      case ServiceState.error:
+        return 'Error';
     }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final elkState = ref.watch(elkStackProvider);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -107,19 +56,23 @@ class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
             ),
           ),
           const SizedBox(width: 8),
-          _buildServiceDot('ES', _elasticsearchState),
+          _buildServiceDot('ES', elkState.elasticsearch.state, elkState.elasticsearch.error),
           const SizedBox(width: 6),
-          _buildServiceDot('LS', _logstashState),
+          _buildServiceDot('LS', elkState.logstash.state, elkState.logstash.error),
           const SizedBox(width: 6),
-          _buildServiceDot('KB', _kibanaState),
+          _buildServiceDot('KB', elkState.kibana.state, elkState.kibana.error),
         ],
       ),
     );
   }
 
-  Widget _buildServiceDot(String label, ServiceState state) {
+  Widget _buildServiceDot(String label, ServiceState state, String? error) {
+    final tooltipMessage = error != null
+        ? '$label: ${_getStateText(state)} - $error'
+        : '$label: ${_getStateText(state)}';
+
     return Tooltip(
-      message: '$label: ${_getStateText(state)}',
+      message: tooltipMessage,
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -132,7 +85,7 @@ class _ELKServicesIndicatorState extends State<ELKServicesIndicator> {
               boxShadow: state == ServiceState.running
                   ? [
                       BoxShadow(
-                        color: _getStateColor(state).withValues(alpha:0.5),
+                        color: _getStateColor(state).withValues(alpha: 0.5),
                         blurRadius: 4,
                         spreadRadius: 1,
                       ),
