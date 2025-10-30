@@ -198,7 +198,7 @@ class ProcessingDataListWidget extends ConsumerWidget {
                       ),
                     );
                   },
-                  showSendToProcessing: false, // No mostrar botón de enviar a procesamiento
+                  // No pasar onSendToProcessing para ocultar el botón de enviar
                 ),
               );
             },

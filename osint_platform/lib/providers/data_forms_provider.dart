@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/data_form.dart';
 import '../models/data_form_status.dart';
@@ -54,7 +55,7 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
         },
       );
     } catch (e) {
-      print('Error al guardar formulario en Elasticsearch: $e');
+      debugPrint('Error al guardar formulario en Elasticsearch: $e');
     }
   }
 
@@ -86,7 +87,7 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
         newData: updatedForm.toJson(),
       );
     } catch (e) {
-      print('Error al actualizar formulario en Elasticsearch: $e');
+      debugPrint('Error al actualizar formulario en Elasticsearch: $e');
     }
   }
 
@@ -109,7 +110,7 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
         itemId: id,
       );
     } catch (e) {
-      print('Error al eliminar formulario de Elasticsearch: $e');
+      debugPrint('Error al eliminar formulario de Elasticsearch: $e');
     }
   }
 

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:dio/dio.dart';
 
 /// Servicio para enviar datos a Logstash
@@ -73,7 +74,7 @@ class LogstashService {
 
       return response.statusCode == 200;
     } catch (e) {
-      print('Error sending event to Logstash: $e');
+      debugPrint('Error sending event to Logstash: $e');
       return false;
     }
   }
@@ -228,7 +229,7 @@ class LogstashService {
       }
       return true;
     } catch (e) {
-      print('Error sending batch events to Logstash: $e');
+      debugPrint('Error sending batch events to Logstash: $e');
       return false;
     }
   }
