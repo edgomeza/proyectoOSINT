@@ -1,15 +1,14 @@
-version: '3.8'
-
 services:
-  # Elasticsearch
+  # Elasticsearch - Latest stable version
   elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch:8.11.0
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.15.3
     container_name: osint_elasticsearch
     environment:
       - discovery.type=single-node
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
       - xpack.security.enabled=false
       - xpack.security.http.ssl.enabled=false
+      - xpack.security.transport.ssl.enabled=false
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -17,20 +16,25 @@ services:
       - elasticsearch_data:/usr/share/elasticsearch/data
     networks:
       - osint_network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
-  # Kibana
+  # Kibana - Latest stable version
   kibana:
-    image: docker.elastic.co/kibana/kibana:8.11.0
+    image: docker.elastic.co/kibana/kibana:8.15.3
     container_name: osint_kibana
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - SERVER_HOST=0.0.0.0
+      - SERVER_PORT=5601
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=changeme
+      - XPACK_SECURITY_ENABLED=false
     ports:
       - "5601:5601"
     networks:
@@ -38,45 +42,35 @@ services:
     depends_on:
       elasticsearch:
         condition: service_healthy
+    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:5601/api/status || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
+      start_period: 60s
 
-  # Logstash
+  # Logstash - Latest stable version
   logstash:
-    image: docker.elastic.co/logstash/logstash:8.11.0
+    image: docker.elastic.co/logstash/logstash:8.15.3
     container_name: osint_logstash
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
     ports:
       - "5044:5044"
+      - "5000:5000/tcp"
+      - "5000:5000/udp"
       - "9600:9600"
     environment:
       - "LS_JAVA_OPTS=-Xmx256m -Xms256m"
+      - xpack.monitoring.enabled=false
     networks:
       - osint_network
     depends_on:
       elasticsearch:
         condition: service_healthy
-
-  # NER Backend (Python service for Named Entity Recognition)
-  ner_backend:
-    build: ./ner_backend
-    container_name: osint_ner_backend
-    ports:
-      - "8000:8000"
-    networks:
-      - osint_network
-    environment:
-      - PYTHONUNBUFFERED=1
-      - ELASTICSEARCH_HOST=elasticsearch
-      - ELASTICSEARCH_PORT=9200
-    depends_on:
-      elasticsearch:
-        condition: service_healthy
+    restart: unless-stopped
 
 volumes:
   elasticsearch_data:

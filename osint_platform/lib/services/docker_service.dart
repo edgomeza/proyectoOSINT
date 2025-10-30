@@ -98,15 +98,29 @@ class DockerService {
       _updateStatus('logstash', DockerServiceStatus.starting);
       _updateStatus('kibana', DockerServiceStatus.starting);
 
-      // Ejecutar docker-compose up -d
       final shell = Shell(workingDirectory: _projectPath);
 
-      try {
-        // Intentar con docker compose (v2)
-        await shell.run('docker compose up -d');
-      } catch (e) {
-        // Si falla, intentar con docker-compose (v1)
-        await shell.run('docker-compose up -d');
+      // Verificar si los contenedores existen
+      final containersExist = await _checkContainersExist();
+
+      if (containersExist) {
+        // Los contenedores existen, solo iniciarlos
+        try {
+          // Intentar con docker compose (v2)
+          await shell.run('docker compose start');
+        } catch (e) {
+          // Si falla, intentar con docker-compose (v1)
+          await shell.run('docker-compose start');
+        }
+      } else {
+        // Los contenedores no existen, crearlos e iniciarlos
+        try {
+          // Intentar con docker compose (v2)
+          await shell.run('docker compose up -d --remove-orphans');
+        } catch (e) {
+          // Si falla, intentar con docker-compose (v1)
+          await shell.run('docker-compose up -d --remove-orphans');
+        }
       }
 
       // Iniciar monitoreo de salud de los servicios
@@ -121,8 +135,55 @@ class DockerService {
     }
   }
 
-  /// Detiene todos los servicios de la pila ELK
+  /// Verifica si los contenedores existen (creados pero posiblemente detenidos)
+  Future<bool> _checkContainersExist() async {
+    try {
+      final result = await Process.run(
+        'docker',
+        ['ps', '-a', '--filter', 'name=osint_elasticsearch', '--format', '{{.Names}}'],
+      );
+
+      final output = result.stdout.toString().trim();
+      return output.contains('osint_elasticsearch');
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Detiene todos los servicios de la pila ELK (sin eliminar contenedores)
   Future<bool> stopServices() async {
+    if (_projectPath == null) {
+      throw Exception('Docker service not initialized. Call initialize() first.');
+    }
+
+    try {
+      // Detener monitoreo de salud
+      _stopHealthCheck();
+
+      // Ejecutar docker-compose stop (detiene sin eliminar contenedores)
+      final shell = Shell(workingDirectory: _projectPath);
+
+      try {
+        // Intentar con docker compose (v2)
+        await shell.run('docker compose stop');
+      } catch (e) {
+        // Si falla, intentar con docker-compose (v1)
+        await shell.run('docker-compose stop');
+      }
+
+      // Actualizar estado a "stopped"
+      _updateStatus('elasticsearch', DockerServiceStatus.stopped);
+      _updateStatus('logstash', DockerServiceStatus.stopped);
+      _updateStatus('kibana', DockerServiceStatus.stopped);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  /// Detiene y elimina todos los contenedores de la pila ELK
+  Future<bool> removeServices() async {
     if (_projectPath == null) {
       throw Exception('Docker service not initialized. Call initialize() first.');
     }
@@ -136,10 +197,10 @@ class DockerService {
 
       try {
         // Intentar con docker compose (v2)
-        await shell.run('docker compose down');
+        await shell.run('docker compose down -v');
       } catch (e) {
         // Si falla, intentar con docker-compose (v1)
-        await shell.run('docker-compose down');
+        await shell.run('docker-compose down -v');
       }
 
       // Actualizar estado a "stopped"
