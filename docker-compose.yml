@@ -55,6 +55,7 @@ services:
     volumes:
       - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
       - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
+      - logstash_data:/usr/share/logstash/data
     ports:
       - "5044:5044"
       - "5000:5000/tcp"
@@ -72,6 +73,8 @@ services:
 
 volumes:
   elasticsearch_data:
+    driver: local
+  logstash_data:
     driver: local
 
 networks:
