@@ -8,6 +8,7 @@ import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
 import '../../widgets/common/phase_navigation_buttons.dart';
 import '../../models/investigation_phase.dart';
+import '../../models/investigation_type.dart';
 
 class PlanningScreen extends ConsumerStatefulWidget {
   final String investigationId;
@@ -25,6 +26,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _descriptionController = TextEditingController();
+  final List<InvestigationType> _selectedInvestigationTypes = [];
   final List<TextEditingController> _objectiveControllers = [
     TextEditingController(),
   ];
@@ -43,6 +45,10 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
     if (investigation != null) {
       _nameController.text = investigation.name;
       _descriptionController.text = investigation.description;
+
+      // Cargar tipos de investigación
+      _selectedInvestigationTypes.clear();
+      _selectedInvestigationTypes.addAll(investigation.investigationTypes);
 
       // Cargar objetivos
       _objectiveControllers.clear();
@@ -194,6 +200,84 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
                             return null;
                           },
                         ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                FadeInLeft(
+                  delay: const Duration(milliseconds: 150),
+                  child: _buildSection(
+                    title: 'Tipos de Investigación',
+                    icon: Icons.category_outlined,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Selecciona uno o varios tipos de investigación. Los formularios de recopilación se adaptarán según tu selección.',
+                          style: TextStyle(fontSize: 13, color: Colors.grey),
+                        ),
+                        const SizedBox(height: 16),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: InvestigationType.values.map((type) {
+                            final isSelected = _selectedInvestigationTypes.contains(type);
+                            return FilterChip(
+                              label: Text(type.displayName),
+                              selected: isSelected,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    _selectedInvestigationTypes.add(type);
+                                  } else {
+                                    _selectedInvestigationTypes.remove(type);
+                                  }
+                                });
+                              },
+                              avatar: isSelected
+                                  ? const Icon(Icons.check_circle, size: 18)
+                                  : null,
+                            );
+                          }).toList(),
+                        ),
+                        if (_selectedInvestigationTypes.isNotEmpty) ...[
+                          const SizedBox(height: 16),
+                          Container(
+                            padding: const EdgeInsets.all(12),
+                            decoration: BoxDecoration(
+                              color: Colors.blue.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Row(
+                                  children: [
+                                    Icon(Icons.info_outline, size: 16, color: Colors.blue),
+                                    SizedBox(width: 8),
+                                    Text(
+                                      'Tipos seleccionados:',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: Colors.blue,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 8),
+                                ..._selectedInvestigationTypes.map((type) => Padding(
+                                      padding: const EdgeInsets.only(top: 4),
+                                      child: Text(
+                                        '• ${type.displayName}: ${type.description}',
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    )),
+                              ],
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -385,6 +469,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> {
         final updatedInvestigation = investigation.copyWith(
           name: _nameController.text,
           description: _descriptionController.text,
+          investigationTypes: _selectedInvestigationTypes,
           objectives: objectives,
           keyQuestions: questions,
         );

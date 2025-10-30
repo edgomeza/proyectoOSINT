@@ -1,6 +1,7 @@
 import 'package:uuid/uuid.dart';
 import 'investigation_phase.dart';
 import 'investigation_status.dart';
+import 'investigation_type.dart';
 
 class Investigation {
   final String id;
@@ -9,6 +10,7 @@ class Investigation {
   final DateTime createdAt;
   final DateTime updatedAt;
   final InvestigationPhase currentPhase;
+  final List<InvestigationType> investigationTypes;
   final List<String> objectives;
   final Map<String, dynamic> knownInformation;
   final List<String> keyQuestions;
@@ -25,6 +27,7 @@ class Investigation {
     DateTime? createdAt,
     DateTime? updatedAt,
     this.currentPhase = InvestigationPhase.planning,
+    this.investigationTypes = const [],
     this.objectives = const [],
     this.knownInformation = const {},
     this.keyQuestions = const [],
@@ -44,6 +47,7 @@ class Investigation {
     DateTime? createdAt,
     DateTime? updatedAt,
     InvestigationPhase? currentPhase,
+    List<InvestigationType>? investigationTypes,
     List<String>? objectives,
     Map<String, dynamic>? knownInformation,
     List<String>? keyQuestions,
@@ -60,6 +64,7 @@ class Investigation {
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? DateTime.now(),
       currentPhase: currentPhase ?? this.currentPhase,
+      investigationTypes: investigationTypes ?? this.investigationTypes,
       objectives: objectives ?? this.objectives,
       knownInformation: knownInformation ?? this.knownInformation,
       keyQuestions: keyQuestions ?? this.keyQuestions,
@@ -79,6 +84,7 @@ class Investigation {
       'createdAt': createdAt.toIso8601String(),
       'updatedAt': updatedAt.toIso8601String(),
       'currentPhase': currentPhase.name,
+      'investigationTypes': investigationTypes.map((t) => t.name).toList(),
       'objectives': objectives,
       'knownInformation': knownInformation,
       'keyQuestions': keyQuestions,
@@ -101,6 +107,13 @@ class Investigation {
         (phase) => phase.name == json['currentPhase'],
         orElse: () => InvestigationPhase.planning,
       ),
+      investigationTypes: (json['investigationTypes'] as List<dynamic>?)
+              ?.map((typeName) => InvestigationType.values.firstWhere(
+                    (t) => t.name == typeName,
+                    orElse: () => InvestigationType.people,
+                  ))
+              .toList() ??
+          [],
       objectives: List<String>.from(json['objectives'] ?? []),
       knownInformation: Map<String, dynamic>.from(json['knownInformation'] ?? {}),
       keyQuestions: List<String>.from(json['keyQuestions'] ?? []),
