@@ -501,21 +501,23 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
 
   EntityNodeType _mapCategoryToEntityType(DataFormCategory category) {
     switch (category) {
-      case DataFormCategory.person:
+      case DataFormCategory.personalData:
         return EntityNodeType.person;
-      case DataFormCategory.company:
+      case DataFormCategory.corporateData:
         return EntityNodeType.company;
-      case DataFormCategory.socialNetwork:
+      case DataFormCategory.socialMediaData:
         return EntityNodeType.socialNetwork;
-      case DataFormCategory.location:
+      case DataFormCategory.geographicData:
         return EntityNodeType.location;
-      case DataFormCategory.relationship:
-        return EntityNodeType.other;
-      case DataFormCategory.document:
+      case DataFormCategory.multimediaData:
         return EntityNodeType.document;
-      case DataFormCategory.event:
+      case DataFormCategory.temporalData:
         return EntityNodeType.event;
-      case DataFormCategory.other:
+      case DataFormCategory.digitalData:
+        return EntityNodeType.other;
+      case DataFormCategory.financialData:
+        return EntityNodeType.other;
+      case DataFormCategory.technicalData:
         return EntityNodeType.other;
     }
   }
