@@ -1,9 +1,5 @@
-http.host: "0.0.0.0"
-
-# X-Pack monitoring disabled
-xpack.monitoring.enabled: false
-
-# Pipeline configuration
-pipeline.workers: 2
-pipeline.batch.size: 125
+http.host: 0.0.0.0
 pipeline.batch.delay: 50
+pipeline.batch.size: 125
+pipeline.workers: 2
+xpack.monitoring.enabled: ${xpack.monitoring.enabled}

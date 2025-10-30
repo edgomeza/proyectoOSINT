@@ -53,9 +53,8 @@ services:
     image: docker.elastic.co/logstash/logstash:8.15.3
     container_name: osint_logstash
     volumes:
-      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml:ro
-      - ./logstash/pipeline:/usr/share/logstash/pipeline:ro
-      - logstash_data:/usr/share/logstash/data
+      - ./logstash/config/logstash.yml:/usr/share/logstash/config/logstash.yml
+      - ./logstash/pipeline:/usr/share/logstash/pipeline
     ports:
       - "5044:5044"
       - "5000:5000/tcp"
