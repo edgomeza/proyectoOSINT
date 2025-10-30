@@ -12,7 +12,7 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
 
   DataFormsNotifier() : super([]) {
     _initializeServices();
-    _loadMockData();
+    _loadFromElasticsearch();
   }
 
   // Inicializar servicios
@@ -21,10 +21,39 @@ class DataFormsNotifier extends StateNotifier<List<DataForm>> {
     _logstashService.initialize(host: 'localhost', port: 5000);
   }
 
-  // Cargar datos de ejemplo
-  void _loadMockData() {
-    // En el futuro, esto cargará datos de una base de datos
-    state = [];
+  // Cargar datos desde Elasticsearch
+  Future<void> _loadFromElasticsearch() async {
+    try {
+      // Buscar todos los documentos del índice osint-data-forms
+      final result = await _esService.search(
+        'osint-data-forms',
+        size: 10000, // Cargar hasta 10000 documentos
+      );
+
+      // Convertir documentos de Elasticsearch a objetos DataForm
+      final forms = <DataForm>[];
+      for (final doc in result.documents) {
+        try {
+          final form = DataForm.fromJson(doc.data);
+          forms.add(form);
+        } catch (e) {
+          debugPrint('Error al parsear formulario ${doc.id}: $e');
+        }
+      }
+
+      // Actualizar el estado con los datos cargados
+      state = forms;
+      debugPrint('✅ Cargados ${forms.length} formularios desde Elasticsearch');
+    } catch (e) {
+      debugPrint('❌ Error al cargar datos desde Elasticsearch: $e');
+      // Si hay error, mantener el estado vacío
+      state = [];
+    }
+  }
+
+  // Recargar datos desde Elasticsearch
+  Future<void> reloadFromElasticsearch() async {
+    await _loadFromElasticsearch();
   }
 
   // Agregar nuevo formulario
