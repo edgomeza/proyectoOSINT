@@ -31,11 +31,11 @@ class ReportsScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
               const SizedBox(height: 16),
               const Text('Investigación no encontrada'),
               const SizedBox(height: 16),
-              ElevatedButton(
+              TextButton(
                 onPressed: () => context.go('/'),
                 child: const Text('Ir al inicio'),
               ),
@@ -46,10 +46,27 @@ class ReportsScreen extends ConsumerWidget {
     }
 
     return AppLayoutWrapper(
-      appBar: ModernAppBar(
-        title: 'Informes',
-        subtitle: investigation.name,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
         leading: const PhaseNavigationButtons(),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Informes',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              investigation.name,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
       ),
       bottomNavigationBar: PhaseNavigation(
         investigationId: investigationId,

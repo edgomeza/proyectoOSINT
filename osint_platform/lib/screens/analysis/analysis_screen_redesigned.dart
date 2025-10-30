@@ -98,10 +98,17 @@ class _AnalysisScreenRedesignedState
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Análisis', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+            const Text(
+              'Análisis',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
             Text(
               investigation.name,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
@@ -111,39 +118,41 @@ class _AnalysisScreenRedesignedState
             padding: const EdgeInsets.symmetric(horizontal: 8),
             child: Center(
               child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Theme.of(context).colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(16),
+                  color: Theme.of(context).colorScheme.primary.withAlpha(20),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.hub,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      Icons.hub_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
                       '${graphStats.totalNodes}',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: 12),
                     Icon(
-                      Icons.timeline,
-                      size: 16,
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
+                      Icons.timeline_outlined,
+                      size: 18,
+                      color: Theme.of(context).colorScheme.primary,
                     ),
-                    const SizedBox(width: 4),
+                    const SizedBox(width: 6),
                     Text(
                       '${timelineStats.totalEvents}',
                       style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: Theme.of(context).colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                        color: Theme.of(context).colorScheme.primary,
                       ),
                     ),
                   ],
@@ -152,7 +161,7 @@ class _AnalysisScreenRedesignedState
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.help_outline),
+            icon: const Icon(Icons.help_outline, size: 22),
             onPressed: () => _showHelpDialog(context),
             tooltip: 'Ayuda',
           ),
@@ -161,11 +170,11 @@ class _AnalysisScreenRedesignedState
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.dashboard), text: 'Resumen'),
-            Tab(icon: Icon(Icons.hub), text: 'Grafo'),
-            Tab(icon: Icon(Icons.timeline), text: 'Timeline'),
-            Tab(icon: Icon(Icons.map), text: 'Mapa'),
-            Tab(icon: Icon(Icons.search), text: 'Búsqueda'),
+            Tab(icon: Icon(Icons.dashboard_outlined), text: 'Resumen'),
+            Tab(icon: Icon(Icons.hub_outlined), text: 'Grafo'),
+            Tab(icon: Icon(Icons.timeline_outlined), text: 'Timeline'),
+            Tab(icon: Icon(Icons.map_outlined), text: 'Mapa'),
+            Tab(icon: Icon(Icons.search_outlined), text: 'Búsqueda'),
           ],
         ),
       ),
@@ -966,25 +975,30 @@ class _AnalysisScreenRedesignedState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Analysis Screen Help'),
+        title: const Text('Ayuda - Análisis'),
         content: const SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'This screen provides comprehensive analysis tools for your investigation:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'Esta pantalla proporciona herramientas completas de análisis para tu investigación:',
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 16),
-              Text('• Overview: Summary and statistics'),
-              Text('• Graph: Interactive relationship visualization'),
-              Text('• Timeline: Chronological events'),
-              Text('• Map: Geographic analysis with heatmaps'),
-              Text('• Search: Advanced search across all data'),
+              Text('• Resumen: Estadísticas generales'),
+              SizedBox(height: 8),
+              Text('• Grafo: Visualización interactiva de relaciones'),
+              SizedBox(height: 8),
+              Text('• Timeline: Eventos cronológicos'),
+              SizedBox(height: 8),
+              Text('• Mapa: Análisis geográfico con mapas de calor'),
+              SizedBox(height: 8),
+              Text('• Búsqueda: Búsqueda avanzada en todos los datos'),
               SizedBox(height: 16),
               Text(
-                'Use the tabs to switch between different analysis views.',
+                'Usa las pestañas para cambiar entre las diferentes vistas de análisis.',
+                style: TextStyle(fontSize: 13),
               ),
             ],
           ),
@@ -992,7 +1006,7 @@ class _AnalysisScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            child: const Text('Entendido'),
           ),
         ],
       ),

@@ -57,11 +57,11 @@ class _ProcessingScreenRedesignedState
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.error_outline, size: 64, color: Colors.red),
+              Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
               const SizedBox(height: 16),
               const Text('Investigación no encontrada'),
               const SizedBox(height: 16),
-              ElevatedButton(
+              TextButton(
                 onPressed: () => context.go('/'),
                 child: const Text('Ir al inicio'),
               ),
@@ -79,16 +79,23 @@ class _ProcessingScreenRedesignedState
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text('Procesamiento', style: TextStyle(fontSize: 20, fontWeight: FontWeight.w700)),
+            const Text(
+              'Procesamiento',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600),
+            ),
             Text(
               investigation.name,
-              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w400),
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w400,
+                color: Colors.grey[600],
+              ),
             ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.help_outline),
+            icon: const Icon(Icons.help_outline, size: 22),
             onPressed: () => _showHelpDialog(context),
             tooltip: 'Ayuda',
           ),
@@ -97,10 +104,10 @@ class _ProcessingScreenRedesignedState
           controller: _tabController,
           isScrollable: true,
           tabs: const [
-            Tab(icon: Icon(Icons.storage), text: 'Datos'),
-            Tab(icon: Icon(Icons.content_copy), text: 'Deduplicación'),
-            Tab(icon: Icon(Icons.psychology), text: 'Extracción NER'),
-            Tab(icon: Icon(Icons.link), text: 'Entity Linking'),
+            Tab(icon: Icon(Icons.storage_outlined), text: 'Datos'),
+            Tab(icon: Icon(Icons.content_copy_outlined), text: 'Deduplicación'),
+            Tab(icon: Icon(Icons.psychology_outlined), text: 'Extracción NER'),
+            Tab(icon: Icon(Icons.link_outlined), text: 'Entity Linking'),
           ],
         ),
       ),
@@ -112,59 +119,11 @@ class _ProcessingScreenRedesignedState
         controller: _tabController,
         children: [
           // Collected Data Tab
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.storage,
-                    size: 64,
-                    color: Colors.blue,
-                  ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Gestión de Datos Recopilados',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Aquí podrás ver, crear, editar y eliminar todos los datos\nrecopilados durante la fase de recopilación.',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                  const SizedBox(height: 32),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Funcionalidad en desarrollo - Próximamente'),
-                          duration: Duration(seconds: 2),
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.add),
-                    label: const Text('Agregar Datos'),
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _buildDataTab(),
 
           // Deduplication Tab
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             child: DeduplicationWidget(
               investigationId: widget.investigationId,
             ),
@@ -172,7 +131,7 @@ class _ProcessingScreenRedesignedState
 
           // NER Extraction Tab
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             child: NERExtractionWidget(
               investigationId: widget.investigationId,
             ),
@@ -180,7 +139,7 @@ class _ProcessingScreenRedesignedState
 
           // Entity Linking Tab
           Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(24),
             child: EntityLinkingWidget(
               investigationId: widget.investigationId,
             ),
@@ -190,48 +149,90 @@ class _ProcessingScreenRedesignedState
     );
   }
 
+  Widget _buildDataTab() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.storage_outlined,
+              size: 64,
+              color: Colors.grey[300],
+            ),
+            const SizedBox(height: 24),
+            const Text(
+              'Gestión de Datos Recopilados',
+              style: TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.5,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 12),
+            Text(
+              'Aquí podrás ver, crear, editar y eliminar todos los datos\nrecopilados durante la fase de recopilación.',
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 15,
+                color: Colors.grey[600],
+              ),
+            ),
+            const SizedBox(height: 32),
+            FilledButton.icon(
+              onPressed: () {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: const Text('Funcionalidad en desarrollo - Próximamente'),
+                    behavior: SnackBarBehavior.floating,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add),
+              label: const Text('Agregar Datos'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showHelpDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Processing Screen Help'),
+        title: const Text('Ayuda - Procesamiento'),
         content: const SingleChildScrollView(
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'The Processing screen helps you organize and analyze your collected data:',
-                style: TextStyle(fontWeight: FontWeight.bold),
+                'La fase de procesamiento te ayuda a organizar y analizar tus datos recopilados:',
+                style: TextStyle(fontWeight: FontWeight.w600),
               ),
               SizedBox(height: 16),
-              Text('• Deduplication: Find and merge duplicate records'),
-              Text('• NER Extraction: Extract entities from text using AI'),
-              Text('• Entity Linking: Convert forms to entities and create relationships'),
-              SizedBox(height: 16),
-              Text(
-                'Tabs explained:',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              Text('• Deduplicación: Encuentra y combina registros duplicados'),
               SizedBox(height: 8),
-              Text(
-                '1. Deduplication: Uses AI to find similar records and suggests merging strategies',
-                style: TextStyle(fontSize: 12),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '2. NER Extraction: Extract people, organizations, locations, emails, and more from text',
-                style: TextStyle(fontSize: 12),
-              ),
-              SizedBox(height: 4),
-              Text(
-                '3. Entity Linking: Create graph entities and relationships for analysis',
-                style: TextStyle(fontSize: 12),
-              ),
+              Text('• Extracción NER: Extrae entidades del texto usando IA'),
+              SizedBox(height: 8),
+              Text('• Entity Linking: Convierte formularios en entidades y crea relaciones'),
               SizedBox(height: 16),
               Text(
-                'Note: NER requires the Python backend to be running (see ner_backend/README.md)',
-                style: TextStyle(fontSize: 11, fontStyle: FontStyle.italic),
+                'Nota: La extracción NER requiere que el backend de Python esté en ejecución (ver ner_backend/README.md)',
+                style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
               ),
             ],
           ),
@@ -239,7 +240,7 @@ class _ProcessingScreenRedesignedState
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Got it'),
+            child: const Text('Entendido'),
           ),
         ],
       ),

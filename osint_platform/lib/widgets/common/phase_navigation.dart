@@ -16,8 +16,6 @@ class PhaseNavigation extends ConsumerWidget {
   });
 
   bool _hasDataForPhase(InvestigationPhase phase, List<dynamic> forms) {
-    // Todas las fases están siempre disponibles para permitir acceso completo
-    // sin restricciones de datos
     return true;
   }
 
@@ -34,12 +32,12 @@ class PhaseNavigation extends ConsumerWidget {
     return FadeInUp(
       duration: const Duration(milliseconds: 300),
       child: Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: Theme.of(context).cardColor,
           border: Border(
             top: BorderSide(
-              color: Theme.of(context).dividerColor,
+              color: Colors.grey[200]!,
               width: 1,
             ),
           ),
@@ -53,7 +51,7 @@ class PhaseNavigation extends ConsumerWidget {
                 child: _buildNavigationButton(
                   context: context,
                   label: previousPhase.displayName,
-                  icon: Icons.arrow_back,
+                  icon: Icons.arrow_back_ios_rounded,
                   isNext: false,
                   isEnabled: hasPreviousData,
                   onTap: hasPreviousData
@@ -66,33 +64,24 @@ class PhaseNavigation extends ConsumerWidget {
 
             // Indicador de fase actual
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
               decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    Theme.of(context).colorScheme.primary.withValues(alpha:0.2),
-                    Theme.of(context).colorScheme.secondary.withValues(alpha:0.2),
-                  ],
-                ),
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Theme.of(context).colorScheme.primary.withValues(alpha:0.5),
-                  width: 1.5,
-                ),
+                color: Theme.of(context).colorScheme.primary.withAlpha(15),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(
                     _getPhaseIcon(currentPhase),
-                    size: 16,
+                    size: 18,
                     color: Theme.of(context).colorScheme.primary,
                   ),
                   const SizedBox(width: 8),
                   Text(
                     currentPhase.displayName,
                     style: TextStyle(
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: FontWeight.w600,
                       color: Theme.of(context).colorScheme.primary,
                     ),
@@ -107,7 +96,7 @@ class PhaseNavigation extends ConsumerWidget {
                 child: _buildNavigationButton(
                   context: context,
                   label: nextPhase.displayName,
-                  icon: Icons.arrow_forward,
+                  icon: Icons.arrow_forward_ios_rounded,
                   isNext: true,
                   isEnabled: hasNextData,
                   onTap: hasNextData
@@ -138,19 +127,19 @@ class PhaseNavigation extends ConsumerWidget {
         if (!isNext) ...[
           Icon(
             icon,
-            size: 16,
+            size: 14,
             color: isEnabled
                 ? Theme.of(context).colorScheme.primary
                 : Colors.grey[400],
           ),
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
         ],
         Flexible(
           child: Text(
             label,
             style: TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
+              fontSize: 13,
+              fontWeight: FontWeight.w500,
               color: isEnabled
                   ? Theme.of(context).colorScheme.primary
                   : Colors.grey[400],
@@ -160,10 +149,10 @@ class PhaseNavigation extends ConsumerWidget {
           ),
         ),
         if (isNext) ...[
-          const SizedBox(width: 6),
+          const SizedBox(width: 8),
           Icon(
             icon,
-            size: 16,
+            size: 14,
             color: isEnabled
                 ? Theme.of(context).colorScheme.primary
                 : Colors.grey[400],
@@ -173,30 +162,24 @@ class PhaseNavigation extends ConsumerWidget {
     );
 
     if (!isEnabled) {
-      return Tooltip(
-        message: 'No hay datos en esta fase',
-        child: Opacity(
-          opacity: 0.5,
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-            child: buttonContent,
-          ),
+      return Opacity(
+        opacity: 0.4,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8),
+          child: buttonContent,
         ),
       );
     }
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: Theme.of(context).colorScheme.primary.withValues(alpha:0.3),
-          ),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(8),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+          child: buttonContent,
         ),
-        child: buttonContent,
       ),
     );
   }
@@ -220,15 +203,15 @@ class PhaseNavigation extends ConsumerWidget {
   IconData _getPhaseIcon(InvestigationPhase phase) {
     switch (phase) {
       case InvestigationPhase.planning:
-        return Icons.edit_note;
+        return Icons.edit_note_outlined;
       case InvestigationPhase.collection:
-        return Icons.collections_bookmark;
+        return Icons.collections_bookmark_outlined;
       case InvestigationPhase.processing:
-        return Icons.sync;
+        return Icons.sync_outlined;
       case InvestigationPhase.analysis:
-        return Icons.analytics;
+        return Icons.analytics_outlined;
       case InvestigationPhase.reports:
-        return Icons.description;
+        return Icons.description_outlined;
     }
   }
 
