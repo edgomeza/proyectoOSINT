@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:animate_do/animate_do.dart';
 import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
@@ -166,16 +167,27 @@ class _AnalysisScreenRedesignedState
             tooltip: 'Ayuda',
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          isScrollable: true,
-          tabs: const [
-            Tab(icon: Icon(Icons.dashboard_outlined), text: 'Resumen'),
-            Tab(icon: Icon(Icons.hub_outlined), text: 'Grafo'),
-            Tab(icon: Icon(Icons.timeline_outlined), text: 'Timeline'),
-            Tab(icon: Icon(Icons.map_outlined), text: 'Mapa'),
-            Tab(icon: Icon(Icons.search_outlined), text: 'Búsqueda'),
-          ],
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(60),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                children: [
+                  _buildTabChip(0, Icons.dashboard_outlined, 'Resumen', Colors.blue),
+                  const SizedBox(width: 8),
+                  _buildTabChip(1, Icons.hub_outlined, 'Grafo', Colors.purple),
+                  const SizedBox(width: 8),
+                  _buildTabChip(2, Icons.timeline_outlined, 'Timeline', Colors.teal),
+                  const SizedBox(width: 8),
+                  _buildTabChip(3, Icons.map_outlined, 'Mapa', Colors.green),
+                  const SizedBox(width: 8),
+                  _buildTabChip(4, Icons.search_outlined, 'Búsqueda', Colors.orange),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
       bottomNavigationBar: PhaseNavigation(
@@ -241,6 +253,69 @@ class _AnalysisScreenRedesignedState
       default:
         return null;
     }
+  }
+
+  Widget _buildTabChip(int index, IconData icon, String label, Color color) {
+    final isSelected = _currentTabIndex == index;
+
+    return FadeIn(
+      duration: const Duration(milliseconds: 400),
+      delay: Duration(milliseconds: index * 80),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: () {
+            _tabController.animateTo(index);
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: isSelected
+                  ? LinearGradient(
+                      colors: [color, color.withAlpha(180)],
+                    )
+                  : null,
+              color: isSelected ? null : Colors.grey[100],
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: isSelected ? color : Colors.grey[300]!,
+                width: isSelected ? 2 : 1,
+              ),
+              boxShadow: isSelected
+                  ? [
+                      BoxShadow(
+                        color: color.withAlpha(40),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  icon,
+                  size: 18,
+                  color: isSelected ? Colors.white : color,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                    color: isSelected ? Colors.white : Colors.grey[700],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 
   void _showNodeDetails(BuildContext context, node) {
