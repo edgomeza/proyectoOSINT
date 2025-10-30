@@ -118,84 +118,34 @@ class EntityNode {
 }
 
 enum EntityNodeType {
-  person,
-  company,
-  organization,
-  socialNetwork,
-  location,
-  document,
-  event,
-  email,
-  phone,
-  website,
-  ipAddress,
-  cryptocurrency,
-  vehicle,
-  property,
-  other,
+  person('Person'),
+  company('Company'),
+  organization('Organization'),
+  socialNetwork('Social Network'),
+  location('Location'),
+  document('Document'),
+  event('Event'),
+  email('Email'),
+  phone('Phone'),
+  website('Website'),
+  ipAddress('IP Address'),
+  cryptocurrency('Cryptocurrency'),
+  vehicle('Vehicle'),
+  property('Property'),
+  other('Other');
+
+  final String displayName;
+  const EntityNodeType(this.displayName);
 }
 
 enum RiskLevel {
-  critical,
-  high,
-  medium,
-  low,
-  none,
-  unknown,
-}
+  critical('Critical'),
+  high('High'),
+  medium('Medium'),
+  low('Low'),
+  none('None'),
+  unknown('Unknown');
 
-extension EntityNodeTypeExtension on EntityNodeType {
-  String get displayName {
-    switch (this) {
-      case EntityNodeType.person:
-        return 'Person';
-      case EntityNodeType.company:
-        return 'Company';
-      case EntityNodeType.organization:
-        return 'Organization';
-      case EntityNodeType.socialNetwork:
-        return 'Social Network';
-      case EntityNodeType.location:
-        return 'Location';
-      case EntityNodeType.document:
-        return 'Document';
-      case EntityNodeType.event:
-        return 'Event';
-      case EntityNodeType.email:
-        return 'Email';
-      case EntityNodeType.phone:
-        return 'Phone';
-      case EntityNodeType.website:
-        return 'Website';
-      case EntityNodeType.ipAddress:
-        return 'IP Address';
-      case EntityNodeType.cryptocurrency:
-        return 'Cryptocurrency';
-      case EntityNodeType.vehicle:
-        return 'Vehicle';
-      case EntityNodeType.property:
-        return 'Property';
-      case EntityNodeType.other:
-        return 'Other';
-    }
-  }
-}
-
-extension RiskLevelExtension on RiskLevel {
-  String get displayName {
-    switch (this) {
-      case RiskLevel.critical:
-        return 'Critical';
-      case RiskLevel.high:
-        return 'High';
-      case RiskLevel.medium:
-        return 'Medium';
-      case RiskLevel.low:
-        return 'Low';
-      case RiskLevel.none:
-        return 'None';
-      case RiskLevel.unknown:
-        return 'Unknown';
-    }
-  }
+  final String displayName;
+  const RiskLevel(this.displayName);
 }
