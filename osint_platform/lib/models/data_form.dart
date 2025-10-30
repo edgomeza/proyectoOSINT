@@ -117,7 +117,7 @@ class DataForm {
       investigationId: json['investigationId'],
       category: DataFormCategory.values.firstWhere(
         (cat) => cat.name == json['category'],
-        orElse: () => DataFormCategory.other,
+        orElse: () => DataFormCategory.personalData,
       ),
       status: DataFormStatus.values.firstWhere(
         (stat) => stat.name == json['status'],

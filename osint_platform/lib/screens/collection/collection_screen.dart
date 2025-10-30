@@ -275,14 +275,14 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       child: TabBarView(
         controller: _tabController,
         children: [
-          _buildCreateNewTab(),
+          _buildCreateNewTab(availableCategories),
           _buildSavedFormsTab(savedForms),
         ],
       ),
     );
   }
 
-  Widget _buildCreateNewTab() {
+  Widget _buildCreateNewTab(List<DataFormCategory>? availableCategories) {
     return SingleChildScrollView(
       padding: const EdgeInsets.all(16),
       child: Form(
