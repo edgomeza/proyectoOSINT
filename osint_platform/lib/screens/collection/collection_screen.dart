@@ -232,6 +232,16 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
       );
     }
 
+    // Calcular categorías disponibles basándose en los tipos de investigación seleccionados
+    List<DataFormCategory>? availableCategories;
+    if (investigation.investigationTypes.isNotEmpty) {
+      final categoriesSet = <DataFormCategory>{};
+      for (var type in investigation.investigationTypes) {
+        categoriesSet.addAll(type.relevantCategories);
+      }
+      availableCategories = categoriesSet.toList();
+    }
+
     return AppLayoutWrapper(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -321,6 +331,7 @@ class _CollectionScreenState extends ConsumerState<CollectionScreen>
             CategorySelector(
               selectedCategory: _selectedCategory,
               onCategorySelected: _onCategorySelected,
+              availableCategories: availableCategories,
             ),
             if (_selectedCategory != null) ...[
               const SizedBox(height: 32),

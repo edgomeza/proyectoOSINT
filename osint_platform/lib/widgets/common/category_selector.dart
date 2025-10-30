@@ -5,15 +5,19 @@ import '../../models/data_form_status.dart';
 class CategorySelector extends StatelessWidget {
   final DataFormCategory? selectedCategory;
   final Function(DataFormCategory) onCategorySelected;
+  final List<DataFormCategory>? availableCategories;
 
   const CategorySelector({
     super.key,
     this.selectedCategory,
     required this.onCategorySelected,
+    this.availableCategories,
   });
 
   @override
   Widget build(BuildContext context) {
+    final categories = availableCategories ?? DataFormCategory.values;
+
     return FadeInUp(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -29,10 +33,10 @@ class CategorySelector extends StatelessWidget {
           Wrap(
             spacing: 12,
             runSpacing: 12,
-            children: DataFormCategory.values.map((category) {
+            children: categories.map((category) {
               final isSelected = selectedCategory == category;
               return FadeIn(
-                delay: Duration(milliseconds: DataFormCategory.values.indexOf(category) * 50),
+                delay: Duration(milliseconds: categories.indexOf(category) * 50),
                 child: _buildCategoryChip(context, category, isSelected),
               );
             }).toList(),
@@ -97,43 +101,47 @@ class CategorySelector extends StatelessWidget {
 
   Color _getCategoryColor(DataFormCategory category) {
     switch (category) {
-      case DataFormCategory.person:
+      case DataFormCategory.personalData:
         return Colors.blue;
-      case DataFormCategory.company:
+      case DataFormCategory.digitalData:
         return Colors.purple;
-      case DataFormCategory.socialNetwork:
-        return Colors.orange;
-      case DataFormCategory.location:
+      case DataFormCategory.geographicData:
         return Colors.green;
-      case DataFormCategory.relationship:
-        return Colors.pink;
-      case DataFormCategory.document:
-        return Colors.indigo;
-      case DataFormCategory.event:
+      case DataFormCategory.temporalData:
         return Colors.teal;
-      case DataFormCategory.other:
-        return Colors.grey;
+      case DataFormCategory.financialData:
+        return Colors.amber;
+      case DataFormCategory.socialMediaData:
+        return Colors.orange;
+      case DataFormCategory.multimediaData:
+        return Colors.pink;
+      case DataFormCategory.technicalData:
+        return Colors.indigo;
+      case DataFormCategory.corporateData:
+        return Colors.deepPurple;
     }
   }
 
   IconData _getCategoryIcon(DataFormCategory category) {
     switch (category) {
-      case DataFormCategory.person:
+      case DataFormCategory.personalData:
         return Icons.person_outline;
-      case DataFormCategory.company:
-        return Icons.business_outlined;
-      case DataFormCategory.socialNetwork:
-        return Icons.share_outlined;
-      case DataFormCategory.location:
+      case DataFormCategory.digitalData:
+        return Icons.dns_outlined;
+      case DataFormCategory.geographicData:
         return Icons.location_on_outlined;
-      case DataFormCategory.relationship:
-        return Icons.people_outline;
-      case DataFormCategory.document:
-        return Icons.description_outlined;
-      case DataFormCategory.event:
-        return Icons.event_outlined;
-      case DataFormCategory.other:
-        return Icons.more_horiz;
+      case DataFormCategory.temporalData:
+        return Icons.schedule_outlined;
+      case DataFormCategory.financialData:
+        return Icons.attach_money_outlined;
+      case DataFormCategory.socialMediaData:
+        return Icons.share_outlined;
+      case DataFormCategory.multimediaData:
+        return Icons.perm_media_outlined;
+      case DataFormCategory.technicalData:
+        return Icons.code_outlined;
+      case DataFormCategory.corporateData:
+        return Icons.business_outlined;
     }
   }
 }
