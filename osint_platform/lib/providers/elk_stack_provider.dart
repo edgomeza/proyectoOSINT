@@ -103,7 +103,13 @@ class ELKStackNotifier extends StateNotifier<ELKStackState> {
   ELKStackNotifier() : super(ELKStackState.initial());
 
   /// Inicializa los servicios ELK
-  Future<void> initialize(String projectPath) async {
+  /// Si se proporcionan [username] y [password], se usan para Elasticsearch
+  /// De lo contrario, se usan credenciales predeterminadas
+  Future<void> initialize(
+    String projectPath, {
+    String? username,
+    String? password,
+  }) async {
     state = state.copyWith(isInitializing: true);
 
     try {
@@ -135,12 +141,12 @@ class ELKStackNotifier extends StateNotifier<ELKStackState> {
         return;
       }
 
-      // Inicializar servicio de Elasticsearch con credenciales
+      // Inicializar servicio de Elasticsearch con credenciales del usuario o predeterminadas
       _elasticsearchService.initialize(
         host: 'localhost',
         port: 9200,
-        username: 'elastic',
-        password: 'osint_elastic_password_2024',
+        username: username ?? 'elastic',
+        password: password ?? 'osint_elastic_password_2024',
       );
 
       // Suscribirse a los cambios de estado de Docker

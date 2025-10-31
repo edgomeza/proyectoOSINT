@@ -12,12 +12,17 @@ class EncryptionService {
 
   final _secureStorage = const FlutterSecureStorage();
   static const String _passwordKey = 'app_password_hash';
+  static const String _usernameKey = 'app_username';
   static const String _isFirstLaunchKey = 'is_first_launch';
 
   encrypt.Key? _encryptionKey;
   bool _isUnlocked = false;
+  String? _currentUsername;
+  String? _currentPassword; // Solo se mantiene en memoria durante la sesión
 
   bool get isUnlocked => _isUnlocked;
+  String? get currentUsername => _currentUsername;
+  String? get currentPassword => _currentPassword;
 
   // Generar clave de encriptación desde contraseña
   encrypt.Key _generateKeyFromPassword(String password) {
@@ -32,16 +37,23 @@ class EncryptionService {
     return value == null;
   }
 
-  // Establecer contraseña inicial
-  Future<bool> setInitialPassword(String password) async {
+  // Establecer usuario y contraseña inicial
+  Future<bool> setInitialPassword(String username, String password) async {
     try {
+      if (username.isEmpty || password.isEmpty) {
+        return false;
+      }
+
       final key = _generateKeyFromPassword(password);
       final passwordHash = sha256.convert(utf8.encode(password)).toString();
 
+      await _secureStorage.write(key: _usernameKey, value: username);
       await _secureStorage.write(key: _passwordKey, value: passwordHash);
       await _secureStorage.write(key: _isFirstLaunchKey, value: 'false');
 
       _encryptionKey = key;
+      _currentUsername = username;
+      _currentPassword = password; // Mantener en memoria para esta sesión
       _isUnlocked = true;
 
       return true;
@@ -51,16 +63,20 @@ class EncryptionService {
     }
   }
 
-  // Verificar contraseña y desbloquear
-  Future<bool> unlockWithPassword(String password) async {
+  // Verificar usuario y contraseña y desbloquear
+  Future<bool> unlockWithPassword(String username, String password) async {
     try {
+      final storedUsername = await _secureStorage.read(key: _usernameKey);
       final storedHash = await _secureStorage.read(key: _passwordKey);
-      if (storedHash == null) return false;
+
+      if (storedUsername == null || storedHash == null) return false;
 
       final inputHash = sha256.convert(utf8.encode(password)).toString();
 
-      if (storedHash == inputHash) {
+      if (storedUsername == username && storedHash == inputHash) {
         _encryptionKey = _generateKeyFromPassword(password);
+        _currentUsername = username;
+        _currentPassword = password; // Mantener en memoria para esta sesión
         _isUnlocked = true;
         return true;
       }
@@ -75,6 +91,8 @@ class EncryptionService {
   // Bloquear aplicación
   Future<void> lock() async {
     _encryptionKey = null;
+    _currentUsername = null;
+    _currentPassword = null; // Limpiar contraseña de la memoria
     _isUnlocked = false;
   }
 
