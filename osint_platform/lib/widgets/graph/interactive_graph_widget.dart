@@ -32,7 +32,6 @@ class _InteractiveGraphWidgetState
   // Node positions for drag functionality
   final Map<String, Offset> _nodePositions = {};
   String? _draggingNodeId;
-  Offset _dragOffset = Offset.zero;
 
   // Filters
   Set<EntityNodeType> selectedTypes = {};
@@ -43,9 +42,8 @@ class _InteractiveGraphWidgetState
   @override
   void initState() {
     super.initState();
-    algorithm = FruchtermanReingoldAlgorithm(
-      iterations: 1000,
-    );
+    // FruchtermanReingoldAlgorithm requiere iterations como parámetro posicional
+    algorithm = FruchtermanReingoldAlgorithm(1000);
   }
 
   @override
@@ -250,7 +248,6 @@ class _InteractiveGraphWidgetState
       onPanStart: (details) {
         setState(() {
           _draggingNodeId = entityNode.id;
-          _dragOffset = details.localPosition;
         });
       },
       onPanUpdate: (details) {
