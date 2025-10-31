@@ -367,6 +367,58 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                             ),
                           ),
                         ),
+
+                        // Botón de reseteo de credenciales (solo si no es primer lanzamiento)
+                        if (!widget.isFirstLaunch) ...[
+                          const SizedBox(height: 16),
+                          FadeInUp(
+                            delay: const Duration(milliseconds: 1400),
+                            child: TextButton.icon(
+                              onPressed: _isLoading ? null : () async {
+                                final confirm = await showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    title: const Text('Resetear Credenciales'),
+                                    content: const Text(
+                                      '¿Estás seguro de que deseas resetear las credenciales?\n\n'
+                                      'Perderás acceso a tu cuenta actual y deberás crear nuevas credenciales.',
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, false),
+                                        child: const Text('Cancelar'),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.pop(context, true),
+                                        child: const Text('Resetear', style: TextStyle(color: Colors.red)),
+                                      ),
+                                    ],
+                                  ),
+                                );
+
+                                if (confirm == true && mounted) {
+                                  await _encryptionService.resetCredentials();
+                                  if (mounted) {
+                                    // Recargar la app
+                                    Navigator.of(context).pushReplacement(
+                                      MaterialPageRoute(
+                                        builder: (_) => LockScreen(
+                                          isFirstLaunch: true,
+                                          onUnlocked: widget.onUnlocked,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                }
+                              },
+                              icon: const Icon(Icons.refresh, size: 18),
+                              label: const Text('Olvidé mis credenciales'),
+                              style: TextButton.styleFrom(
+                                foregroundColor: Colors.grey[600],
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
                     ),
                   ),

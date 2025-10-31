@@ -37,6 +37,27 @@ class EncryptionService {
     return value == null;
   }
 
+  // MÉTODO DE DESARROLLO: Resetear todas las credenciales
+  // Útil para debugging y testing
+  Future<void> resetCredentials() async {
+    try {
+      await _secureStorage.delete(key: _passwordKey);
+      await _secureStorage.delete(key: _usernameKey);
+      await _secureStorage.delete(key: _isFirstLaunchKey);
+
+      _encryptionKey = null;
+      _currentUsername = null;
+      _currentPassword = null;
+      _isUnlocked = false;
+
+      // ignore: avoid_print
+      print('✅ Credenciales reseteadas exitosamente');
+    } catch (e) {
+      // ignore: avoid_print
+      print('❌ Error al resetear credenciales: $e');
+    }
+  }
+
   // Establecer usuario y contraseña inicial
   Future<bool> setInitialPassword(String username, String password) async {
     try {
