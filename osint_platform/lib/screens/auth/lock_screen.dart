@@ -372,8 +372,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                         if (!widget.isFirstLaunch) ...[
                           const SizedBox(height: 16),
                           Center(
-                            child: TextButton(
-                              onPressed: _isLoading ? null : () async {
+                            child: InkWell(
+                              onTap: _isLoading ? null : () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
                                   builder: (context) => AlertDialog(
@@ -410,16 +410,23 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                   }
                                 }
                               },
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.refresh, size: 18, color: Colors.grey[600]),
-                                  const SizedBox(width: 8),
-                                  Text(
-                                    'Olvidé mis credenciales',
-                                    style: TextStyle(color: Colors.grey[600]),
-                                  ),
-                                ],
+                              borderRadius: BorderRadius.circular(8),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.refresh, size: 18, color: Colors.grey[600]),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Olvidé mis credenciales',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
