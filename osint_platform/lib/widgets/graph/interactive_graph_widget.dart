@@ -49,6 +49,8 @@ class _InteractiveGraphWidgetState
     // FruchtermanReingoldAlgorithm requiere una configuración
     final config = FruchtermanReingoldConfiguration();
     config.iterations = 1000;
+    config.attractionK = 2000;
+    config.repulsionK = 50000;
     algorithm = FruchtermanReingoldAlgorithm(config);
   }
 
@@ -212,10 +214,8 @@ class _InteractiveGraphWidgetState
                       _selectedTargetNode?.id == entityNode.id;
     final isSource = _selectedSourceNode?.id == entityNode.id;
 
-    // Apply custom position if exists
-    if (_nodePositions.containsKey(entityNode.id)) {
-      graphNode.position = _nodePositions[entityNode.id]!;
-    }
+    // Ensure the node has a valid position to prevent null errors
+    graphNode.position ??= Offset.zero;
 
     final nodeContent = Container(
       padding: const EdgeInsets.all(12),
@@ -361,6 +361,9 @@ class _InteractiveGraphWidgetState
     for (final entityNode in nodes) {
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
+
+      // Initialize node with default size to prevent null errors in layout algorithm
+      node.size = const Size(100, 100);
 
       // Load saved position from entity node if available
       if (entityNode.x != null && entityNode.y != null) {
