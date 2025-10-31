@@ -1,6 +1,6 @@
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:graphview/GraphView.dart';
 import '../../models/entity_node.dart';
 import '../../models/relationship.dart';
 import '../../providers/graph_provider.dart';
@@ -26,9 +26,6 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
-  final Graph graph = Graph()..isTree = false;
-  late BuchheimWalkerAlgorithm algorithm;
-
   // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
 
@@ -44,18 +41,6 @@ class _InteractiveGraphWidgetState
   bool showLabels = true;
 
   @override
-  void initState() {
-    super.initState();
-    // Use BuchheimWalker algorithm - more stable than FruchtermanReingold
-    final config = BuchheimWalkerConfiguration();
-    config.siblingSeparation = 100;
-    config.levelSeparation = 150;
-    config.subtreeSeparation = 150;
-    config.orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-    algorithm = BuchheimWalkerAlgorithm(config, TreeEdgeRenderer(config));
-  }
-
-  @override
   Widget build(BuildContext context) {
     final nodes = ref.watch(nodesByInvestigationProvider(widget.investigationId));
     final relationships =
@@ -64,9 +49,6 @@ class _InteractiveGraphWidgetState
     // Apply filters
     final filteredNodes = _filterNodes(nodes);
     final filteredRelationships = _filterRelationships(relationships, filteredNodes);
-
-    // Build graph
-    _buildGraph(filteredNodes, filteredRelationships);
 
     return Column(
       children: [
@@ -93,22 +75,12 @@ class _InteractiveGraphWidgetState
                           child: SizedBox(
                             width: constraints.maxWidth * 2,
                             height: constraints.maxHeight * 2,
-                            child: GraphView(
-                              key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
-                              graph: graph,
-                              algorithm: algorithm,
-                              paint: Paint()
-                                ..color = Theme.of(context).colorScheme.primary
-                                ..strokeWidth = 2
-                                ..style = PaintingStyle.stroke,
-                              builder: (Node node) {
-                                // Safe null check
-                                if (node.key?.value == null) {
-                                  return const SizedBox.shrink();
-                                }
-                                final entityNode = node.key!.value as EntityNode;
-                                return _buildNodeWidget(context, entityNode, node);
-                              },
+                            child: _buildCustomGraphLayout(
+                              context,
+                              filteredNodes,
+                              filteredRelationships,
+                              constraints.maxWidth * 2,
+                              constraints.maxHeight * 2,
                             ),
                           ),
                         );
@@ -209,92 +181,6 @@ class _InteractiveGraphWidgetState
     );
   }
 
-  Widget _buildNodeWidget(BuildContext context, EntityNode entityNode, Node graphNode) {
-    final color = _getNodeColor(entityNode.type, entityNode.riskLevel);
-    final isSelected = _selectedSourceNode?.id == entityNode.id ||
-                      _selectedTargetNode?.id == entityNode.id;
-    final isSource = _selectedSourceNode?.id == entityNode.id;
-
-    final nodeContent = Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [color.withValues(alpha:0.8), color],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: isSelected
-              ? (isSource ? Colors.green : Colors.blue)
-              : (entityNode.riskLevel == RiskLevel.critical ||
-                      entityNode.riskLevel == RiskLevel.high
-                  ? Colors.red
-                  : Colors.white24),
-          width: isSelected ? 3 : 2,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: isSelected
-                ? (isSource ? Colors.green : Colors.blue).withValues(alpha: 0.5)
-                : color.withValues(alpha: 0.3),
-            blurRadius: isSelected ? 12 : 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            _getNodeIcon(entityNode.type),
-            color: Colors.white,
-            size: 24,
-          ),
-          if (showLabels) ...[
-            const SizedBox(height: 4),
-            SizedBox(
-              width: 80,
-              child: Text(
-                entityNode.label,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-                textAlign: TextAlign.center,
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-              ),
-            ),
-          ],
-          if (entityNode.confidence < 1.0 && showLabels) ...[
-            const SizedBox(height: 2),
-            Text(
-              '${(entityNode.confidence * 100).toInt()}%',
-              style: const TextStyle(
-                color: Colors.white70,
-                fontSize: 8,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-
-    // Removed drag functionality, only keeping tap
-    return GestureDetector(
-      onTap: () {
-        if (_isCreatingRelationship) {
-          _handleNodeSelectionForRelationship(entityNode);
-        } else {
-          widget.onNodeTap?.call(entityNode);
-        }
-      },
-      child: nodeContent,
-    );
-  }
-
   void _handleNodeSelectionForRelationship(EntityNode node) {
     setState(() {
       if (_selectedSourceNode == null) {
@@ -345,46 +231,135 @@ class _InteractiveGraphWidgetState
     );
   }
 
-  void _buildGraph(List<EntityNode> nodes, List<Relationship> relationships) {
-    graph.nodes.clear();
-    graph.edges.clear();
+  Widget _buildCustomGraphLayout(
+    BuildContext context,
+    List<EntityNode> nodes,
+    List<Relationship> relationships,
+    double width,
+    double height,
+  ) {
+    // Calculate circular layout positions
+    final center = Offset(width / 2, height / 2);
+    final radius = (width < height ? width : height) * 0.35;
 
-    // Don't build graph if there are no nodes to prevent algorithm errors
-    if (nodes.isEmpty) {
-      return;
-    }
-
-    // Create node map
-    final nodeMap = <String, Node>{};
-    for (final entityNode in nodes) {
-      final node = Node.Id(entityNode);
-      nodeMap[entityNode.id] = node;
-
-      // Load saved position from entity node if available (optional for BuchheimWalker)
-      if (entityNode.x != null && entityNode.y != null) {
-        final savedPosition = Offset(entityNode.x!, entityNode.y!);
-        _nodePositions[entityNode.id] = savedPosition;
-      }
-
-      graph.addNode(node);
-    }
-
-    // Add edges
-    for (final relationship in relationships) {
-      final sourceNode = nodeMap[relationship.sourceNodeId];
-      final targetNode = nodeMap[relationship.targetNodeId];
-
-      if (sourceNode != null && targetNode != null) {
-        graph.addEdge(
-          sourceNode,
-          targetNode,
-          paint: Paint()
-            ..color = _getEdgeColor(relationship.type)
-            ..strokeWidth = 2
-            ..style = PaintingStyle.stroke,
+    // Create node position map if not already saved
+    for (int i = 0; i < nodes.length; i++) {
+      final node = nodes[i];
+      if (!_nodePositions.containsKey(node.id)) {
+        // Position nodes in a circle
+        final angle = (i * 2 * 3.14159) / nodes.length;
+        _nodePositions[node.id] = Offset(
+          center.dx + radius * cos(angle),
+          center.dy + radius * sin(angle),
         );
       }
     }
+
+    return CustomPaint(
+      painter: GraphEdgesPainter(
+        nodes: nodes,
+        relationships: relationships,
+        nodePositions: _nodePositions,
+        getEdgeColor: _getEdgeColor,
+      ),
+      child: Stack(
+        children: nodes.map((node) {
+          final position = _nodePositions[node.id] ?? center;
+          return Positioned(
+            left: position.dx - 50,
+            top: position.dy - 50,
+            child: _buildNodeWidget(context, node),
+          );
+        }).toList(),
+      ),
+    );
+  }
+
+  Widget _buildNodeWidget(BuildContext context, EntityNode entityNode) {
+    final color = _getNodeColor(entityNode.type, entityNode.riskLevel);
+    final isSelected = _selectedSourceNode?.id == entityNode.id ||
+                      _selectedTargetNode?.id == entityNode.id;
+    final isSource = _selectedSourceNode?.id == entityNode.id;
+
+    final nodeContent = Container(
+      width: 100,
+      height: 100,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha:0.8), color],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isSelected
+              ? (isSource ? Colors.green : Colors.blue)
+              : (entityNode.riskLevel == RiskLevel.critical ||
+                      entityNode.riskLevel == RiskLevel.high
+                  ? Colors.red
+                  : Colors.white24),
+          width: isSelected ? 3 : 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: isSelected
+                ? (isSource ? Colors.green : Colors.blue).withValues(alpha: 0.5)
+                : color.withValues(alpha: 0.3),
+            blurRadius: isSelected ? 12 : 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            _getNodeIcon(entityNode.type),
+            color: Colors.white,
+            size: 24,
+          ),
+          if (showLabels) ...[
+            const SizedBox(height: 4),
+            Expanded(
+              child: Text(
+                entityNode.label,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+          if (entityNode.confidence < 1.0 && showLabels) ...[
+            const SizedBox(height: 2),
+            Text(
+              '${(entityNode.confidence * 100).toInt()}%',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 8,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return GestureDetector(
+      onTap: () {
+        if (_isCreatingRelationship) {
+          _handleNodeSelectionForRelationship(entityNode);
+        } else {
+          widget.onNodeTap?.call(entityNode);
+        }
+      },
+      child: nodeContent,
+    );
   }
 
   List<EntityNode> _filterNodes(List<EntityNode> nodes) {
@@ -813,5 +788,69 @@ class _InteractiveGraphWidgetState
       _selectedTargetNode = null;
       _isCreatingRelationship = false;
     });
+  }
+}
+
+// Custom painter for drawing edges between nodes
+class GraphEdgesPainter extends CustomPainter {
+  final List<EntityNode> nodes;
+  final List<Relationship> relationships;
+  final Map<String, Offset> nodePositions;
+  final Color Function(RelationshipType) getEdgeColor;
+
+  GraphEdgesPainter({
+    required this.nodes,
+    required this.relationships,
+    required this.nodePositions,
+    required this.getEdgeColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    for (final relationship in relationships) {
+      final sourcePos = nodePositions[relationship.sourceNodeId];
+      final targetPos = nodePositions[relationship.targetNodeId];
+
+      if (sourcePos != null && targetPos != null) {
+        final paint = Paint()
+          ..color = getEdgeColor(relationship.type)
+          ..strokeWidth = 2
+          ..style = PaintingStyle.stroke;
+
+        canvas.drawLine(sourcePos, targetPos, paint);
+
+        // Draw arrow at the end
+        _drawArrow(canvas, sourcePos, targetPos, paint);
+      }
+    }
+  }
+
+  void _drawArrow(Canvas canvas, Offset start, Offset end, Paint paint) {
+    const arrowSize = 10.0;
+    final direction = (end - start);
+    final length = direction.distance;
+
+    if (length == 0) return;
+
+    final unitDirection = direction / length;
+    final arrowTip = end - unitDirection * 50; // Offset from node center
+
+    final perpendicular = Offset(-unitDirection.dy, unitDirection.dx);
+    final arrowPoint1 = arrowTip - unitDirection * arrowSize + perpendicular * arrowSize * 0.5;
+    final arrowPoint2 = arrowTip - unitDirection * arrowSize - perpendicular * arrowSize * 0.5;
+
+    final path = Path()
+      ..moveTo(arrowTip.dx, arrowTip.dy)
+      ..lineTo(arrowPoint1.dx, arrowPoint1.dy)
+      ..lineTo(arrowPoint2.dx, arrowPoint2.dy)
+      ..close();
+
+    canvas.drawPath(path, paint..style = PaintingStyle.fill);
+  }
+
+  @override
+  bool shouldRepaint(covariant GraphEdgesPainter oldDelegate) {
+    return relationships != oldDelegate.relationships ||
+        nodePositions != oldDelegate.nodePositions;
   }
 }
