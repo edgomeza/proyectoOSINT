@@ -371,9 +371,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                         // Botón de reseteo de credenciales (solo si no es primer lanzamiento)
                         if (!widget.isFirstLaunch) ...[
                           const SizedBox(height: 16),
-                          FadeInUp(
-                            delay: const Duration(milliseconds: 1400),
-                            child: TextButton.icon(
+                          Center(
+                            child: TextButton(
                               onPressed: _isLoading ? null : () async {
                                 final confirm = await showDialog<bool>(
                                   context: context,
@@ -411,10 +410,16 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                   }
                                 }
                               },
-                              icon: const Icon(Icons.refresh, size: 18),
-                              label: const Text('Olvidé mis credenciales'),
-                              style: TextButton.styleFrom(
-                                foregroundColor: Colors.grey[600],
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(Icons.refresh, size: 18, color: Colors.grey[600]),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    'Olvidé mis credenciales',
+                                    style: TextStyle(color: Colors.grey[600]),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
