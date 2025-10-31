@@ -722,7 +722,7 @@ class _InteractiveGraphWidgetState
                   labelText: 'Tipo de Relación',
                   border: OutlineInputBorder(),
                 ),
-                value: selectedType,
+                initialValue: selectedType,
                 items: RelationshipType.values.map((type) {
                   return DropdownMenuItem(
                     value: type,

@@ -326,7 +326,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                         size: 18,
                       ),
                       const SizedBox(width: 4),
-                      const Text(Filtros Avanzados),
+                      const Text('Filtros Avanzados'),
                     ],
                   ),
                   onPressed: () {
@@ -351,7 +351,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                         const Icon(Icons.filter_alt, size: 20),
                         const SizedBox(width: 8),
                         Text(
-                          Filtros Avanzados,
+                          'Filtros Avanzados',
                           style: Theme.of(context).textTheme.titleSmall?.copyWith(
                                 fontWeight: FontWeight.bold,
                               ),
@@ -360,7 +360,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                         TextButton.icon(
                           onPressed: _clearFilters,
                           icon: const Icon(Icons.clear, size: 18),
-                          label: const Text(Limpiar),
+                          label: const Text('Limpiar'),
                         ),
                       ],
                     ),
@@ -369,7 +369,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
 
                     // Date Range Filter
                     Text(
-                      Rango de Fechas,
+                      'Rango de Fechas',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -394,7 +394,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                             icon: const Icon(Icons.calendar_today, size: 16),
                             label: Text(
                               _startDate == null
-                                  ? Desde
+                                  ? 'Desde'
                                   : '${_startDate!.day}/${_startDate!.month}/${_startDate!.year}',
                               style: const TextStyle(fontSize: 12),
                             ),
@@ -418,7 +418,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                             icon: const Icon(Icons.calendar_today, size: 16),
                             label: Text(
                               _endDate == null
-                                  ? Hasta
+                                  ? 'Hasta'
                                   : '${_endDate!.day}/${_endDate!.month}/${_endDate!.year}',
                               style: const TextStyle(fontSize: 12),
                             ),
@@ -450,7 +450,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
 
                     // Risk Level Filter
                     Text(
-                      Nivel de Riesgo,
+                      'Nivel de Riesgo',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -460,7 +460,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                       spacing: 8,
                       children: [
                         FilterChip(
-                          label: const Text(Todos),
+                          label: const Text('Todos'),
                           selected: _selectedRisk == null,
                           onSelected: (selected) {
                             setState(() => _selectedRisk = null);
