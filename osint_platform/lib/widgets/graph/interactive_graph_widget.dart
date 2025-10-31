@@ -29,6 +29,10 @@ class _InteractiveGraphWidgetState
   final Graph graph = Graph()..isTree = false;
   BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
 
+  // Node positions for drag functionality
+  final Map<String, Offset> _nodePositions = {};
+  String? _draggingNodeId;
+
   // Filters
   Set<EntityNodeType> selectedTypes = {};
   Set<RiskLevel> selectedRiskLevels = {};
@@ -173,70 +177,98 @@ class _InteractiveGraphWidgetState
 
   Widget _buildNodeWidget(BuildContext context, EntityNode node) {
     final color = _getNodeColor(node.type, node.riskLevel);
+    final isDragging = _draggingNodeId == node.id;
 
-    return InkWell(
-      onTap: () => widget.onNodeTap?.call(node),
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [color.withValues(alpha:0.8), color],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-            color: node.riskLevel == RiskLevel.critical ||
-                    node.riskLevel == RiskLevel.high
-                ? Colors.red
-                : Colors.white24,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: color.withValues(alpha:0.3),
-              blurRadius: 8,
-              offset: const Offset(0, 2),
-            ),
-          ],
+    final nodeContent = Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [color.withValues(alpha:0.8), color],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
         ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              _getNodeIcon(node.type),
-              color: Colors.white,
-              size: 24,
-            ),
-            if (showLabels) ...[
-              const SizedBox(height: 4),
-              SizedBox(
-                width: 80,
-                child: Text(
-                  node.label,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 10,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
-            if (node.confidence < 1.0 && showLabels) ...[
-              const SizedBox(height: 2),
-              Text(
-                '${(node.confidence * 100).toInt()}%',
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(
+          color: isDragging
+              ? Colors.amber
+              : (node.riskLevel == RiskLevel.critical ||
+                      node.riskLevel == RiskLevel.high
+                  ? Colors.red
+                  : Colors.white24),
+          width: isDragging ? 3 : 2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: isDragging ? 0.5 : 0.3),
+            blurRadius: isDragging ? 12 : 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            _getNodeIcon(node.type),
+            color: Colors.white,
+            size: 24,
+          ),
+          if (showLabels) ...[
+            const SizedBox(height: 4),
+            SizedBox(
+              width: 80,
+              child: Text(
+                node.label,
                 style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 8,
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
                 ),
+                textAlign: TextAlign.center,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
-            ],
+            ),
           ],
-        ),
+          if (node.confidence < 1.0 && showLabels) ...[
+            const SizedBox(height: 2),
+            Text(
+              '${(node.confidence * 100).toInt()}%',
+              style: const TextStyle(
+                color: Colors.white70,
+                fontSize: 8,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+
+    return LongPressDraggable<EntityNode>(
+      data: node,
+      feedback: Opacity(
+        opacity: 0.7,
+        child: nodeContent,
+      ),
+      childWhenDragging: Opacity(
+        opacity: 0.3,
+        child: nodeContent,
+      ),
+      onDragStarted: () {
+        setState(() {
+          _draggingNodeId = node.id;
+        });
+      },
+      onDragEnd: (details) {
+        setState(() {
+          _draggingNodeId = null;
+          // Save the new position
+          _nodePositions[node.id] = details.offset;
+        });
+      },
+      child: GestureDetector(
+        onTap: () => widget.onNodeTap?.call(node),
+        child: nodeContent,
       ),
     );
   }

@@ -153,72 +153,30 @@ class GeoLocation {
 }
 
 enum GeoLocationType {
-  residence,
-  business,
-  office,
-  meeting,
-  event,
-  incident,
-  travel,
-  checkpoint,
-  poi, // Point of Interest
-  surveillance,
-  other,
+  residence('Residence'),
+  business('Business'),
+  office('Office'),
+  meeting('Meeting'),
+  event('Event'),
+  incident('Incident'),
+  travel('Travel'),
+  checkpoint('Checkpoint'),
+  poi('Point of Interest'),
+  surveillance('Surveillance'),
+  other('Other');
+
+  final String displayName;
+  const GeoLocationType(this.displayName);
 }
 
 enum LocationRisk {
-  critical,
-  high,
-  medium,
-  low,
-  none,
-  unknown,
-}
+  critical('Critical'),
+  high('High'),
+  medium('Medium'),
+  low('Low'),
+  none('None'),
+  unknown('Unknown');
 
-extension GeoLocationTypeExtension on GeoLocationType {
-  String get displayName {
-    switch (this) {
-      case GeoLocationType.residence:
-        return 'Residence';
-      case GeoLocationType.business:
-        return 'Business';
-      case GeoLocationType.office:
-        return 'Office';
-      case GeoLocationType.meeting:
-        return 'Meeting';
-      case GeoLocationType.event:
-        return 'Event';
-      case GeoLocationType.incident:
-        return 'Incident';
-      case GeoLocationType.travel:
-        return 'Travel';
-      case GeoLocationType.checkpoint:
-        return 'Checkpoint';
-      case GeoLocationType.poi:
-        return 'Point of Interest';
-      case GeoLocationType.surveillance:
-        return 'Surveillance';
-      case GeoLocationType.other:
-        return 'Other';
-    }
-  }
-}
-
-extension LocationRiskExtension on LocationRisk {
-  String get displayName {
-    switch (this) {
-      case LocationRisk.critical:
-        return 'Critical';
-      case LocationRisk.high:
-        return 'High';
-      case LocationRisk.medium:
-        return 'Medium';
-      case LocationRisk.low:
-        return 'Low';
-      case LocationRisk.none:
-        return 'None';
-      case LocationRisk.unknown:
-        return 'Unknown';
-    }
-  }
+  final String displayName;
+  const LocationRisk(this.displayName);
 }
