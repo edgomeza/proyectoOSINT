@@ -554,16 +554,18 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
   }
 
   Widget _buildResultCard(SearchResult result) {
+    final color = _getColorByType(result);
+
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
         leading: Container(
           padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
-            color: Colors.blue.withValues(alpha: 0.15),
+            color: color.withValues(alpha: 0.15),
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(result.icon, color: Colors.blue),
+          child: Icon(result.icon, color: color),
         ),
         title: Text(
           result.title,
@@ -600,15 +602,15 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                   return Container(
                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                     decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
+                      color: color.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(4),
-                      border: Border.all(color: Colors.grey.shade300),
+                      border: Border.all(color: color.withValues(alpha: 0.3)),
                     ),
                     child: Text(
                       '${entry.key}: ${entry.value}',
                       style: TextStyle(
                         fontSize: 10,
-                        color: Colors.grey.shade700,
+                        color: color,
                       ),
                     ),
                   );
@@ -622,11 +624,69 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
             result.category,
             style: const TextStyle(fontSize: 11),
           ),
-          backgroundColor: Colors.blue.withValues(alpha: 0.1),
+          backgroundColor: color.withValues(alpha: 0.1),
         ),
         onTap: () => _showResultDetails(result),
       ),
     );
+  }
+
+  Color _getColorByType(SearchResult result) {
+    // Determine color based on result data type
+    if (result.data is EntityNode) {
+      final node = result.data as EntityNode;
+      // Check risk level first for critical/high risk
+      if (node.riskLevel == RiskLevel.critical) return Colors.red.shade900;
+      if (node.riskLevel == RiskLevel.high) return Colors.red.shade700;
+
+      // Then by entity type
+      switch (node.type) {
+        case EntityNodeType.person:
+          return Colors.blue.shade600;
+        case EntityNodeType.company:
+          return Colors.purple.shade600;
+        case EntityNodeType.organization:
+          return Colors.deepPurple.shade600;
+        case EntityNodeType.location:
+          return Colors.green.shade600;
+        case EntityNodeType.document:
+          return Colors.indigo.shade600;
+        case EntityNodeType.event:
+          return Colors.teal.shade600;
+        case EntityNodeType.email:
+          return Colors.orange.shade600;
+        case EntityNodeType.phone:
+          return Colors.cyan.shade600;
+        case EntityNodeType.website:
+          return Colors.lime.shade700;
+        case EntityNodeType.ipAddress:
+          return Colors.amber.shade700;
+        default:
+          return Colors.grey.shade600;
+      }
+    } else if (result.data is TimelineEvent) {
+      final event = result.data as TimelineEvent;
+      // Color by priority
+      switch (event.priority) {
+        case EventPriority.critical:
+          return Colors.red.shade700;
+        case EventPriority.high:
+          return Colors.orange.shade600;
+        case EventPriority.medium:
+          return Colors.blue.shade600;
+        case EventPriority.low:
+          return Colors.green.shade600;
+      }
+    } else if (result.data is GeoLocation) {
+      final location = result.data as GeoLocation;
+      // Color by risk
+      if (location.risk == LocationRisk.critical) return Colors.red.shade700;
+      if (location.risk == LocationRisk.high) return Colors.orange.shade600;
+      return Colors.green.shade600;
+    }
+
+    // Default color for forms and others
+    return Colors.blue.shade600;
   }
 
   void _showResultDetails(SearchResult result) {

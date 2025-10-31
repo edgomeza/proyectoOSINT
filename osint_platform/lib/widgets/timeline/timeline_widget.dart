@@ -103,7 +103,7 @@ class _DynamicTimelineWidgetState
             _buildFilterChip(
               context,
               icon: Icons.category,
-              label: 'Type',
+              label: 'Tipo',
               onTap: () => _showTypeFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -112,7 +112,7 @@ class _DynamicTimelineWidgetState
             _buildFilterChip(
               context,
               icon: Icons.flag,
-              label: 'Priority',
+              label: 'Prioridad',
               onTap: () => _showPriorityFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -122,8 +122,8 @@ class _DynamicTimelineWidgetState
               context,
               icon: Icons.date_range,
               label: startDate != null
-                  ? 'Date Range'
-                  : 'All Dates',
+                  ? 'Rango de Fechas'
+                  : 'Todas las Fechas',
               onTap: () => _showDateRangeDialog(context),
             ),
             const SizedBox(width: 8),
@@ -132,7 +132,7 @@ class _DynamicTimelineWidgetState
             _buildFilterChip(
               context,
               icon: groupByDate ? Icons.view_day : Icons.view_stream,
-              label: groupByDate ? 'Grouped' : 'Linear',
+              label: groupByDate ? 'Agrupado' : 'Lineal',
               onTap: () => setState(() => groupByDate = !groupByDate),
             ),
             const SizedBox(width: 8),
@@ -141,7 +141,7 @@ class _DynamicTimelineWidgetState
             _buildFilterChip(
               context,
               icon: Icons.refresh,
-              label: 'Reset',
+              label: 'Reiniciar',
               onTap: _resetFilters,
             ),
           ],
@@ -407,14 +407,14 @@ class _DynamicTimelineWidgetState
           ),
           const SizedBox(height: 16),
           Text(
-            'No timeline events',
+            'No hay eventos en la línea de tiempo',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Events will appear here as you build your investigation',
+            'Los eventos aparecerán aquí a medida que construyas tu investigación',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -532,7 +532,7 @@ class _DynamicTimelineWidgetState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Type'),
+        title: const Text('Filtrar por Tipo'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => SingleChildScrollView(
             child: Column(
@@ -561,14 +561,14 @@ class _DynamicTimelineWidgetState
               setState(() => selectedTypes.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),
@@ -579,7 +579,7 @@ class _DynamicTimelineWidgetState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Priority'),
+        title: const Text('Filtrar por Prioridad'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => Column(
             mainAxisSize: MainAxisSize.min,
@@ -606,14 +606,14 @@ class _DynamicTimelineWidgetState
               setState(() => selectedPriorities.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),

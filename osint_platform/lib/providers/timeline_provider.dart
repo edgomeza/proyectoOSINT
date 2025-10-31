@@ -1,25 +1,100 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/timeline_event.dart';
+import '../services/elasticsearch_service.dart';
+import '../services/logstash_service.dart';
 
 /// State Notifier for managing timeline events
 class TimelineEventsNotifier extends StateNotifier<List<TimelineEvent>> {
-  TimelineEventsNotifier() : super([]);
+  final ElasticsearchService _elasticsearchService;
+  final LogstashService _logstashService;
+  static const String _eventsIndex = 'osint-timeline-events';
 
-  void addEvent(TimelineEvent event) {
-    state = [...state, event];
-    _sortByTimestamp();
+  TimelineEventsNotifier(this._elasticsearchService, this._logstashService) : super([]) {
+    _loadFromElasticsearch();
   }
 
-  void updateEvent(TimelineEvent updatedEvent) {
+  /// Load all events from Elasticsearch
+  Future<void> _loadFromElasticsearch() async {
+    try {
+      final result = await _elasticsearchService.search(
+        _eventsIndex,
+        size: 10000,
+        sort: [
+          {'timestamp': 'asc'}
+        ],
+      );
+
+      if (result.documents.isNotEmpty) {
+        final events = result.documents
+            .map((doc) => TimelineEvent.fromJson(doc.data))
+            .toList();
+        state = events;
+      }
+    } catch (e) {
+      // If index doesn't exist or error occurs, start with empty state
+      state = [];
+    }
+  }
+
+  Future<void> addEvent(TimelineEvent event) async {
+    state = [...state, event];
+    _sortByTimestamp();
+
+    // Persist to Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _eventsIndex,
+      event.toJson(),
+      documentId: event.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: event.investigationId,
+      phase: 'analysis',
+      eventType: 'timeline_event_created',
+      data: event.toJson(),
+    );
+  }
+
+  Future<void> updateEvent(TimelineEvent updatedEvent) async {
     state = [
       for (final event in state)
         if (event.id == updatedEvent.id) updatedEvent else event,
     ];
     _sortByTimestamp();
+
+    // Update in Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _eventsIndex,
+      updatedEvent.toJson(),
+      documentId: updatedEvent.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: updatedEvent.investigationId,
+      phase: 'analysis',
+      eventType: 'timeline_event_updated',
+      data: updatedEvent.toJson(),
+    );
   }
 
-  void removeEvent(String eventId) {
+  Future<void> removeEvent(String eventId) async {
+    final event = getEventById(eventId);
     state = state.where((event) => event.id != eventId).toList();
+
+    // Delete from Elasticsearch
+    await _elasticsearchService.deleteDocument(_eventsIndex, eventId);
+
+    // Log to Logstash
+    if (event != null) {
+      await _logstashService.sendEvent(
+        investigationId: event.investigationId,
+        phase: 'analysis',
+        eventType: 'timeline_event_deleted',
+        data: {'eventId': eventId, 'eventTitle': event.title},
+      );
+    }
   }
 
   void clearEvents() {
@@ -77,7 +152,10 @@ class TimelineEventsNotifier extends StateNotifier<List<TimelineEvent>> {
 /// Provider for timeline events
 final timelineEventsProvider =
     StateNotifierProvider<TimelineEventsNotifier, List<TimelineEvent>>((ref) {
-  return TimelineEventsNotifier();
+  return TimelineEventsNotifier(
+    ElasticsearchService(),
+    LogstashService(),
+  );
 });
 
 /// Derived provider: Get events by investigation ID

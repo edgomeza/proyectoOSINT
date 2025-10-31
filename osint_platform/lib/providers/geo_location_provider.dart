@@ -1,24 +1,96 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/geo_location.dart';
 import 'package:latlong2/latlong.dart';
+import '../services/elasticsearch_service.dart';
+import '../services/logstash_service.dart';
 
 /// State Notifier for managing geographic locations
 class GeoLocationsNotifier extends StateNotifier<List<GeoLocation>> {
-  GeoLocationsNotifier() : super([]);
+  final ElasticsearchService _elasticsearchService;
+  final LogstashService _logstashService;
+  static const String _locationsIndex = 'osint-geo-locations';
 
-  void addLocation(GeoLocation location) {
-    state = [...state, location];
+  GeoLocationsNotifier(this._elasticsearchService, this._logstashService) : super([]) {
+    _loadFromElasticsearch();
   }
 
-  void updateLocation(GeoLocation updatedLocation) {
+  /// Load all locations from Elasticsearch
+  Future<void> _loadFromElasticsearch() async {
+    try {
+      final result = await _elasticsearchService.search(
+        _locationsIndex,
+        size: 10000,
+      );
+
+      if (result.documents.isNotEmpty) {
+        final locations = result.documents
+            .map((doc) => GeoLocation.fromJson(doc.data))
+            .toList();
+        state = locations;
+      }
+    } catch (e) {
+      // If index doesn't exist or error occurs, start with empty state
+      state = [];
+    }
+  }
+
+  Future<void> addLocation(GeoLocation location) async {
+    state = [...state, location];
+
+    // Persist to Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _locationsIndex,
+      location.toJson(),
+      documentId: location.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: location.investigationId,
+      phase: 'analysis',
+      eventType: 'location_created',
+      data: location.toJson(),
+    );
+  }
+
+  Future<void> updateLocation(GeoLocation updatedLocation) async {
     state = [
       for (final location in state)
         if (location.id == updatedLocation.id) updatedLocation else location,
     ];
+
+    // Update in Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _locationsIndex,
+      updatedLocation.toJson(),
+      documentId: updatedLocation.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: updatedLocation.investigationId,
+      phase: 'analysis',
+      eventType: 'location_updated',
+      data: updatedLocation.toJson(),
+    );
   }
 
-  void removeLocation(String locationId) {
+  Future<void> removeLocation(String locationId) async {
+    final location = getLocationById(locationId);
     state = state.where((location) => location.id != locationId).toList();
+
+    // Delete from Elasticsearch
+    await _elasticsearchService.deleteDocument(_locationsIndex, locationId);
+
+    // Log to Logstash
+    if (location != null) {
+      await _logstashService.sendEvent(
+        investigationId: location.investigationId,
+        phase: 'analysis',
+        eventType: 'location_deleted',
+        data: {'locationId': locationId, 'locationName': location.name},
+      );
+    }
   }
 
   void clearLocations() {
@@ -86,7 +158,10 @@ class GeoLocationsNotifier extends StateNotifier<List<GeoLocation>> {
 /// Provider for geographic locations
 final geoLocationsProvider =
     StateNotifierProvider<GeoLocationsNotifier, List<GeoLocation>>((ref) {
-  return GeoLocationsNotifier();
+  return GeoLocationsNotifier(
+    ElasticsearchService(),
+    LogstashService(),
+  );
 });
 
 /// Derived provider: Get locations by investigation ID
