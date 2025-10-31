@@ -168,7 +168,10 @@ class EncryptionService {
 
   // Cambiar contraseña
   Future<bool> changePassword(String oldPassword, String newPassword) async {
-    final unlocked = await unlockWithPassword(oldPassword);
+    // Verificar que el usuario esté autenticado
+    if (_currentUsername == null) return false;
+
+    final unlocked = await unlockWithPassword(_currentUsername!, oldPassword);
     if (!unlocked) return false;
 
     try {
@@ -176,6 +179,7 @@ class EncryptionService {
       await _secureStorage.write(key: _passwordKey, value: newHash);
 
       _encryptionKey = _generateKeyFromPassword(newPassword);
+      _currentPassword = newPassword; // Actualizar contraseña en memoria
       return true;
     } catch (e) {
       // Error changing password
