@@ -42,8 +42,14 @@ class _InteractiveGraphWidgetState
   @override
   void initState() {
     super.initState();
-    // FruchtermanReingoldAlgorithm requiere iterations como parámetro posicional
-    algorithm = FruchtermanReingoldAlgorithm(1000);
+    // FruchtermanReingoldAlgorithm requiere una configuración
+    algorithm = FruchtermanReingoldAlgorithm(
+      FruchtermanReingoldConfiguration()
+        ..iterations = 1000
+        ..temperature = 100
+        ..attractionK = 0.5
+        ..repulsionK = 0.5,
+    );
   }
 
   @override
