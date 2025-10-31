@@ -164,33 +164,33 @@ extension TimelineEventTypeExtension on TimelineEventType {
   String get displayName {
     switch (this) {
       case TimelineEventType.meeting:
-        return 'Meeting';
+        return 'Reunión';
       case TimelineEventType.transaction:
-        return 'Transaction';
+        return 'Transacción';
       case TimelineEventType.communication:
-        return 'Communication';
+        return 'Comunicación';
       case TimelineEventType.travel:
-        return 'Travel';
+        return 'Viaje';
       case TimelineEventType.registration:
-        return 'Registration';
+        return 'Registro';
       case TimelineEventType.employment:
-        return 'Employment';
+        return 'Empleo';
       case TimelineEventType.investigation:
-        return 'Investigation';
+        return 'Investigación';
       case TimelineEventType.arrest:
-        return 'Arrest';
+        return 'Arresto';
       case TimelineEventType.court:
-        return 'Court';
+        return 'Tribunal';
       case TimelineEventType.social:
         return 'Social';
       case TimelineEventType.publication:
-        return 'Publication';
+        return 'Publicación';
       case TimelineEventType.alert:
-        return 'Alert';
+        return 'Alerta';
       case TimelineEventType.discovery:
-        return 'Discovery';
+        return 'Descubrimiento';
       case TimelineEventType.other:
-        return 'Other';
+        return 'Otro';
     }
   }
 }
@@ -199,13 +199,13 @@ extension EventPriorityExtension on EventPriority {
   String get displayName {
     switch (this) {
       case EventPriority.critical:
-        return 'Critical';
+        return 'Crítico';
       case EventPriority.high:
-        return 'High';
+        return 'Alto';
       case EventPriority.medium:
-        return 'Medium';
+        return 'Medio';
       case EventPriority.low:
-        return 'Low';
+        return 'Bajo';
     }
   }
 }

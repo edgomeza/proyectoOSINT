@@ -118,33 +118,33 @@ class EntityNode {
 }
 
 enum EntityNodeType {
-  person('Person'),
-  company('Company'),
-  organization('Organization'),
-  socialNetwork('Social Network'),
-  location('Location'),
-  document('Document'),
-  event('Event'),
-  email('Email'),
-  phone('Phone'),
-  website('Website'),
-  ipAddress('IP Address'),
-  cryptocurrency('Cryptocurrency'),
-  vehicle('Vehicle'),
-  property('Property'),
-  other('Other');
+  person('Persona'),
+  company('Empresa'),
+  organization('Organización'),
+  socialNetwork('Red Social'),
+  location('Ubicación'),
+  document('Documento'),
+  event('Evento'),
+  email('Correo Electrónico'),
+  phone('Teléfono'),
+  website('Sitio Web'),
+  ipAddress('Dirección IP'),
+  cryptocurrency('Criptomoneda'),
+  vehicle('Vehículo'),
+  property('Propiedad'),
+  other('Otro');
 
   final String displayName;
   const EntityNodeType(this.displayName);
 }
 
 enum RiskLevel {
-  critical('Critical'),
-  high('High'),
-  medium('Medium'),
-  low('Low'),
-  none('None'),
-  unknown('Unknown');
+  critical('Crítico'),
+  high('Alto'),
+  medium('Medio'),
+  low('Bajo'),
+  none('Ninguno'),
+  unknown('Desconocido');
 
   final String displayName;
   const RiskLevel(this.displayName);

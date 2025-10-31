@@ -73,27 +73,43 @@ class _InteractiveGraphWidgetState
             children: [
               filteredNodes.isEmpty
                   ? _buildEmptyState()
-                  : InteractiveViewer(
-                      constrained: false,
-                      boundaryMargin: const EdgeInsets.all(100),
-                      minScale: 0.01,
-                      maxScale: 5.6,
-                      child: GraphView(
-                        graph: graph,
-                        algorithm: algorithm,
-                        paint: Paint()
-                          ..color = Theme.of(context).colorScheme.primary
-                          ..strokeWidth = 2
-                          ..style = PaintingStyle.stroke,
-                        builder: (Node node) {
-                          // Safe null check
-                          if (node.key?.value == null) {
-                            return const SizedBox.shrink();
-                          }
-                          final entityNode = node.key!.value as EntityNode;
-                          return _buildNodeWidget(context, entityNode, node);
-                        },
-                      ),
+                  : LayoutBuilder(
+                      builder: (context, constraints) {
+                        // Ensure we have valid constraints before building GraphView
+                        if (constraints.maxWidth == 0 || constraints.maxHeight == 0) {
+                          return const Center(
+                            child: CircularProgressIndicator(),
+                          );
+                        }
+
+                        return InteractiveViewer(
+                          constrained: false,
+                          boundaryMargin: const EdgeInsets.all(100),
+                          minScale: 0.01,
+                          maxScale: 5.6,
+                          child: SizedBox(
+                            width: constraints.maxWidth * 2,
+                            height: constraints.maxHeight * 2,
+                            child: GraphView(
+                              key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
+                              graph: graph,
+                              algorithm: algorithm,
+                              paint: Paint()
+                                ..color = Theme.of(context).colorScheme.primary
+                                ..strokeWidth = 2
+                                ..style = PaintingStyle.stroke,
+                              builder: (Node node) {
+                                // Safe null check
+                                if (node.key?.value == null) {
+                                  return const SizedBox.shrink();
+                                }
+                                final entityNode = node.key!.value as EntityNode;
+                                return _buildNodeWidget(context, entityNode, node);
+                              },
+                            ),
+                          ),
+                        );
+                      },
                     ),
               // Floating action button for relationship creation
               if (filteredNodes.isNotEmpty)

@@ -153,29 +153,29 @@ class GeoLocation {
 }
 
 enum GeoLocationType {
-  residence('Residence'),
-  business('Business'),
-  office('Office'),
-  meeting('Meeting'),
-  event('Event'),
-  incident('Incident'),
-  travel('Travel'),
-  checkpoint('Checkpoint'),
-  poi('Point of Interest'),
-  surveillance('Surveillance'),
-  other('Other');
+  residence('Residencia'),
+  business('Negocio'),
+  office('Oficina'),
+  meeting('Reunión'),
+  event('Evento'),
+  incident('Incidente'),
+  travel('Viaje'),
+  checkpoint('Punto de Control'),
+  poi('Punto de Interés'),
+  surveillance('Vigilancia'),
+  other('Otro');
 
   final String displayName;
   const GeoLocationType(this.displayName);
 }
 
 enum LocationRisk {
-  critical('Critical'),
-  high('High'),
-  medium('Medium'),
-  low('Low'),
-  none('None'),
-  unknown('Unknown');
+  critical('Crítico'),
+  high('Alto'),
+  medium('Medio'),
+  low('Bajo'),
+  none('Ninguno'),
+  unknown('Desconocido');
 
   final String displayName;
   const LocationRisk(this.displayName);
