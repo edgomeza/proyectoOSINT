@@ -90,14 +90,14 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Duplicate Detection',
+                            'Detección de Duplicados',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
                           Text(
                             _matches == null
-                                ? 'Scanning for duplicates...'
+                                ? 'Buscando duplicados...'
                                 : '${_matches!.length} potential duplicates found',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
@@ -110,7 +110,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                       IconButton(
                         icon: const Icon(Icons.refresh),
                         onPressed: _scanForDuplicates,
-                        tooltip: 'Rescan',
+                        tooltip: 'Reescanear',
                       ),
                   ],
                 ),
@@ -156,7 +156,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                 children: [
                   CircularProgressIndicator(),
                   SizedBox(height: 16),
-                  Text('Scanning for duplicates...'),
+                  Text('Buscando duplicados...'),
                 ],
               ),
             ),
@@ -173,10 +173,10 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                     color: Colors.green.shade400,
                   ),
                   const SizedBox(height: 16),
-                  const Text('No duplicates found'),
+                  const Text('No se encontraron duplicados'),
                   const SizedBox(height: 8),
                   Text(
-                    'All records appear to be unique',
+                    'Todos los registros parecen ser únicos',
                     style: TextStyle(
                       color: Theme.of(context).colorScheme.outline,
                     ),
@@ -235,7 +235,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                 // Suggestions
                 if (suggestions.isNotEmpty) ...[
                   Text(
-                    'AI Suggestions',
+                    'Sugerencias de IA',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -356,13 +356,13 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                   children: [
                     TextButton(
                       onPressed: () => _dismissMatch(match),
-                      child: const Text('Not a duplicate'),
+                      child: const Text('No es un duplicado'),
                     ),
                     const SizedBox(width: 8),
                     ElevatedButton.icon(
                       onPressed: () => _showMergeDialog(context, match),
                       icon: const Icon(Icons.merge),
-                      label: const Text('Merge Records'),
+                      label: const Text('Fusionar Registros'),
                     ),
                   ],
                 ),
@@ -394,7 +394,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
     });
 
     ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Match dismissed')),
+      const SnackBar(content: Text('Coincidencia descartada')),
     );
   }
 
@@ -424,7 +424,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Records merged successfully'),
+        content: Text('Registros fusionados exitosamente'),
         backgroundColor: Colors.green,
       ),
     );
@@ -450,13 +450,13 @@ class _MergeDialogState extends State<_MergeDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text('Merge Records'),
+      title: const Text('Fusionar Registros'),
       content: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Select merge strategy:'),
+            const Text('Seleccione estrategia de fusión:'),
             const SizedBox(height: 12),
             ...MergeStrategy.values.map((strategy) {
               // ignore: deprecated_member_use
@@ -478,7 +478,7 @@ class _MergeDialogState extends State<_MergeDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancelar'),
         ),
         ElevatedButton(
           onPressed: () {
@@ -489,7 +489,7 @@ class _MergeDialogState extends State<_MergeDialog> {
             );
             widget.onMerge(merged);
           },
-          child: const Text('Merge'),
+          child: const Text('Fusionar'),
         ),
       ],
     );
@@ -498,17 +498,17 @@ class _MergeDialogState extends State<_MergeDialog> {
   String _getStrategyName(MergeStrategy strategy) {
     switch (strategy) {
       case MergeStrategy.preferPrimary:
-        return 'Prefer First Record';
+        return 'Preferir Primer Registro';
       case MergeStrategy.preferSecondary:
-        return 'Prefer Second Record';
+        return 'Preferir Segundo Registro';
       case MergeStrategy.preferNewer:
-        return 'Prefer Newer';
+        return 'Preferir Más Reciente';
       case MergeStrategy.preferHigherConfidence:
-        return 'Prefer Higher Confidence';
+        return 'Preferir Mayor Confianza';
       case MergeStrategy.preferLonger:
-        return 'Prefer Longer Values';
+        return 'Preferir Valores Más Largos';
       case MergeStrategy.combine:
-        return 'Combine Values';
+        return 'Combinar Valores';
     }
   }
 

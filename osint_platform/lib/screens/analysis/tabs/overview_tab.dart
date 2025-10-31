@@ -29,7 +29,7 @@ class OverviewTab extends ConsumerWidget {
     final highPriorityEvents = ref.watch(highPriorityEventsProvider);
 
     if (investigation == null) {
-      return const Center(child: Text('Investigation not found'));
+      return const Center(child: Text('Investigación no encontrada'));
     }
 
     return SingleChildScrollView(
@@ -47,7 +47,7 @@ class OverviewTab extends ConsumerWidget {
               Expanded(
                 child: _buildStatCard(
                   context,
-                  title: 'Entities',
+                  title: 'Entidades',
                   value: graphStats.totalNodes.toString(),
                   icon: Icons.hub,
                   color: Colors.blue,
@@ -57,7 +57,7 @@ class OverviewTab extends ConsumerWidget {
               Expanded(
                 child: _buildStatCard(
                   context,
-                  title: 'Relationships',
+                  title: 'Relaciones',
                   value: graphStats.totalRelationships.toString(),
                   icon: Icons.link,
                   color: Colors.purple,
@@ -71,7 +71,7 @@ class OverviewTab extends ConsumerWidget {
               Expanded(
                 child: _buildStatCard(
                   context,
-                  title: 'Timeline Events',
+                  title: 'Eventos de Línea de Tiempo',
                   value: timelineStats.totalEvents.toString(),
                   icon: Icons.timeline,
                   color: Colors.orange,
@@ -81,7 +81,7 @@ class OverviewTab extends ConsumerWidget {
               Expanded(
                 child: _buildStatCard(
                   context,
-                  title: 'Locations',
+                  title: 'Ubicaciones',
                   value: geoStats.totalLocations.toString(),
                   icon: Icons.place,
                   color: Colors.green,
@@ -93,7 +93,7 @@ class OverviewTab extends ConsumerWidget {
 
           // Charts Section
           Text(
-            'Distribution Analysis',
+            'Análisis de Distribución',
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -104,7 +104,7 @@ class OverviewTab extends ConsumerWidget {
           if (graphStats.nodesByType.isNotEmpty) ...[
             _buildChartCard(
               context,
-              title: 'Entities by Type',
+              title: 'Entidades por Tipo',
               child: SizedBox(
                 height: 250,
                 child: PieChart(
@@ -126,7 +126,7 @@ class OverviewTab extends ConsumerWidget {
           if (timelineStats.eventsByPriority.isNotEmpty) ...[
             _buildChartCard(
               context,
-              title: 'Events by Priority',
+              title: 'Eventos por Prioridad',
               child: SizedBox(
                 height: 200,
                 child: BarChart(
@@ -172,7 +172,7 @@ class OverviewTab extends ConsumerWidget {
           // Alerts Section
           if (highRiskNodes.isNotEmpty || highPriorityEvents.isNotEmpty) ...[
             Text(
-              'Alerts & High Priority Items',
+              'Alertas y Elementos de Alta Prioridad',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -182,7 +182,7 @@ class OverviewTab extends ConsumerWidget {
             if (highRiskNodes.isNotEmpty) ...[
               _buildAlertCard(
                 context,
-                title: 'High Risk Entities',
+                title: 'Entidades de Alto Riesgo',
                 count: highRiskNodes.length,
                 icon: Icons.warning,
                 color: Colors.red,
@@ -194,7 +194,7 @@ class OverviewTab extends ConsumerWidget {
             if (highPriorityEvents.isNotEmpty) ...[
               _buildAlertCard(
                 context,
-                title: 'High Priority Events',
+                title: 'Eventos de Alta Prioridad',
                 count: highPriorityEvents.length,
                 icon: Icons.flag,
                 color: Colors.orange,
