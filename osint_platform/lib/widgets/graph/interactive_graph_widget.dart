@@ -351,6 +351,11 @@ class _InteractiveGraphWidgetState
     graph.nodes.clear();
     graph.edges.clear();
 
+    // Don't build graph if there are no nodes to prevent algorithm errors
+    if (nodes.isEmpty) {
+      return;
+    }
+
     // Create node map
     final nodeMap = <String, Node>{};
     for (final entityNode in nodes) {
@@ -362,6 +367,9 @@ class _InteractiveGraphWidgetState
         final savedPosition = Offset(entityNode.x!, entityNode.y!);
         _nodePositions[entityNode.id] = savedPosition;
         node.position = savedPosition;
+      } else {
+        // Set a default position to prevent null errors in the layout algorithm
+        node.position = Offset.zero;
       }
 
       graph.addNode(node);
