@@ -135,10 +135,12 @@ class ELKStackNotifier extends StateNotifier<ELKStackState> {
         return;
       }
 
-      // Inicializar servicio de Elasticsearch
+      // Inicializar servicio de Elasticsearch con credenciales
       _elasticsearchService.initialize(
         host: 'localhost',
         port: 9200,
+        username: 'elastic',
+        password: 'osint_elastic_password_2024',
       );
 
       // Suscribirse a los cambios de estado de Docker

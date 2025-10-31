@@ -183,12 +183,14 @@ class HomeScreen extends ConsumerWidget {
     return Card(
       elevation: 2,
       child: InkWell(
-        onTap: () {
+        onTap: () async {
           // Activar la investigación antes de navegar
-          ref.read(investigationsProvider.notifier).setActiveInvestigation(investigation.id);
+          await ref.read(investigationsProvider.notifier).setActiveInvestigation(investigation.id);
           // Navegar a la fase actual
-          final route = '/investigation/${investigation.id}/${investigation.currentPhase.routeName}';
-          context.go(route);
+          if (context.mounted) {
+            final route = '/investigation/${investigation.id}/${investigation.currentPhase.routeName}';
+            context.go(route);
+          }
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
@@ -352,7 +354,7 @@ class HomeScreen extends ConsumerWidget {
             child: const Text('Cancelar'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
               if (nameController.text.isNotEmpty &&
                   descriptionController.text.isNotEmpty) {
                 const uuid = Uuid();
@@ -367,11 +369,12 @@ class HomeScreen extends ConsumerWidget {
                   completeness: 0.0,
                 );
 
-                ref.read(investigationsProvider.notifier).addInvestigation(newInvestigation);
+                await ref.read(investigationsProvider.notifier).addInvestigation(newInvestigation);
 
-                Navigator.of(context).pop();
-
-                context.go('/investigation/${newInvestigation.id}/planning');
+                if (context.mounted) {
+                  Navigator.of(context).pop();
+                  context.go('/investigation/${newInvestigation.id}/planning');
+                }
               }
             },
             child: const Text('Crear'),

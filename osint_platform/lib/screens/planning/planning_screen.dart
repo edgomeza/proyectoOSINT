@@ -744,7 +744,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> with TickerProv
     );
   }
 
-  void _saveChanges() {
+  Future<void> _saveChanges() async {
     if (_formKey.currentState?.validate() ?? false) {
       final investigation = ref.read(investigationByIdProvider(widget.investigationId));
       if (investigation != null) {
@@ -766,12 +766,13 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> with TickerProv
           keyQuestions: questions,
         );
 
-        ref.read(investigationsProvider.notifier).updateInvestigation(
+        await ref.read(investigationsProvider.notifier).updateInvestigation(
               widget.investigationId,
               updatedInvestigation,
             );
 
-        ScaffoldMessenger.of(context).showSnackBar(
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: const Row(
               children: [
@@ -788,6 +789,7 @@ class _PlanningScreenState extends ConsumerState<PlanningScreen> with TickerProv
             margin: const EdgeInsets.all(16),
           ),
         );
+        }
       }
     }
   }
