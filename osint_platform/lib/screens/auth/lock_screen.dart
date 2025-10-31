@@ -19,6 +19,7 @@ class LockScreen extends ConsumerStatefulWidget {
 }
 
 class _LockScreenState extends ConsumerState<LockScreen> {
+  final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
   final _encryptionService = EncryptionService();
@@ -29,6 +30,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
 
   @override
   void dispose() {
+    _usernameController.dispose();
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
@@ -42,7 +44,23 @@ class _LockScreenState extends ConsumerState<LockScreen> {
 
     try {
       if (widget.isFirstLaunch) {
-        // Configurar contraseña inicial
+        // Configurar usuario y contraseña inicial
+        if (_usernameController.text.isEmpty) {
+          setState(() {
+            _errorMessage = 'El usuario no puede estar vacío';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        if (_usernameController.text.length < 3) {
+          setState(() {
+            _errorMessage = 'El usuario debe tener al menos 3 caracteres';
+            _isLoading = false;
+          });
+          return;
+        }
+
         if (_passwordController.text.isEmpty) {
           setState(() {
             _errorMessage = 'La contraseña no puede estar vacía';
@@ -67,24 +85,38 @@ class _LockScreenState extends ConsumerState<LockScreen> {
           return;
         }
 
-        final success = await _encryptionService.setInitialPassword(_passwordController.text);
+        final success = await _encryptionService.setInitialPassword(
+          _usernameController.text,
+          _passwordController.text,
+        );
         if (success) {
           widget.onUnlocked();
         } else {
           setState(() {
-            _errorMessage = 'Error al configurar la contraseña';
+            _errorMessage = 'Error al configurar las credenciales';
             _isLoading = false;
           });
         }
       } else {
-        // Desbloquear con contraseña existente
-        final success = await _encryptionService.unlockWithPassword(_passwordController.text);
+        // Desbloquear con usuario y contraseña existentes
+        if (_usernameController.text.isEmpty || _passwordController.text.isEmpty) {
+          setState(() {
+            _errorMessage = 'Usuario y contraseña son requeridos';
+            _isLoading = false;
+          });
+          return;
+        }
+
+        final success = await _encryptionService.unlockWithPassword(
+          _usernameController.text,
+          _passwordController.text,
+        );
         if (success) {
           await _encryptionService.decryptDatabase();
           widget.onUnlocked();
         } else {
           setState(() {
-            _errorMessage = 'Contraseña incorrecta';
+            _errorMessage = 'Usuario o contraseña incorrectos';
             _isLoading = false;
           });
         }
@@ -177,7 +209,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           delay: const Duration(milliseconds: 400),
                           child: Text(
                             widget.isFirstLaunch
-                                ? 'Configurar Contraseña'
+                                ? 'Configurar Credenciales'
                                 : 'Desbloquear Aplicación',
                             style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                                   fontWeight: FontWeight.bold,
@@ -192,8 +224,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           delay: const Duration(milliseconds: 600),
                           child: Text(
                             widget.isFirstLaunch
-                                ? 'Establece una contraseña segura para proteger tu información'
-                                : 'Ingresa tu contraseña para acceder',
+                                ? 'Crea tu usuario y contraseña para acceder a la plataforma'
+                                : 'Ingresa tus credenciales para acceder',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Colors.grey[600],
                                 ),
@@ -201,6 +233,23 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           ),
                         ),
                         const SizedBox(height: 32),
+
+                        // Campo de usuario
+                        FadeInUp(
+                          delay: const Duration(milliseconds: 700),
+                          child: TextField(
+                            controller: _usernameController,
+                            decoration: const InputDecoration(
+                              labelText: 'Usuario',
+                              prefixIcon: Icon(Icons.person_outline),
+                            ),
+                            onSubmitted: (_) {
+                              // Mover foco al campo de contraseña
+                              FocusScope.of(context).nextFocus();
+                            },
+                          ),
+                        ),
+                        const SizedBox(height: 16),
 
                         // Campo de contraseña
                         FadeInUp(

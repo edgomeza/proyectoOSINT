@@ -84,7 +84,16 @@ class _MyAppState extends ConsumerState<MyApp> with WidgetsBindingObserver {
   void _initializeELKServices() {
     try {
       final projectPath = _getProjectPath();
-      ref.read(elkStackProvider.notifier).initialize(projectPath);
+      // Obtener credenciales del usuario autenticado
+      final username = _encryptionService.currentUsername;
+      final password = _encryptionService.currentPassword;
+
+      // Pasar credenciales a Elasticsearch si están disponibles
+      ref.read(elkStackProvider.notifier).initialize(
+        projectPath,
+        username: username,
+        password: password,
+      );
     } catch (e) {
       debugPrint('Error initializing ELK services: $e');
     }

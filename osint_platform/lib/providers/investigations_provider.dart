@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/investigation.dart';
 import '../models/investigation_phase.dart';
-import '../models/investigation_status.dart';
 import '../services/elasticsearch_service.dart';
 import '../services/logstash_service.dart';
 
@@ -118,7 +117,8 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
       await _logstashService.sendEditEvent(
         investigationId: id,
         phase: 'management',
-        dataType: 'investigation',
+        itemType: 'investigation',
+        itemId: id,
         oldData: oldInvestigation.toJson(),
         newData: updatedInvestigation.toJson(),
       );
@@ -148,8 +148,8 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
       await _logstashService.sendDeletionEvent(
         investigationId: id,
         phase: 'management',
-        dataType: 'investigation',
-        deletedData: investigation.toJson(),
+        itemType: 'investigation',
+        itemId: id,
       );
 
       debugPrint('✅ Investigación $id eliminada de Elasticsearch');
