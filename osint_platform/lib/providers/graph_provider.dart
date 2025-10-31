@@ -1,24 +1,96 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/entity_node.dart';
 import '../models/relationship.dart';
+import '../services/elasticsearch_service.dart';
+import '../services/logstash_service.dart';
 
 /// State Notifier for managing entity nodes in the graph
 class EntityNodesNotifier extends StateNotifier<List<EntityNode>> {
-  EntityNodesNotifier() : super([]);
+  final ElasticsearchService _elasticsearchService;
+  final LogstashService _logstashService;
+  static const String _nodesIndex = 'osint-entity-nodes';
 
-  void addNode(EntityNode node) {
-    state = [...state, node];
+  EntityNodesNotifier(this._elasticsearchService, this._logstashService) : super([]) {
+    _loadFromElasticsearch();
   }
 
-  void updateNode(EntityNode updatedNode) {
+  /// Load all nodes from Elasticsearch
+  Future<void> _loadFromElasticsearch() async {
+    try {
+      final result = await _elasticsearchService.search(
+        _nodesIndex,
+        size: 10000,
+      );
+
+      if (result.documents.isNotEmpty) {
+        final nodes = result.documents
+            .map((doc) => EntityNode.fromJson(doc.data))
+            .toList();
+        state = nodes;
+      }
+    } catch (e) {
+      // If index doesn't exist or error occurs, start with empty state
+      state = [];
+    }
+  }
+
+  Future<void> addNode(EntityNode node) async {
+    state = [...state, node];
+
+    // Persist to Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _nodesIndex,
+      node.toJson(),
+      documentId: node.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: node.attributes['investigationId']?.toString() ?? 'unknown',
+      phase: 'analysis',
+      eventType: 'node_created',
+      data: node.toJson(),
+    );
+  }
+
+  Future<void> updateNode(EntityNode updatedNode) async {
     state = [
       for (final node in state)
         if (node.id == updatedNode.id) updatedNode else node,
     ];
+
+    // Update in Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _nodesIndex,
+      updatedNode.toJson(),
+      documentId: updatedNode.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: updatedNode.attributes['investigationId']?.toString() ?? 'unknown',
+      phase: 'analysis',
+      eventType: 'node_updated',
+      data: updatedNode.toJson(),
+    );
   }
 
-  void removeNode(String nodeId) {
+  Future<void> removeNode(String nodeId) async {
+    final node = getNodeById(nodeId);
     state = state.where((node) => node.id != nodeId).toList();
+
+    // Delete from Elasticsearch
+    await _elasticsearchService.deleteDocument(_nodesIndex, nodeId);
+
+    // Log to Logstash
+    if (node != null) {
+      await _logstashService.sendEvent(
+        investigationId: node.attributes['investigationId']?.toString() ?? 'unknown',
+        phase: 'analysis',
+        eventType: 'node_deleted',
+        data: {'nodeId': nodeId, 'nodeLabel': node.label},
+      );
+    }
   }
 
   void clearNodes() {
@@ -53,21 +125,91 @@ class EntityNodesNotifier extends StateNotifier<List<EntityNode>> {
 
 /// State Notifier for managing relationships in the graph
 class RelationshipsNotifier extends StateNotifier<List<Relationship>> {
-  RelationshipsNotifier() : super([]);
+  final ElasticsearchService _elasticsearchService;
+  final LogstashService _logstashService;
+  static const String _relationshipsIndex = 'osint-relationships';
 
-  void addRelationship(Relationship relationship) {
-    state = [...state, relationship];
+  RelationshipsNotifier(this._elasticsearchService, this._logstashService) : super([]) {
+    _loadFromElasticsearch();
   }
 
-  void updateRelationship(Relationship updatedRelationship) {
+  /// Load all relationships from Elasticsearch
+  Future<void> _loadFromElasticsearch() async {
+    try {
+      final result = await _elasticsearchService.search(
+        _relationshipsIndex,
+        size: 10000,
+      );
+
+      if (result.documents.isNotEmpty) {
+        final relationships = result.documents
+            .map((doc) => Relationship.fromJson(doc.data))
+            .toList();
+        state = relationships;
+      }
+    } catch (e) {
+      // If index doesn't exist or error occurs, start with empty state
+      state = [];
+    }
+  }
+
+  Future<void> addRelationship(Relationship relationship) async {
+    state = [...state, relationship];
+
+    // Persist to Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _relationshipsIndex,
+      relationship.toJson(),
+      documentId: relationship.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: relationship.attributes['investigationId']?.toString() ?? 'unknown',
+      phase: 'analysis',
+      eventType: 'relationship_created',
+      data: relationship.toJson(),
+    );
+  }
+
+  Future<void> updateRelationship(Relationship updatedRelationship) async {
     state = [
       for (final rel in state)
         if (rel.id == updatedRelationship.id) updatedRelationship else rel,
     ];
+
+    // Update in Elasticsearch
+    await _elasticsearchService.indexDocument(
+      _relationshipsIndex,
+      updatedRelationship.toJson(),
+      documentId: updatedRelationship.id,
+    );
+
+    // Log to Logstash
+    await _logstashService.sendEvent(
+      investigationId: updatedRelationship.attributes['investigationId']?.toString() ?? 'unknown',
+      phase: 'analysis',
+      eventType: 'relationship_updated',
+      data: updatedRelationship.toJson(),
+    );
   }
 
-  void removeRelationship(String relationshipId) {
+  Future<void> removeRelationship(String relationshipId) async {
+    final relationship = getRelationshipById(relationshipId);
     state = state.where((rel) => rel.id != relationshipId).toList();
+
+    // Delete from Elasticsearch
+    await _elasticsearchService.deleteDocument(_relationshipsIndex, relationshipId);
+
+    // Log to Logstash
+    if (relationship != null) {
+      await _logstashService.sendEvent(
+        investigationId: relationship.attributes['investigationId']?.toString() ?? 'unknown',
+        phase: 'analysis',
+        eventType: 'relationship_deleted',
+        data: {'relationshipId': relationshipId, 'type': relationship.type.name},
+      );
+    }
   }
 
   void clearRelationships() {
@@ -117,13 +259,19 @@ class RelationshipsNotifier extends StateNotifier<List<Relationship>> {
 /// Provider for entity nodes
 final entityNodesProvider =
     StateNotifierProvider<EntityNodesNotifier, List<EntityNode>>((ref) {
-  return EntityNodesNotifier();
+  return EntityNodesNotifier(
+    ElasticsearchService(),
+    LogstashService(),
+  );
 });
 
 /// Provider for relationships
 final relationshipsProvider =
     StateNotifierProvider<RelationshipsNotifier, List<Relationship>>((ref) {
-  return RelationshipsNotifier();
+  return RelationshipsNotifier(
+    ElasticsearchService(),
+    LogstashService(),
+  );
 });
 
 /// Derived provider: Get nodes by investigation ID

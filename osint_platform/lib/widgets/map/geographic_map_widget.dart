@@ -145,7 +145,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
             _buildFilterChip(
               context,
               icon: Icons.category,
-              label: 'Type',
+              label: 'Tipo',
               onTap: () => _showTypeFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -154,7 +154,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
             _buildFilterChip(
               context,
               icon: Icons.warning,
-              label: 'Risk',
+              label: 'Riesgo',
               onTap: () => _showRiskFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -163,7 +163,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
             _buildFilterChip(
               context,
               icon: showHeatmap ? Icons.heat_pump : Icons.place,
-              label: showHeatmap ? 'Heatmap' : 'Markers',
+              label: showHeatmap ? 'Mapa de Calor' : 'Marcadores',
               onTap: () => setState(() => showHeatmap = !showHeatmap),
             ),
             const SizedBox(width: 8),
@@ -172,7 +172,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
             _buildFilterChip(
               context,
               icon: showPaths ? Icons.route : Icons.route_outlined,
-              label: 'Routes',
+              label: 'Rutas',
               onTap: () => setState(() => showPaths = !showPaths),
             ),
             const SizedBox(width: 8),
@@ -181,7 +181,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
             _buildFilterChip(
               context,
               icon: Icons.refresh,
-              label: 'Reset',
+              label: 'Reiniciar',
               onTap: _resetFilters,
             ),
           ],
@@ -403,14 +403,14 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
           ),
           const SizedBox(height: 16),
           Text(
-            'No locations to display',
+            'No hay ubicaciones para mostrar',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add geographic locations to see them on the map',
+            'Agrega ubicaciones geográficas para verlas en el mapa',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -548,7 +548,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Type'),
+        title: const Text('Filtrar por Tipo'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => SingleChildScrollView(
             child: Column(
@@ -577,14 +577,14 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
               setState(() => selectedTypes.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),
@@ -595,7 +595,7 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Risk'),
+        title: const Text('Filtrar por Riesgo'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => Column(
             mainAxisSize: MainAxisSize.min,
@@ -622,14 +622,14 @@ class _GeographicMapWidgetState extends ConsumerState<GeographicMapWidget> {
               setState(() => selectedRisks.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),

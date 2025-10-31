@@ -27,11 +27,12 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
-  BuchheimWalkerConfiguration builder = BuchheimWalkerConfiguration();
+  late FruchtermanReingoldAlgorithm algorithm;
 
   // Node positions for drag functionality
   final Map<String, Offset> _nodePositions = {};
   String? _draggingNodeId;
+  Offset _dragOffset = Offset.zero;
 
   // Filters
   Set<EntityNodeType> selectedTypes = {};
@@ -42,11 +43,9 @@ class _InteractiveGraphWidgetState
   @override
   void initState() {
     super.initState();
-    builder
-      ..siblingSeparation = (100)
-      ..levelSeparation = (150)
-      ..subtreeSeparation = (150)
-      ..orientation = (BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM);
+    algorithm = FruchtermanReingoldAlgorithm(
+      iterations: 1000,
+    );
   }
 
   @override
@@ -75,17 +74,14 @@ class _InteractiveGraphWidgetState
                   maxScale: 5.6,
                   child: GraphView(
                     graph: graph,
-                    algorithm: BuchheimWalkerAlgorithm(
-                      builder,
-                      TreeEdgeRenderer(builder),
-                    ),
+                    algorithm: algorithm,
                     paint: Paint()
                       ..color = Theme.of(context).colorScheme.primary
-                      ..strokeWidth = 1
+                      ..strokeWidth = 2
                       ..style = PaintingStyle.stroke,
                     builder: (Node node) {
                       final entityNode = node.key!.value as EntityNode;
-                      return _buildNodeWidget(context, entityNode);
+                      return _buildDraggableNodeWidget(context, entityNode, node);
                     },
                   ),
                 ),
@@ -114,7 +110,7 @@ class _InteractiveGraphWidgetState
             _buildFilterChip(
               context,
               icon: Icons.filter_list,
-              label: 'Type Filter',
+              label: 'Filtro de Tipo',
               onTap: () => _showTypeFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -123,7 +119,7 @@ class _InteractiveGraphWidgetState
             _buildFilterChip(
               context,
               icon: Icons.warning_amber,
-              label: 'Risk Filter',
+              label: 'Filtro de Riesgo',
               onTap: () => _showRiskFilterDialog(context),
             ),
             const SizedBox(width: 8),
@@ -132,7 +128,7 @@ class _InteractiveGraphWidgetState
             _buildFilterChip(
               context,
               icon: Icons.percent,
-              label: 'Confidence: ${(minConfidence * 100).toInt()}%',
+              label: 'Confianza: ${(minConfidence * 100).toInt()}%',
               onTap: () => _showConfidenceDialog(context),
             ),
             const SizedBox(width: 8),
@@ -141,7 +137,7 @@ class _InteractiveGraphWidgetState
             _buildFilterChip(
               context,
               icon: showLabels ? Icons.label : Icons.label_off,
-              label: 'Labels',
+              label: 'Etiquetas',
               onTap: () => setState(() => showLabels = !showLabels),
             ),
             const SizedBox(width: 8),
@@ -150,7 +146,7 @@ class _InteractiveGraphWidgetState
             _buildFilterChip(
               context,
               icon: Icons.refresh,
-              label: 'Reset',
+              label: 'Reiniciar',
               onTap: _resetFilters,
             ),
           ],
@@ -175,9 +171,14 @@ class _InteractiveGraphWidgetState
     );
   }
 
-  Widget _buildNodeWidget(BuildContext context, EntityNode node) {
-    final color = _getNodeColor(node.type, node.riskLevel);
-    final isDragging = _draggingNodeId == node.id;
+  Widget _buildDraggableNodeWidget(BuildContext context, EntityNode entityNode, Node graphNode) {
+    final color = _getNodeColor(entityNode.type, entityNode.riskLevel);
+    final isDragging = _draggingNodeId == entityNode.id;
+
+    // Apply custom position if exists
+    if (_nodePositions.containsKey(entityNode.id)) {
+      graphNode.position = _nodePositions[entityNode.id]!;
+    }
 
     final nodeContent = Container(
       padding: const EdgeInsets.all(12),
@@ -191,8 +192,8 @@ class _InteractiveGraphWidgetState
         border: Border.all(
           color: isDragging
               ? Colors.amber
-              : (node.riskLevel == RiskLevel.critical ||
-                      node.riskLevel == RiskLevel.high
+              : (entityNode.riskLevel == RiskLevel.critical ||
+                      entityNode.riskLevel == RiskLevel.high
                   ? Colors.red
                   : Colors.white24),
           width: isDragging ? 3 : 2,
@@ -209,7 +210,7 @@ class _InteractiveGraphWidgetState
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(
-            _getNodeIcon(node.type),
+            _getNodeIcon(entityNode.type),
             color: Colors.white,
             size: 24,
           ),
@@ -218,7 +219,7 @@ class _InteractiveGraphWidgetState
             SizedBox(
               width: 80,
               child: Text(
-                node.label,
+                entityNode.label,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 10,
@@ -230,10 +231,10 @@ class _InteractiveGraphWidgetState
               ),
             ),
           ],
-          if (node.confidence < 1.0 && showLabels) ...[
+          if (entityNode.confidence < 1.0 && showLabels) ...[
             const SizedBox(height: 2),
             Text(
-              '${(node.confidence * 100).toInt()}%',
+              '${(entityNode.confidence * 100).toInt()}%',
               style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 8,
@@ -244,32 +245,37 @@ class _InteractiveGraphWidgetState
       ),
     );
 
-    return LongPressDraggable<EntityNode>(
-      data: node,
-      feedback: Opacity(
-        opacity: 0.7,
-        child: nodeContent,
-      ),
-      childWhenDragging: Opacity(
-        opacity: 0.3,
-        child: nodeContent,
-      ),
-      onDragStarted: () {
+    return GestureDetector(
+      onTap: () => widget.onNodeTap?.call(entityNode),
+      onPanStart: (details) {
         setState(() {
-          _draggingNodeId = node.id;
+          _draggingNodeId = entityNode.id;
+          _dragOffset = details.localPosition;
         });
       },
-      onDragEnd: (details) {
+      onPanUpdate: (details) {
+        setState(() {
+          final currentPosition = graphNode.position;
+          final newPosition = Offset(
+            currentPosition.dx + details.delta.dx,
+            currentPosition.dy + details.delta.dy,
+          );
+          _nodePositions[entityNode.id] = newPosition;
+          graphNode.position = newPosition;
+        });
+      },
+      onPanEnd: (details) {
         setState(() {
           _draggingNodeId = null;
-          // Save the new position
-          _nodePositions[node.id] = details.offset;
+          // Update the entity node with the new position for persistence
+          final updatedNode = entityNode.copyWith(
+            x: graphNode.position.dx,
+            y: graphNode.position.dy,
+          );
+          ref.read(entityNodesProvider.notifier).updateNode(updatedNode);
         });
       },
-      child: GestureDetector(
-        onTap: () => widget.onNodeTap?.call(node),
-        child: nodeContent,
-      ),
+      child: nodeContent,
     );
   }
 
@@ -285,14 +291,14 @@ class _InteractiveGraphWidgetState
           ),
           const SizedBox(height: 16),
           Text(
-            'No entities to display',
+            'No hay entidades para mostrar',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
           ),
           const SizedBox(height: 8),
           Text(
-            'Add entities from the Collection screen',
+            'Agrega entidades desde la pantalla de Recopilación',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   color: Theme.of(context).colorScheme.outline,
                 ),
@@ -311,6 +317,14 @@ class _InteractiveGraphWidgetState
     for (final entityNode in nodes) {
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
+
+      // Load saved position from entity node if available
+      if (entityNode.x != null && entityNode.y != null) {
+        final savedPosition = Offset(entityNode.x!, entityNode.y!);
+        _nodePositions[entityNode.id] = savedPosition;
+        node.position = savedPosition;
+      }
+
       graph.addNode(node);
     }
 
@@ -442,7 +456,7 @@ class _InteractiveGraphWidgetState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Type'),
+        title: const Text('Filtrar por Tipo'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => SingleChildScrollView(
             child: Column(
@@ -471,14 +485,14 @@ class _InteractiveGraphWidgetState
               setState(() => selectedTypes.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),
@@ -489,7 +503,7 @@ class _InteractiveGraphWidgetState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Filter by Risk'),
+        title: const Text('Filtrar por Riesgo'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => Column(
             mainAxisSize: MainAxisSize.min,
@@ -516,14 +530,14 @@ class _InteractiveGraphWidgetState
               setState(() => selectedRiskLevels.clear());
               Navigator.pop(context);
             },
-            child: const Text('Clear'),
+            child: const Text('Limpiar'),
           ),
           TextButton(
             onPressed: () {
               setState(() {});
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),
@@ -535,7 +549,7 @@ class _InteractiveGraphWidgetState
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Minimum Confidence'),
+        title: const Text('Confianza Mínima'),
         content: StatefulBuilder(
           builder: (context, setDialogState) => Column(
             mainAxisSize: MainAxisSize.min,
@@ -559,7 +573,7 @@ class _InteractiveGraphWidgetState
               setState(() => minConfidence = tempConfidence);
               Navigator.pop(context);
             },
-            child: const Text('Apply'),
+            child: const Text('Aplicar'),
           ),
         ],
       ),
