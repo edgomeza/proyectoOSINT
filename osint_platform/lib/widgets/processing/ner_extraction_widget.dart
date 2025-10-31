@@ -90,13 +90,13 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'NER Entity Extraction',
+                            'Extracción de Entidades NER',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
                           Text(
-                            'Extract entities from text using AI',
+                            'Extraer entidades del texto usando IA',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
                                 ),
@@ -129,7 +129,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _isServiceAvailable ? 'Online' : 'Offline',
+                            _isServiceAvailable ? 'En Línea' : 'Fuera de Línea',
                             style: TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -158,7 +158,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                             Icon(Icons.warning, color: Colors.orange, size: 20),
                             SizedBox(width: 8),
                             Text(
-                              'NER Service Not Available',
+                              'Servicio NER No Disponible',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.orange,
@@ -168,7 +168,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                         ),
                         const SizedBox(height: 8),
                         const Text(
-                          'Start the Python NER backend to use this feature:',
+                          'Inicie el backend Python NER para usar esta función:',
                           style: TextStyle(fontSize: 12),
                         ),
                         const SizedBox(height: 4),
@@ -190,7 +190,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                         ElevatedButton.icon(
                           onPressed: _checkServiceHealth,
                           icon: const Icon(Icons.refresh, size: 16),
-                          label: const Text('Retry Connection'),
+                          label: const Text('Reintentar Conexión'),
                         ),
                       ],
                     ),
@@ -210,7 +210,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Input Text',
+                  'Texto de Entrada',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -243,7 +243,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                               ),
                             )
                           : const Icon(Icons.search),
-                      label: Text(_isProcessing ? 'Processing...' : 'Extract Entities'),
+                      label: Text(_isProcessing ? 'Procesando...' : 'Extraer Entidades'),
                     ),
                     const SizedBox(width: 8),
                     TextButton(
@@ -251,7 +251,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                         _textController.clear();
                         setState(() => _result = null);
                       },
-                      child: const Text('Clear'),
+                      child: const Text('Limpiar'),
                     ),
                   ],
                 ),
@@ -345,7 +345,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
             IconButton(
               icon: const Icon(Icons.add_circle_outline),
               onPressed: () => _createSingleEntity(context, entity),
-              tooltip: 'Create Entity',
+              tooltip: 'Crear Entidad',
             ),
           ],
         ),

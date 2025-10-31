@@ -29,9 +29,13 @@ class _InteractiveGraphWidgetState
   final Graph graph = Graph()..isTree = false;
   late FruchtermanReingoldAlgorithm algorithm;
 
-  // Node positions for drag functionality
+  // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
-  String? _draggingNodeId;
+
+  // Node selection for creating relationships
+  EntityNode? _selectedSourceNode;
+  EntityNode? _selectedTargetNode;
+  bool _isCreatingRelationship = false;
 
   // Filters
   Set<EntityNodeType> selectedTypes = {};
@@ -65,26 +69,41 @@ class _InteractiveGraphWidgetState
       children: [
         if (widget.showFilters) _buildFilterBar(context),
         Expanded(
-          child: filteredNodes.isEmpty
-              ? _buildEmptyState()
-              : InteractiveViewer(
-                  constrained: false,
-                  boundaryMargin: const EdgeInsets.all(100),
-                  minScale: 0.01,
-                  maxScale: 5.6,
-                  child: GraphView(
-                    graph: graph,
-                    algorithm: algorithm,
-                    paint: Paint()
-                      ..color = Theme.of(context).colorScheme.primary
-                      ..strokeWidth = 2
-                      ..style = PaintingStyle.stroke,
-                    builder: (Node node) {
-                      final entityNode = node.key!.value as EntityNode;
-                      return _buildDraggableNodeWidget(context, entityNode, node);
-                    },
-                  ),
+          child: Stack(
+            children: [
+              filteredNodes.isEmpty
+                  ? _buildEmptyState()
+                  : InteractiveViewer(
+                      constrained: false,
+                      boundaryMargin: const EdgeInsets.all(100),
+                      minScale: 0.01,
+                      maxScale: 5.6,
+                      child: GraphView(
+                        graph: graph,
+                        algorithm: algorithm,
+                        paint: Paint()
+                          ..color = Theme.of(context).colorScheme.primary
+                          ..strokeWidth = 2
+                          ..style = PaintingStyle.stroke,
+                        builder: (Node node) {
+                          // Safe null check
+                          if (node.key?.value == null) {
+                            return const SizedBox.shrink();
+                          }
+                          final entityNode = node.key!.value as EntityNode;
+                          return _buildNodeWidget(context, entityNode, node);
+                        },
+                      ),
+                    ),
+              // Floating action button for relationship creation
+              if (filteredNodes.isNotEmpty)
+                Positioned(
+                  bottom: 16,
+                  right: 16,
+                  child: _buildRelationshipControls(context),
                 ),
+            ],
+          ),
         ),
       ],
     );
@@ -171,9 +190,11 @@ class _InteractiveGraphWidgetState
     );
   }
 
-  Widget _buildDraggableNodeWidget(BuildContext context, EntityNode entityNode, Node graphNode) {
+  Widget _buildNodeWidget(BuildContext context, EntityNode entityNode, Node graphNode) {
     final color = _getNodeColor(entityNode.type, entityNode.riskLevel);
-    final isDragging = _draggingNodeId == entityNode.id;
+    final isSelected = _selectedSourceNode?.id == entityNode.id ||
+                      _selectedTargetNode?.id == entityNode.id;
+    final isSource = _selectedSourceNode?.id == entityNode.id;
 
     // Apply custom position if exists
     if (_nodePositions.containsKey(entityNode.id)) {
@@ -190,18 +211,20 @@ class _InteractiveGraphWidgetState
         ),
         borderRadius: BorderRadius.circular(8),
         border: Border.all(
-          color: isDragging
-              ? Colors.amber
+          color: isSelected
+              ? (isSource ? Colors.green : Colors.blue)
               : (entityNode.riskLevel == RiskLevel.critical ||
                       entityNode.riskLevel == RiskLevel.high
                   ? Colors.red
                   : Colors.white24),
-          width: isDragging ? 3 : 2,
+          width: isSelected ? 3 : 2,
         ),
         boxShadow: [
           BoxShadow(
-            color: color.withValues(alpha: isDragging ? 0.5 : 0.3),
-            blurRadius: isDragging ? 12 : 8,
+            color: isSelected
+                ? (isSource ? Colors.green : Colors.blue).withValues(alpha: 0.5)
+                : color.withValues(alpha: 0.3),
+            blurRadius: isSelected ? 12 : 8,
             offset: const Offset(0, 2),
           ),
         ],
@@ -245,37 +268,38 @@ class _InteractiveGraphWidgetState
       ),
     );
 
+    // Removed drag functionality, only keeping tap
     return GestureDetector(
-      onTap: () => widget.onNodeTap?.call(entityNode),
-      onPanStart: (details) {
-        setState(() {
-          _draggingNodeId = entityNode.id;
-        });
-      },
-      onPanUpdate: (details) {
-        setState(() {
-          final currentPosition = graphNode.position;
-          final newPosition = Offset(
-            currentPosition.dx + details.delta.dx,
-            currentPosition.dy + details.delta.dy,
-          );
-          _nodePositions[entityNode.id] = newPosition;
-          graphNode.position = newPosition;
-        });
-      },
-      onPanEnd: (details) {
-        setState(() {
-          _draggingNodeId = null;
-          // Update the entity node with the new position for persistence
-          final updatedNode = entityNode.copyWith(
-            x: graphNode.position.dx,
-            y: graphNode.position.dy,
-          );
-          ref.read(entityNodesProvider.notifier).updateNode(updatedNode);
-        });
+      onTap: () {
+        if (_isCreatingRelationship) {
+          _handleNodeSelectionForRelationship(entityNode);
+        } else {
+          widget.onNodeTap?.call(entityNode);
+        }
       },
       child: nodeContent,
     );
+  }
+
+  void _handleNodeSelectionForRelationship(EntityNode node) {
+    setState(() {
+      if (_selectedSourceNode == null) {
+        // Select as source
+        _selectedSourceNode = node;
+      } else if (_selectedSourceNode!.id == node.id) {
+        // Deselect source
+        _selectedSourceNode = null;
+        _selectedTargetNode = null;
+      } else if (_selectedTargetNode == null) {
+        // Select as target and show dialog
+        _selectedTargetNode = node;
+        _showCreateRelationshipDialog();
+      } else {
+        // Reset and select as new source
+        _selectedSourceNode = node;
+        _selectedTargetNode = null;
+      }
+    });
   }
 
   Widget _buildEmptyState() {
@@ -584,6 +608,192 @@ class _InteractiveGraphWidgetState
       selectedTypes.clear();
       selectedRiskLevels.clear();
       minConfidence = 0.0;
+    });
+  }
+
+  Widget _buildRelationshipControls(BuildContext context) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.end,
+      children: [
+        if (_isCreatingRelationship && _selectedSourceNode != null) ...[
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.surface,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Crear Relación',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Origen: ${_selectedSourceNode!.label}',
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+                if (_selectedTargetNode != null)
+                  Text(
+                    'Destino: ${_selectedTargetNode!.label}',
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  )
+                else
+                  const Text(
+                    'Seleccione nodo destino',
+                    style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+        ],
+        FloatingActionButton.extended(
+          onPressed: () {
+            setState(() {
+              _isCreatingRelationship = !_isCreatingRelationship;
+              if (!_isCreatingRelationship) {
+                _selectedSourceNode = null;
+                _selectedTargetNode = null;
+              }
+            });
+          },
+          icon: Icon(_isCreatingRelationship ? Icons.close : Icons.link_outlined),
+          label: Text(_isCreatingRelationship ? 'Cancelar' : 'Nueva Relación'),
+          backgroundColor: _isCreatingRelationship
+              ? Colors.red
+              : Theme.of(context).colorScheme.primary,
+        ),
+      ],
+    );
+  }
+
+  void _showCreateRelationshipDialog() {
+    if (_selectedSourceNode == null || _selectedTargetNode == null) return;
+
+    RelationshipType selectedType = RelationshipType.associated;
+
+    showDialog(
+      context: context,
+      builder: (dialogContext) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: const Text('Crear Nueva Relación'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Desde: ${_selectedSourceNode!.label}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Hacia: ${_selectedTargetNode!.label}',
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.blue,
+                ),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<RelationshipType>(
+                decoration: const InputDecoration(
+                  labelText: 'Tipo de Relación',
+                  border: OutlineInputBorder(),
+                ),
+                value: selectedType,
+                items: RelationshipType.values.map((type) {
+                  return DropdownMenuItem(
+                    value: type,
+                    child: Text(type.displayName),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  if (value != null) {
+                    setDialogState(() {
+                      selectedType = value;
+                    });
+                  }
+                },
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(dialogContext);
+                setState(() {
+                  _selectedSourceNode = null;
+                  _selectedTargetNode = null;
+                });
+              },
+              child: const Text('Cancelar'),
+            ),
+            ElevatedButton.icon(
+              onPressed: () {
+                _createRelationship(selectedType);
+                Navigator.pop(dialogContext);
+              },
+              icon: const Icon(Icons.link),
+              label: const Text('Crear'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _createRelationship(RelationshipType type) {
+    if (_selectedSourceNode == null || _selectedTargetNode == null) return;
+
+    final relationship = Relationship(
+      sourceNodeId: _selectedSourceNode!.id,
+      targetNodeId: _selectedTargetNode!.id,
+      type: type,
+      confidence: 1.0,
+      attributes: {
+        'investigationId': widget.investigationId,
+        'createdManually': true,
+        'createdFrom': 'graph',
+      },
+    );
+
+    ref.read(relationshipsProvider.notifier).addRelationship(relationship);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Relación creada: ${_selectedSourceNode!.label} → ${_selectedTargetNode!.label}',
+        ),
+        backgroundColor: Colors.green,
+      ),
+    );
+
+    setState(() {
+      _selectedSourceNode = null;
+      _selectedTargetNode = null;
+      _isCreatingRelationship = false;
     });
   }
 }

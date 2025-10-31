@@ -55,6 +55,15 @@ const Map<String, String> translationsEs = {
   'entity_linking': 'Vinculación de Entidades',
   'clean_data': 'Limpiar Datos',
   'merge': 'Fusionar',
+  'duplicate_detection': 'Detección de Duplicados',
+  'ner_entity_extraction': 'Extracción de Entidades NER',
+  'create_entity_from_form': 'Crear Entidad desde Formulario',
+  'create_relationship': 'Crear Relación',
+  'convert_data_form_to_entity': 'Convertir Formulario de Datos a Entidad',
+  'create_relationships_between_entities': 'Crear relaciones entre entidades',
+  'extract_entities_from_text_using_ai': 'Extraer entidades del texto usando IA',
+  'scanning_for_duplicates': 'Buscando duplicados...',
+  'potential_duplicates_found': 'duplicados potenciales encontrados',
 
   // Analysis
   'overview': 'Resumen',
@@ -66,6 +75,13 @@ const Map<String, String> translationsEs = {
   'relationships': 'Relaciones',
   'locations': 'Ubicaciones',
   'events': 'Eventos',
+  'advanced_search': 'Búsqueda Avanzada',
+  'search_across_all_investigation_data': 'Buscar en todos los datos de la investigación',
+  'add_new_entity': 'Agregar Nueva Entidad',
+  'add_new_event': 'Agregar Nuevo Evento',
+  'add_new_location': 'Agregar Nueva Ubicación',
+  'distribution_analysis': 'Análisis de Distribución',
+  'alerts_high_priority_items': 'Alertas y Elementos de Alta Prioridad',
 
   // Reports
   'generate_report': 'Generar Informe',

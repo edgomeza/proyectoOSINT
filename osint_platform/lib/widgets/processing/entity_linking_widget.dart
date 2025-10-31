@@ -40,26 +40,26 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
         // Header
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.link, size: 32),
-                    const SizedBox(width: 12),
+                    const Icon(Icons.link, size: 24),
+                    const SizedBox(width: 8),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Entity Linking',
+                            'Vinculación de Entidades',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(
                                   fontWeight: FontWeight.bold,
                                 ),
                           ),
                           Text(
-                            'Create relationships between entities',
+                            'Crear relaciones entre entidades',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
                                 ),
@@ -73,25 +73,25 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
 
         // Create Entity from Form
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '1. Convert Data Form to Entity',
+                  '1. Convertir Formulario de Datos a Entidad',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 DropdownButtonFormField<DataForm>(
                   decoration: const InputDecoration(
-                    labelText: 'Select Form',
+                    labelText: 'Seleccionar Formulario',
                     border: OutlineInputBorder(),
                   ),
                   initialValue: _selectedForm,
@@ -108,38 +108,38 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                   },
                 ),
                 if (_selectedForm != null) ...[
-                  const SizedBox(height: 12),
+                  const SizedBox(height: 8),
                   ElevatedButton.icon(
                     onPressed: () => _convertToEntity(context, _selectedForm!),
                     icon: const Icon(Icons.add_circle),
-                    label: const Text('Create Entity Node'),
+                    label: const Text('Crear Nodo de Entidad'),
                   ),
                 ],
               ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
 
         // Create Relationship
         Card(
           child: Padding(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '2. Create Relationship',
+                  '2. Crear Relación',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
                 // Source Node
                 DropdownButtonFormField<EntityNode>(
                   decoration: const InputDecoration(
-                    labelText: 'Source Entity',
+                    labelText: 'Entidad de Origen',
                     border: OutlineInputBorder(),
                   ),
                   initialValue: _sourceNode,
@@ -153,12 +153,12 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     setState(() => _sourceNode = value);
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
                 // Relationship Type
                 DropdownButtonFormField<RelationshipType>(
                   decoration: const InputDecoration(
-                    labelText: 'Relationship Type',
+                    labelText: 'Tipo de Relación',
                     border: OutlineInputBorder(),
                   ),
                   initialValue: _relationshipType,
@@ -172,12 +172,12 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     setState(() => _relationshipType = value!);
                   },
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
 
                 // Target Node
                 DropdownButtonFormField<EntityNode>(
                   decoration: const InputDecoration(
-                    labelText: 'Target Entity',
+                    labelText: 'Entidad de Destino',
                     border: OutlineInputBorder(),
                   ),
                   initialValue: _targetNode,
@@ -193,23 +193,23 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                     setState(() => _targetNode = value);
                   },
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: 8),
 
                 if (_sourceNode != null && _targetNode != null)
                   ElevatedButton.icon(
                     onPressed: () => _createRelationship(context),
                     icon: const Icon(Icons.link),
-                    label: const Text('Create Relationship'),
+                    label: const Text('Crear Relación'),
                   ),
               ],
             ),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
 
         // Existing Entities
         Text(
-          'Existing Entities (${nodes.length})',
+          'Entidades Existentes (${nodes.length})',
           style: Theme.of(context).textTheme.titleMedium?.copyWith(
                 fontWeight: FontWeight.bold,
               ),
@@ -228,11 +228,11 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                         size: 48,
                         color: Theme.of(context).colorScheme.outline,
                       ),
-                      const SizedBox(height: 12),
-                      const Text('No entities yet'),
+                      const SizedBox(height: 8),
+                      const Text('No hay entidades aún'),
                       const SizedBox(height: 4),
                       Text(
-                        'Convert data forms to entities to get started',
+                        'Convierte formularios de datos a entidades para comenzar',
                         style: TextStyle(
                           fontSize: 12,
                           color: Theme.of(context).colorScheme.outline,
@@ -338,7 +338,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Create Entity from Form'),
+          title: const Text('Crear Entidad desde Formulario'),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -349,16 +349,16 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: 'Entity Name *',
-                      hintText: 'Enter a name for this entity',
+                      labelText: 'Nombre de la Entidad *',
+                      hintText: 'Ingrese un nombre para esta entidad',
                       border: OutlineInputBorder(),
                     ),
                     autofocus: true,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   DropdownButtonFormField<EntityNodeType>(
                     decoration: const InputDecoration(
-                      labelText: 'Entity Type',
+                      labelText: 'Tipo de Entidad',
                       border: OutlineInputBorder(),
                     ),
                     initialValue: selectedType,
@@ -376,10 +376,10 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   DropdownButtonFormField<RiskLevel>(
                     decoration: const InputDecoration(
-                      labelText: 'Risk Level',
+                      labelText: 'Nivel de Riesgo',
                       border: OutlineInputBorder(),
                     ),
                     initialValue: selectedRiskLevel,
@@ -397,21 +397,21 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   TextField(
                     controller: descriptionController,
                     decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Optional description',
+                      labelText: 'Descripción',
+                      hintText: 'Descripción opcional',
                       border: OutlineInputBorder(),
                     ),
                     maxLines: 3,
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   const Divider(),
                   const SizedBox(height: 8),
                   Text(
-                    'Form Data (${form.fields.length} fields)',
+                    'Datos del Formulario (${form.fields.length} campos)',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                         ),
@@ -430,7 +430,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                   }),
                   if (form.fields.length > 3)
                     Text(
-                      '... and ${form.fields.length - 3} more fields',
+                      '... y ${form.fields.length - 3} campos más',
                       style: TextStyle(
                         fontSize: 11,
                         color: Theme.of(context).colorScheme.outline,
@@ -447,7 +447,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                 descriptionController.dispose();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -455,7 +455,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                 if (entityName.isEmpty) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Please enter an entity name'),
+                      content: Text('Por favor ingrese un nombre de entidad'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -484,14 +484,14 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
 
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: Text('Entity "$entityName" created successfully'),
+                    content: Text('Entidad "$entityName" creada exitosamente'),
                     backgroundColor: Colors.green,
                   ),
                 );
 
                 setState(() => _selectedForm = null);
               },
-              child: const Text('Create Entity'),
+              child: const Text('Crear Entidad'),
             ),
           ],
         ),
@@ -541,7 +541,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text(
-          'Relationship created: ${_sourceNode!.label} → ${_targetNode!.label}',
+          'Relación creada: ${_sourceNode!.label} → ${_targetNode!.label}',
         ),
         backgroundColor: Colors.green,
       ),
@@ -558,12 +558,12 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Entity'),
-        content: Text('Are you sure you want to delete "${node.label}"?'),
+        title: const Text('Eliminar Entidad'),
+        content: Text('¿Está seguro que desea eliminar "${node.label}"?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () {
@@ -574,13 +574,13 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
               Navigator.pop(context);
 
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Entity deleted')),
+                const SnackBar(content: Text('Entidad eliminada')),
               );
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.red,
             ),
-            child: const Text('Delete'),
+            child: const Text('Eliminar'),
           ),
         ],
       ),
