@@ -133,47 +133,47 @@ extension RelationshipTypeExtension on RelationshipType {
   String get displayName {
     switch (this) {
       case RelationshipType.familyRelation:
-        return 'Family Relation';
+        return 'Relación Familiar';
       case RelationshipType.businessPartner:
-        return 'Business Partner';
+        return 'Socio Comercial';
       case RelationshipType.employee:
-        return 'Employee';
+        return 'Empleado';
       case RelationshipType.shareholder:
-        return 'Shareholder';
+        return 'Accionista';
       case RelationshipType.director:
         return 'Director';
       case RelationshipType.owns:
-        return 'Owns';
+        return 'Propietario';
       case RelationshipType.manages:
-        return 'Manages';
+        return 'Administra';
       case RelationshipType.associated:
-        return 'Associated';
+        return 'Asociado';
       case RelationshipType.knows:
-        return 'Knows';
+        return 'Conoce';
       case RelationshipType.friends:
-        return 'Friends';
+        return 'Amigos';
       case RelationshipType.colleague:
-        return 'Colleague';
+        return 'Colega';
       case RelationshipType.neighbor:
-        return 'Neighbor';
+        return 'Vecino';
       case RelationshipType.attended:
-        return 'Attended';
+        return 'Asistió';
       case RelationshipType.located:
-        return 'Located';
+        return 'Ubicado';
       case RelationshipType.registered:
-        return 'Registered';
+        return 'Registrado';
       case RelationshipType.communicated:
-        return 'Communicated';
+        return 'Comunicado';
       case RelationshipType.transacted:
-        return 'Transacted';
+        return 'Transaccionó';
       case RelationshipType.linked:
-        return 'Linked';
+        return 'Vinculado';
       case RelationshipType.mentioned:
-        return 'Mentioned';
+        return 'Mencionado';
       case RelationshipType.suspected:
-        return 'Suspected';
+        return 'Sospechoso';
       case RelationshipType.other:
-        return 'Other';
+        return 'Otro';
     }
   }
 }
