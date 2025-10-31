@@ -131,12 +131,6 @@ class InvestigationsNotifier extends StateNotifier<List<Investigation>> {
 
   // Eliminar investigación
   Future<void> removeInvestigation(String id) async {
-    // Guardar referencia para el log
-    final investigation = state.firstWhere(
-      (inv) => inv.id == id,
-      orElse: () => Investigation(name: 'Unknown', description: 'Unknown', id: id),
-    );
-
     // Actualizar estado local
     state = state.where((investigation) => investigation.id != id).toList();
 
