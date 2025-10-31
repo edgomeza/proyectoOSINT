@@ -7,6 +7,7 @@ import '../../../providers/graph_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
 import '../../../models/entity_node.dart';
+import '../../../models/timeline_event.dart';
 
 class OverviewTab extends ConsumerWidget {
   final String investigationId;
@@ -457,14 +458,19 @@ class OverviewTab extends ConsumerWidget {
     Map<dynamic, int> data,
   ) {
     // Order: Critical, High, Medium, Low
-    final priorityOrder = ['critical', 'high', 'medium', 'low'];
+    final priorityOrder = [
+      EventPriority.critical,
+      EventPriority.high,
+      EventPriority.medium,
+      EventPriority.low
+    ];
     final colors = [Colors.red, Colors.orange, Colors.blue, Colors.green];
 
     return List.generate(4, (index) {
       final priority = priorityOrder[index];
       final count = data.entries
           .firstWhere(
-            (e) => e.key.name == priority,
+            (e) => e.key == priority,
             orElse: () => MapEntry(priority, 0),
           )
           .value;
