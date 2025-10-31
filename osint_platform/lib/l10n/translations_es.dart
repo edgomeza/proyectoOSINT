@@ -50,7 +50,7 @@ const Map<String, String> translationsEs = {
 
   // Processing
   'validation': 'Validación',
-  'deduplication': 'Deduplicación',
+  'duplication': 'Duplicados',
   'ner_extraction': 'Extracción NER',
   'entity_linking': 'Vinculación de Entidades',
   'clean_data': 'Limpiar Datos',

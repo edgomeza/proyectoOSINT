@@ -334,10 +334,10 @@ class _AnalysisScreenRedesignedState
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
-              _buildDetailRow('Type', node.type.displayName),
-              _buildDetailRow('Risk Level', node.riskLevel.displayName),
+              _buildDetailRow('Tipo', node.type.displayName),
+              _buildDetailRow('Nivel de riesgo', node.riskLevel.displayName),
               _buildDetailRow(
-                'Confidence',
+                'Confianza',
                 '${(node.confidence * 100).toInt()}%',
               ),
               if (node.description != null) ...[
@@ -489,7 +489,7 @@ class _AnalysisScreenRedesignedState
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add New Entity'),
+          title: const Text('Añadir nueva entidad'),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -500,8 +500,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: 'Entity Name *',
-                      hintText: 'Enter entity name',
+                      labelText: 'Nombre de la entidad *',
+                      hintText: 'Insertar nombre de la entidad',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person),
                     ),
@@ -510,7 +510,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<EntityNodeType>(
                     decoration: const InputDecoration(
-                      labelText: 'Entity Type',
+                      labelText: 'Tipo de entidad',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
@@ -530,7 +530,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<RiskLevel>(
                     decoration: const InputDecoration(
-                      labelText: 'Risk Level',
+                      labelText: 'Nivel de riesgo',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.warning),
                     ),
@@ -552,7 +552,7 @@ class _AnalysisScreenRedesignedState
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Confidence: ${(selectedConfidence * 100).toInt()}%',
+                        'Confianza: ${(selectedConfidence * 100).toInt()}%',
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                       Slider(
@@ -571,8 +571,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: descriptionController,
                     decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Optional description',
+                      labelText: 'Descripción',
+                      hintText: 'Descripción opcional',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.description),
                     ),
@@ -589,7 +589,7 @@ class _AnalysisScreenRedesignedState
                 descriptionController.dispose();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton.icon(
               onPressed: () {
@@ -597,7 +597,7 @@ class _AnalysisScreenRedesignedState
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Please enter an entity name'),
+                      content: Text('Por favor, ingrese un nombre para la entidad'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -624,13 +624,13 @@ class _AnalysisScreenRedesignedState
 
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: Text('Entity "$name" added successfully'),
+                    content: Text('Entidad "$name" añadida con éxito'),
                     backgroundColor: Colors.green,
                   ),
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Entity'),
+              label: const Text('Añadir Entidad'),
             ),
           ],
         ),
@@ -650,7 +650,7 @@ class _AnalysisScreenRedesignedState
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add New Event'),
+          title: const Text('Añadir nuevo evento'),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -661,8 +661,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: titleController,
                     decoration: const InputDecoration(
-                      labelText: 'Event Title *',
-                      hintText: 'Enter event title',
+                      labelText: 'Título del evento *',
+                      hintText: 'Inserte el título del evento',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.title),
                     ),
@@ -671,7 +671,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<TimelineEventType>(
                     decoration: const InputDecoration(
-                      labelText: 'Event Type',
+                      labelText: 'Tipo de evento',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
@@ -691,7 +691,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<EventPriority>(
                     decoration: const InputDecoration(
-                      labelText: 'Priority',
+                      labelText: 'Prioridad',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.priority_high),
                     ),
@@ -712,7 +712,7 @@ class _AnalysisScreenRedesignedState
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     leading: const Icon(Icons.calendar_today),
-                    title: const Text('Date & Time'),
+                    title: const Text('Fecha y hora'),
                     subtitle: Text(
                       '${selectedDate.day}/${selectedDate.month}/${selectedDate.year} ${selectedDate.hour}:${selectedDate.minute.toString().padLeft(2, '0')}',
                     ),
@@ -747,8 +747,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: locationController,
                     decoration: const InputDecoration(
-                      labelText: 'Location',
-                      hintText: 'Optional location',
+                      labelText: 'Ubicación',
+                      hintText: 'Ubicación opcional',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.location_on),
                     ),
@@ -757,8 +757,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: descriptionController,
                     decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Optional description',
+                      labelText: 'Descripción',
+                      hintText: 'Descripción opcional',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.description),
                     ),
@@ -776,7 +776,7 @@ class _AnalysisScreenRedesignedState
                 locationController.dispose();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton.icon(
               onPressed: () {
@@ -784,7 +784,7 @@ class _AnalysisScreenRedesignedState
                 if (title.isEmpty) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Please enter an event title'),
+                      content: Text('Por favor, ingrese un título para el evento'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -812,13 +812,13 @@ class _AnalysisScreenRedesignedState
 
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: Text('Event "$title" added successfully'),
+                    content: Text('Evento "$title" añadido con éxito'),
                     backgroundColor: Colors.green,
                   ),
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Event'),
+              label: const Text('Añadir Evento'),
             ),
           ],
         ),
@@ -839,7 +839,7 @@ class _AnalysisScreenRedesignedState
       context: context,
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Add New Location'),
+          title: const Text('Añadir nueva ubicación'),
           content: SizedBox(
             width: 500,
             child: SingleChildScrollView(
@@ -850,8 +850,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: 'Location Name *',
-                      hintText: 'Enter location name',
+                      labelText: 'Nombre de la Ubicación *',
+                      hintText: 'Inserte el nombre de la ubicación',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.place),
                     ),
@@ -860,7 +860,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<GeoLocationType>(
                     decoration: const InputDecoration(
-                      labelText: 'Location Type',
+                      labelText: 'Tipo de Ubicación',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.category),
                     ),
@@ -880,7 +880,7 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(height: 16),
                   DropdownButtonFormField<LocationRisk>(
                     decoration: const InputDecoration(
-                      labelText: 'Risk Level',
+                      labelText: 'Nivel de Riesgo',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.warning),
                     ),
@@ -904,7 +904,7 @@ class _AnalysisScreenRedesignedState
                         child: TextField(
                           controller: latController,
                           decoration: const InputDecoration(
-                            labelText: 'Latitude *',
+                            labelText: 'Latitud *',
                             hintText: 'e.g. 40.7128',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.location_searching),
@@ -920,7 +920,7 @@ class _AnalysisScreenRedesignedState
                         child: TextField(
                           controller: lonController,
                           decoration: const InputDecoration(
-                            labelText: 'Longitude *',
+                            labelText: 'Longitud *',
                             hintText: 'e.g. -74.0060',
                             border: OutlineInputBorder(),
                             prefixIcon: Icon(Icons.location_searching),
@@ -937,8 +937,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: addressController,
                     decoration: const InputDecoration(
-                      labelText: 'Address',
-                      hintText: 'Optional street address',
+                      labelText: 'Dirección',
+                      hintText: 'Dirección opcional',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.home),
                     ),
@@ -947,8 +947,8 @@ class _AnalysisScreenRedesignedState
                   TextField(
                     controller: descriptionController,
                     decoration: const InputDecoration(
-                      labelText: 'Description',
-                      hintText: 'Optional description',
+                      labelText: 'Descripción',
+                      hintText: 'Descripción opcional',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.description),
                     ),
@@ -968,7 +968,7 @@ class _AnalysisScreenRedesignedState
                 lonController.dispose();
                 Navigator.pop(context);
               },
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton.icon(
               onPressed: () {
@@ -976,7 +976,7 @@ class _AnalysisScreenRedesignedState
                 if (name.isEmpty) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Please enter a location name'),
+                      content: Text('Por favor, ingrese un nombre para la ubicación'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -989,7 +989,7 @@ class _AnalysisScreenRedesignedState
                 if (lat == null || lon == null) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Please enter valid coordinates'),
+                      content: Text('Por favor, ingrese coordenadas válidas'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -999,7 +999,7 @@ class _AnalysisScreenRedesignedState
                 if (lat < -90 || lat > 90 || lon < -180 || lon > 180) {
                   ScaffoldMessenger.of(dialogContext).showSnackBar(
                     const SnackBar(
-                      content: Text('Coordinates out of valid range'),
+                      content: Text('Las coordenadas están fuera de rango válido'),
                       backgroundColor: Colors.orange,
                     ),
                   );
@@ -1032,13 +1032,13 @@ class _AnalysisScreenRedesignedState
 
                 ScaffoldMessenger.of(this.context).showSnackBar(
                   SnackBar(
-                    content: Text('Location "$name" added successfully'),
+                    content: Text('Ubicación "$name" añadida con éxito'),
                     backgroundColor: Colors.green,
                   ),
                 );
               },
               icon: const Icon(Icons.add),
-              label: const Text('Add Location'),
+              label: const Text('Añadir Ubicación'),
             ),
           ],
         ),

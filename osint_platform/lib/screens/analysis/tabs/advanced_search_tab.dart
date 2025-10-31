@@ -489,7 +489,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
           // Results
           if (_searchQuery.isNotEmpty) ...[
             Text(
-              'Found ${_searchResults.length} results for "$_searchQuery"',
+              'Se han encontrado ${_searchResults.length} resultados para "$_searchQuery"',
               style: Theme.of(context).textTheme.titleMedium?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -531,7 +531,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
                             ),
                             const SizedBox(height: 16),
                             Text(
-                              'No results found for "$_searchQuery"',
+                              'No hay resultados para "$_searchQuery"',
                               style: TextStyle(
                                 fontSize: 16,
                                 color: Colors.grey[600],
@@ -775,15 +775,15 @@ extension SearchCategoryExtension on SearchCategory {
   String get displayName {
     switch (this) {
       case SearchCategory.all:
-        return 'All';
+        return 'Todos';
       case SearchCategory.entities:
-        return 'Entities';
+        return 'Entidades';
       case SearchCategory.events:
-        return 'Events';
+        return 'Eventos';
       case SearchCategory.locations:
-        return 'Locations';
+        return 'Ubicaciones';
       case SearchCategory.forms:
-        return 'Forms';
+        return 'Formularios';
     }
   }
 }

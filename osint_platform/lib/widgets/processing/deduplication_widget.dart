@@ -98,7 +98,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                           Text(
                             _matches == null
                                 ? 'Buscando duplicados...'
-                                : '${_matches!.length} potential duplicates found',
+                                : '${_matches!.length} duplicados potenciales encontrados',
                             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                                   color: Theme.of(context).colorScheme.outline,
                                 ),
@@ -122,7 +122,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Similarity Threshold: ${(_similarityThreshold * 100).toInt()}%',
+                            'Umbral de similitud: ${(_similarityThreshold * 100).toInt()}%',
                             style: Theme.of(context).textTheme.bodySmall,
                           ),
                           Slider(
@@ -224,7 +224,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
-          '${match.matchingFields.length} matching fields, ${match.conflicts.length} conflicts',
+          '${match.matchingFields.length} campos coincidentes, ${match.conflicts.length} conflictos',
         ),
         children: [
           Padding(
@@ -268,7 +268,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                 // Matching Fields
                 if (match.matchingFields.isNotEmpty) ...[
                   Text(
-                    'Matching Fields (${match.matchingFields.length})',
+                    'Campos coincidentes (${match.matchingFields.length})',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.green,
@@ -292,7 +292,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                 // Conflicts
                 if (match.conflicts.isNotEmpty) ...[
                   Text(
-                    'Conflicting Fields (${match.conflicts.length})',
+                    'Campos conflictivos (${match.conflicts.length})',
                     style: Theme.of(context).textTheme.titleSmall?.copyWith(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
@@ -320,7 +320,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('Form 1:',
+                                        const Text('Formulario 1:',
                                             style: TextStyle(fontSize: 10)),
                                         const SizedBox(height: 4),
                                         Text(conflict.value1),
@@ -334,7 +334,7 @@ class _DeduplicationWidgetState extends ConsumerState<DeduplicationWidget> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        const Text('Form 2:',
+                                        const Text('Formulario 2:',
                                             style: TextStyle(fontSize: 10)),
                                         const SizedBox(height: 4),
                                         Text(conflict.value2),
@@ -515,17 +515,17 @@ class _MergeDialogState extends State<_MergeDialog> {
   String _getStrategyDescription(MergeStrategy strategy) {
     switch (strategy) {
       case MergeStrategy.preferPrimary:
-        return 'Use values from the first record when there are conflicts';
+        return 'Usa los valores del primer registro cuando haya conflictos';
       case MergeStrategy.preferSecondary:
-        return 'Use values from the second record when there are conflicts';
+        return 'Usa los valores del segundo registro cuando haya conflictos';
       case MergeStrategy.preferNewer:
-        return 'Use values from the most recently updated record';
+        return 'Usa los valores del registro más reciente';
       case MergeStrategy.preferHigherConfidence:
-        return 'Use values from the record with higher confidence score';
+        return 'Usa los valores con mayor confianza (si está disponible)';
       case MergeStrategy.preferLonger:
-        return 'Use longer values (usually more detailed)';
+        return 'Usa los valores más largos en caso de conflicto';
       case MergeStrategy.combine:
-        return 'Combine conflicting values (e.g., "Value1 / Value2")';
+        return 'Combina valores de ambos registros cuando sea posible';
     }
   }
 }

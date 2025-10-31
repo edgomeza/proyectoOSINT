@@ -158,7 +158,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                             Icon(Icons.warning, color: Colors.orange, size: 20),
                             SizedBox(width: 8),
                             Text(
-                              'Servicio NER No Disponible',
+                              'Servicio NER no disponible',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.orange,
@@ -220,9 +220,9 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                   controller: _textController,
                   maxLines: 8,
                   decoration: const InputDecoration(
-                    hintText: 'Enter text to extract entities...\n\n'
-                        'Example: "John Doe works at Acme Corp in New York. '
-                        'Contact: john@acme.com or +1-555-0123."',
+                    hintText: 'Insertar el texto extraido de las entidades...\n\n'
+                        'Ejemplo: "John Doe trabaja en Nueva York para Acme Corp. '
+                        'Contacto: john@acme.com o +34 1230123."',
                     border: OutlineInputBorder(),
                   ),
                 ),
@@ -264,7 +264,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
         // Results
         if (_result != null) ...[
           Text(
-            'Extracted Entities (${_result!.entities.length})',
+            'Entidades extraidas (${_result!.entities.length})',
             style: Theme.of(context).textTheme.titleMedium?.copyWith(
                   fontWeight: FontWeight.bold,
                 ),
@@ -309,7 +309,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
                 ElevatedButton.icon(
                   onPressed: () => _createAllEntities(context),
                   icon: const Icon(Icons.add_circle),
-                  label: Text('Create All Entities (${_result!.entities.length})'),
+                  label: Text('Creadas todas las entidades (${_result!.entities.length})'),
                 ),
               ],
             ),
@@ -355,19 +355,19 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
 
   Color _getEntityColor(String label) {
     switch (label.toUpperCase()) {
-      case 'PERSON':
+      case 'PERSONA':
       case 'PER':
         return Colors.blue;
       case 'ORG':
-      case 'ORGANIZATION':
+      case 'ORGANIZACION':
         return Colors.purple;
-      case 'GPE':
-      case 'LOC':
-      case 'LOCATION':
+      case 'GPS':
+      case 'UBI':
+      case 'UBICACION':
         return Colors.green;
       case 'EMAIL':
         return Colors.orange;
-      case 'PHONE':
+      case 'TELEFONO':
         return Colors.cyan;
       case 'URL':
         return Colors.indigo;
@@ -378,19 +378,19 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
 
   IconData _getEntityIcon(String label) {
     switch (label.toUpperCase()) {
-      case 'PERSON':
+      case 'PERSONA':
       case 'PER':
         return Icons.person;
       case 'ORG':
-      case 'ORGANIZATION':
+      case 'ORGANIZACION':
         return Icons.business;
-      case 'GPE':
-      case 'LOC':
-      case 'LOCATION':
+      case 'GPS':
+      case 'UBI':
+      case 'UBICACION':
         return Icons.location_on;
       case 'EMAIL':
         return Icons.email;
-      case 'PHONE':
+      case 'TELEFONO':
         return Icons.phone;
       case 'URL':
         return Icons.link;
@@ -416,7 +416,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Entity "${entity.text}" created'),
+        content: Text('Entidad "${entity.text}" creada'),
         backgroundColor: Colors.green,
       ),
     );
@@ -436,7 +436,7 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('${nodes.length} entities created successfully'),
+        content: Text('${nodes.length} entidades creadas exitosamente'),
         backgroundColor: Colors.green,
       ),
     );
