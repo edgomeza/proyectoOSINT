@@ -49,8 +49,6 @@ class _InteractiveGraphWidgetState
     // FruchtermanReingoldAlgorithm requiere una configuración
     final config = FruchtermanReingoldConfiguration();
     config.iterations = 1000;
-    config.attractionK = 2000;
-    config.repulsionK = 50000;
     algorithm = FruchtermanReingoldAlgorithm(config);
   }
 
@@ -213,9 +211,6 @@ class _InteractiveGraphWidgetState
     final isSelected = _selectedSourceNode?.id == entityNode.id ||
                       _selectedTargetNode?.id == entityNode.id;
     final isSource = _selectedSourceNode?.id == entityNode.id;
-
-    // Ensure the node has a valid position to prevent null errors
-    graphNode.position ??= Offset.zero;
 
     final nodeContent = Container(
       padding: const EdgeInsets.all(12),
