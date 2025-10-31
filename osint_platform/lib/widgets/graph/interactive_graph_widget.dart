@@ -43,13 +43,9 @@ class _InteractiveGraphWidgetState
   void initState() {
     super.initState();
     // FruchtermanReingoldAlgorithm requiere una configuración
-    algorithm = FruchtermanReingoldAlgorithm(
-      FruchtermanReingoldConfiguration()
-        ..iterations = 1000
-        ..temperature = 100
-        ..attractionK = 0.5
-        ..repulsionK = 0.5,
-    );
+    final config = FruchtermanReingoldConfiguration();
+    config.iterations = 1000;
+    algorithm = FruchtermanReingoldAlgorithm(config);
   }
 
   @override
