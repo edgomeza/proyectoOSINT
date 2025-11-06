@@ -104,7 +104,6 @@ class _NexoChatScreenState extends ConsumerState<NexoChatScreen> {
     } else if (lowerMessage.contains('análisis') || lowerMessage.contains('analizar')) {
       return 'Puedo realizar varios tipos de análisis:\n\n'
           '• Análisis de redes sociales\n'
-          '• Extracción de entidades (NER)\n'
           '• Análisis de patrones\n'
           '• Correlación de datos\n'
           '• Visualización de relaciones\n\n'
