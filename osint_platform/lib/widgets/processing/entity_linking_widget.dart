@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:animate_do/animate_do.dart';
 import '../../models/entity_node.dart';
 import '../../models/relationship.dart';
+import '../../models/data_form.dart';
+import '../../models/data_form_status.dart';
 import '../../providers/entities_provider.dart';
+import '../../providers/data_forms_provider.dart';
 
 class EntityLinkingWidget extends ConsumerStatefulWidget {
   final String investigationId;
@@ -102,6 +105,18 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
                   label: const Text('Nueva Entidad'),
                   style: FilledButton.styleFrom(
                     backgroundColor: Colors.blue,
+                    padding: const EdgeInsets.symmetric(vertical: 12),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: FilledButton.icon(
+                  onPressed: () => _showImportFromFormsDialog(),
+                  icon: const Icon(Icons.file_download),
+                  label: const Text('Importar de Formularios'),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.green,
                     padding: const EdgeInsets.symmetric(vertical: 12),
                   ),
                 ),
@@ -219,6 +234,237 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
         ],
       ),
     );
+  }
+
+  void _showImportFromFormsDialog() {
+    final dataForms = ref.read(dataFormsProvider(widget.investigationId));
+
+    showDialog(
+      context: context,
+      builder: (context) => FadeIn(
+        duration: const Duration(milliseconds: 200),
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          title: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.green.shade400, Colors.green.shade600],
+                  ),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Icon(
+                  Icons.file_download,
+                  color: Colors.white,
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 12),
+              const Text('Importar desde Formularios'),
+            ],
+          ),
+          content: SizedBox(
+            width: double.maxFinite,
+            height: 400,
+            child: dataForms.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(Icons.inbox, size: 64, color: Colors.grey[300]),
+                        const SizedBox(height: 16),
+                        Text(
+                          'No hay formularios disponibles',
+                          style: TextStyle(color: Colors.grey[600]),
+                        ),
+                      ],
+                    ),
+                  )
+                : ListView.separated(
+                    itemCount: dataForms.length,
+                    separatorBuilder: (_, __) => const Divider(),
+                    itemBuilder: (context, index) {
+                      final form = dataForms[index];
+                      return ListTile(
+                        leading: CircleAvatar(
+                          backgroundColor: _getCategoryColor(form.category).withAlpha(50),
+                          child: Icon(
+                            _getCategoryIcon(form.category),
+                            color: _getCategoryColor(form.category),
+                            size: 20,
+                          ),
+                        ),
+                        title: Text(
+                          form.category.displayName,
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('${form.fields.length} campos'),
+                            if (form.notes != null && form.notes!.isNotEmpty)
+                              Text(
+                                form.notes!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                          ],
+                        ),
+                        trailing: FilledButton.icon(
+                          onPressed: () {
+                            Navigator.pop(context);
+                            _convertFormToEntity(form);
+                          },
+                          icon: const Icon(Icons.add, size: 16),
+                          label: const Text('Importar'),
+                          style: FilledButton.styleFrom(
+                            backgroundColor: Colors.green,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cerrar'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _convertFormToEntity(DataForm form) {
+    // Determine entity type from form category
+    final EntityNodeType entityType = _mapCategoryToEntityType(form.category);
+
+    // Extract label from form fields
+    String label = _extractLabelFromForm(form);
+
+    // Create entity
+    final entity = EntityNode(
+      label: label,
+      type: entityType,
+      description: form.notes,
+      confidence: form.confidence,
+      tags: form.tags,
+      attributes: {
+        ...form.fields,
+        'sourceFormId': form.id,
+        'category': form.category.name,
+      },
+      riskLevel: RiskLevel.unknown,
+    );
+
+    ref.read(entitiesProvider(widget.investigationId).notifier).addEntity(entity);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Entidad "$label" creada desde formulario'),
+        backgroundColor: Colors.green,
+      ),
+    );
+  }
+
+  EntityNodeType _mapCategoryToEntityType(DataFormCategory category) {
+    switch (category) {
+      case DataFormCategory.personalData:
+        return EntityNodeType.person;
+      case DataFormCategory.digitalData:
+        return EntityNodeType.website;
+      case DataFormCategory.geographicData:
+        return EntityNodeType.location;
+      case DataFormCategory.financialData:
+        return EntityNodeType.cryptocurrency;
+      case DataFormCategory.socialMediaData:
+        return EntityNodeType.socialNetwork;
+      case DataFormCategory.multimediaData:
+        return EntityNodeType.document;
+      case DataFormCategory.technicalData:
+        return EntityNodeType.ipAddress;
+      case DataFormCategory.corporateData:
+        return EntityNodeType.company;
+      case DataFormCategory.temporalData:
+        return EntityNodeType.event;
+    }
+  }
+
+  String _extractLabelFromForm(DataForm form) {
+    // Try to find common name fields
+    final fields = form.fields;
+
+    // Check for common label fields
+    if (fields['nombre'] != null) return fields['nombre'].toString();
+    if (fields['name'] != null) return fields['name'].toString();
+    if (fields['título'] != null) return fields['título'].toString();
+    if (fields['title'] != null) return fields['title'].toString();
+    if (fields['empresa'] != null) return fields['empresa'].toString();
+    if (fields['company'] != null) return fields['company'].toString();
+    if (fields['dominio'] != null) return fields['dominio'].toString();
+    if (fields['domain'] != null) return fields['domain'].toString();
+    if (fields['dirección'] != null) return fields['dirección'].toString();
+    if (fields['address'] != null) return fields['address'].toString();
+    if (fields['ubicación'] != null) return fields['ubicación'].toString();
+    if (fields['location'] != null) return fields['location'].toString();
+
+    // Use category as fallback
+    return '${form.category.displayName} - ${form.id.substring(0, 8)}';
+  }
+
+  Color _getCategoryColor(DataFormCategory category) {
+    switch (category) {
+      case DataFormCategory.personalData:
+        return Colors.blue;
+      case DataFormCategory.digitalData:
+        return Colors.purple;
+      case DataFormCategory.geographicData:
+        return Colors.green;
+      case DataFormCategory.temporalData:
+        return Colors.orange;
+      case DataFormCategory.financialData:
+        return Colors.amber;
+      case DataFormCategory.socialMediaData:
+        return Colors.pink;
+      case DataFormCategory.multimediaData:
+        return Colors.red;
+      case DataFormCategory.technicalData:
+        return Colors.indigo;
+      case DataFormCategory.corporateData:
+        return Colors.teal;
+    }
+  }
+
+  IconData _getCategoryIcon(DataFormCategory category) {
+    switch (category) {
+      case DataFormCategory.personalData:
+        return Icons.person;
+      case DataFormCategory.digitalData:
+        return Icons.computer;
+      case DataFormCategory.geographicData:
+        return Icons.location_on;
+      case DataFormCategory.temporalData:
+        return Icons.access_time;
+      case DataFormCategory.financialData:
+        return Icons.attach_money;
+      case DataFormCategory.socialMediaData:
+        return Icons.share;
+      case DataFormCategory.multimediaData:
+        return Icons.perm_media;
+      case DataFormCategory.technicalData:
+        return Icons.settings;
+      case DataFormCategory.corporateData:
+        return Icons.business;
+    }
   }
 }
 
@@ -684,6 +930,7 @@ class _EntitiesList extends ConsumerWidget {
             child: entities.isEmpty
                 ? Center(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.account_tree_outlined,
@@ -902,6 +1149,7 @@ class _RelationshipsList extends ConsumerWidget {
             child: relationships.isEmpty
                 ? Center(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.link, size: 48, color: Colors.grey[300]),

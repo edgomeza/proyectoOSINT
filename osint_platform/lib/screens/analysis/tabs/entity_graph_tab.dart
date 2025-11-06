@@ -202,67 +202,78 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
     return Card(
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Row(
               children: [
-                Icon(Icons.filter_list, size: 20, color: Colors.grey[700]),
-                const SizedBox(width: 8),
+                Icon(Icons.filter_list, size: 18, color: Colors.grey[700]),
+                const SizedBox(width: 6),
                 Text(
                   'Filtros',
-                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                        fontWeight: FontWeight.bold,
+                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(width: 12),
+                // Controls inline
+                Tooltip(
+                  message: 'Mostrar etiquetas',
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(Icons.label, size: 14, color: Colors.grey[600]),
+                      Transform.scale(
+                        scale: 0.8,
+                        child: Switch(
+                          value: _showLabels,
+                          onChanged: (value) {
+                            setState(() => _showLabels = value);
+                          },
+                        ),
                       ),
+                    ],
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Text('${_nodeSize.toInt()}', style: TextStyle(fontSize: 11)),
+                SizedBox(
+                  width: 80,
+                  child: Slider(
+                    value: _nodeSize,
+                    min: 40,
+                    max: 100,
+                    divisions: 6,
+                    onChanged: (value) {
+                      setState(() => _nodeSize = value);
+                    },
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.refresh, size: 18),
+                  tooltip: 'Reiniciar vista',
+                  padding: EdgeInsets.zero,
+                  constraints: BoxConstraints(),
+                  onPressed: () {
+                    _transformationController.value = Matrix4.identity();
+                  },
                 ),
                 const Spacer(),
-                // Controls
-                Row(
-                  children: [
-                    Text('Etiquetas', style: TextStyle(fontSize: 12)),
-                    Switch(
-                      value: _showLabels,
-                      onChanged: (value) {
-                        setState(() => _showLabels = value);
-                      },
-                    ),
-                    const SizedBox(width: 16),
-                    Text('Tamaño: ${_nodeSize.toInt()}', style: TextStyle(fontSize: 12)),
-                    SizedBox(
-                      width: 120,
-                      child: Slider(
-                        value: _nodeSize,
-                        min: 40,
-                        max: 100,
-                        divisions: 6,
-                        onChanged: (value) {
-                          setState(() => _nodeSize = value);
-                        },
-                      ),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.refresh, size: 20),
-                      tooltip: 'Reiniciar vista',
-                      onPressed: () {
-                        _transformationController.value = Matrix4.identity();
-                      },
-                    ),
-                  ],
-                ),
               ],
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: 6),
             Wrap(
-              spacing: 8,
-              runSpacing: 8,
+              spacing: 6,
+              runSpacing: 4,
               children: availableTypes.map((type) {
                 final isSelected = _selectedTypes.contains(type);
                 final color = _getColorForType(type);
 
                 return FilterChip(
-                  label: Text(type.displayName),
+                  label: Text(type.displayName, style: TextStyle(fontSize: 11)),
                   selected: isSelected,
+                  visualDensity: VisualDensity.compact,
+                  padding: EdgeInsets.symmetric(horizontal: 4),
+                  labelPadding: EdgeInsets.symmetric(horizontal: 4),
                   onSelected: (selected) {
                     setState(() {
                       if (selected) {
@@ -274,7 +285,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
                   },
                   avatar: Icon(
                     _getIconForType(type),
-                    size: 16,
+                    size: 14,
                     color: isSelected ? Colors.white : color,
                   ),
                   selectedColor: color,
@@ -352,8 +363,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
         child: SizedBox(
-          width: _nodeSize,
-          height: _nodeSize,
+          width: _nodeSize + (_showLabels ? 40 : 0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
