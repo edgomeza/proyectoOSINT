@@ -49,14 +49,16 @@ class _InteractiveGraphWidgetState
     super.initState();
     // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
-    config.iterations = 2000; // Increased from 1000 for better node separation
+    // Increased iterations significantly for better convergence and node separation
+    // More iterations = more time for repulsion forces to separate overlapping nodes
+    config.iterations = 5000;
     algorithm = FruchtermanReingoldAlgorithm(config);
 
-    // Initialize transformation controller with a smaller initial scale
+    // Initialize transformation controller with a moderate initial scale
     _transformationController = TransformationController();
-    // Set initial scale to 0.2 so graph appears much smaller and fits better
+    // Set initial scale to 0.3 for better visibility while still showing full graph
     // Using diagonal3Values instead of deprecated scale() method
-    _transformationController.value = Matrix4.diagonal3Values(0.2, 0.2, 1.0);
+    _transformationController.value = Matrix4.diagonal3Values(0.3, 0.3, 1.0);
   }
 
   @override
@@ -370,8 +372,10 @@ class _InteractiveGraphWidgetState
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
 
-      // Initialize node with default size to prevent null errors in FruchtermanReingold algorithm
-      // Larger size helps the algorithm calculate proper spacing between nodes
+      // Initialize node size for FruchtermanReingold collision detection
+      // Real widget size: ~108px wide (80 text + 24 padding + 4 border) x ~90px tall
+      // Using 150x150 provides buffer space for repulsion forces to work effectively
+      // CRITICAL: This size must be >= actual widget size or nodes will overlap
       node.size = const Size(150, 150);
 
       // Load saved position from entity node if available, otherwise distribute randomly
@@ -380,12 +384,12 @@ class _InteractiveGraphWidgetState
         _nodePositions[entityNode.id] = savedPosition;
         node.position = savedPosition;
       } else {
-        // Distribute nodes in a grid pattern initially for better FruchtermanReingold convergence
-        // Larger spacing gives the algorithm more room to arrange nodes without overlap
+        // Distribute nodes in a wide grid pattern initially for better FruchtermanReingold convergence
+        // Generous spacing prevents massive initial overlap that the algorithm can't resolve
         final gridSize = (nodes.length / 2).ceil();
         final row = i ~/ gridSize;
         final col = i % gridSize;
-        final spacing = 400.0; // Increased from 200.0 to reduce initial overlap
+        final spacing = 800.0; // Large spacing gives repulsion forces room to work
         node.position = Offset(col * spacing, row * spacing);
       }
 
