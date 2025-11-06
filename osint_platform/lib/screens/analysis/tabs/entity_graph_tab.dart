@@ -33,7 +33,6 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   double _nodeSize = 60.0;
 
   // Track if graph needs rebuild
-  bool _graphNeedsRebuild = true;
   String _lastEntityHash = '';
   String _lastRelationshipHash = '';
 
