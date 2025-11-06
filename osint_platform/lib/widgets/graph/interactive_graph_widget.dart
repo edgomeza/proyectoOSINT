@@ -82,35 +82,27 @@ class _InteractiveGraphWidgetState
                           );
                         }
 
-                        // Canvas dimensions for the graph
-                        final canvasWidth = constraints.maxWidth * 3;
-                        final canvasHeight = constraints.maxHeight * 3;
-
                         return InteractiveViewer(
                           constrained: false,
                           boundaryMargin: const EdgeInsets.all(100),
                           minScale: 0.01,
                           maxScale: 5.6,
-                          child: SizedBox(
-                            width: canvasWidth,
-                            height: canvasHeight,
-                            child: GraphView(
-                              key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
-                              graph: graph,
-                              algorithm: algorithm,
-                              paint: Paint()
-                                ..color = Theme.of(context).colorScheme.primary
-                                ..strokeWidth = 2
-                                ..style = PaintingStyle.stroke,
-                              builder: (Node node) {
-                                // Safe null check
-                                if (node.key?.value == null) {
-                                  return const SizedBox.shrink();
-                                }
-                                final entityNode = node.key!.value as EntityNode;
-                                return _buildNodeWidget(context, entityNode, node);
-                              },
-                            ),
+                          child: GraphView(
+                            key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
+                            graph: graph,
+                            algorithm: algorithm,
+                            paint: Paint()
+                              ..color = Theme.of(context).colorScheme.primary
+                              ..strokeWidth = 2
+                              ..style = PaintingStyle.stroke,
+                            builder: (Node node) {
+                              // Safe null check
+                              if (node.key?.value == null) {
+                                return const SizedBox.shrink();
+                              }
+                              final entityNode = node.key!.value as EntityNode;
+                              return _buildNodeWidget(context, entityNode, node);
+                            },
                           ),
                         );
                       },
