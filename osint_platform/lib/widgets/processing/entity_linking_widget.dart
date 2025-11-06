@@ -297,7 +297,7 @@ class __EntityFormState extends ConsumerState<_EntityForm> {
                   const SizedBox(width: 12),
                   Expanded(
                     child: DropdownButtonFormField<EntityNodeType>(
-                      value: _selectedType,
+                      initialValue: _selectedType,
                       decoration: const InputDecoration(
                         labelText: 'Tipo',
                         border: OutlineInputBorder(),
@@ -333,7 +333,7 @@ class __EntityFormState extends ConsumerState<_EntityForm> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<RiskLevel>(
-                      value: _selectedRisk,
+                      initialValue: _selectedRisk,
                       decoration: const InputDecoration(
                         labelText: 'Nivel de Riesgo',
                         border: OutlineInputBorder(),
@@ -477,7 +477,7 @@ class __RelationshipFormState extends ConsumerState<_RelationshipForm> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<EntityNode>(
-                      value: _sourceEntity,
+                      initialValue: _sourceEntity,
                       decoration: const InputDecoration(
                         labelText: 'Entidad Origen',
                         border: OutlineInputBorder(),
@@ -509,7 +509,7 @@ class __RelationshipFormState extends ConsumerState<_RelationshipForm> {
                   ),
                   Expanded(
                     child: DropdownButtonFormField<EntityNode>(
-                      value: _targetEntity,
+                      initialValue: _targetEntity,
                       decoration: const InputDecoration(
                         labelText: 'Entidad Destino',
                         border: OutlineInputBorder(),
@@ -542,7 +542,7 @@ class __RelationshipFormState extends ConsumerState<_RelationshipForm> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<RelationshipType>(
-                      value: _selectedType,
+                      initialValue: _selectedType,
                       decoration: const InputDecoration(
                         labelText: 'Tipo de Relación',
                         border: OutlineInputBorder(),
