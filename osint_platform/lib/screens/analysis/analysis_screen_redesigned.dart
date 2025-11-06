@@ -85,9 +85,8 @@ class _AnalysisScreenRedesignedState
     }
 
     // Get statistics
-    final graphStats = ref.watch(graphStatsProvider);
     final timelineStats = ref.watch(timelineStatsProvider);
-    ref.watch(geoStatsProvider);
+    final geoStats = ref.watch(geoStatsProvider);
 
     return AppLayoutWrapper(
       appBar: AppBar(
@@ -126,13 +125,13 @@ class _AnalysisScreenRedesignedState
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.hub_outlined,
+                      Icons.timeline_outlined,
                       size: 18,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${graphStats.totalNodes}',
+                      '${timelineStats.totalEvents}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -141,13 +140,13 @@ class _AnalysisScreenRedesignedState
                     ),
                     const SizedBox(width: 12),
                     Icon(
-                      Icons.timeline_outlined,
+                      Icons.place_outlined,
                       size: 18,
                       color: Theme.of(context).colorScheme.primary,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      '${timelineStats.totalEvents}',
+                      '${geoStats.totalLocations}',
                       style: TextStyle(
                         fontWeight: FontWeight.w600,
                         fontSize: 14,
@@ -175,13 +174,11 @@ class _AnalysisScreenRedesignedState
                 children: [
                   _buildTabChip(0, Icons.dashboard_outlined, 'Resumen', Colors.blue),
                   const SizedBox(width: 8),
-                  _buildTabChip(1, Icons.hub_outlined, 'Grafo', Colors.purple),
+                  _buildTabChip(1, Icons.timeline_outlined, 'Timeline', Colors.teal),
                   const SizedBox(width: 8),
-                  _buildTabChip(2, Icons.timeline_outlined, 'Timeline', Colors.teal),
+                  _buildTabChip(2, Icons.map_outlined, 'Mapa', Colors.green),
                   const SizedBox(width: 8),
-                  _buildTabChip(3, Icons.map_outlined, 'Mapa', Colors.green),
-                  const SizedBox(width: 8),
-                  _buildTabChip(4, Icons.search_outlined, 'Búsqueda', Colors.orange),
+                  _buildTabChip(3, Icons.search_outlined, 'Búsqueda', Colors.orange),
                 ],
               ),
             ),
@@ -810,8 +807,6 @@ class _AnalysisScreenRedesignedState
               ),
               SizedBox(height: 16),
               Text('• Resumen: Estadísticas generales'),
-              SizedBox(height: 8),
-              Text('• Grafo: Visualización interactiva de relaciones'),
               SizedBox(height: 8),
               Text('• Timeline: Eventos cronológicos'),
               SizedBox(height: 8),

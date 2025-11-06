@@ -21,10 +21,8 @@ class OverviewTab extends ConsumerWidget {
     final investigation = ref.watch(
       investigationByIdProvider(investigationId),
     );
-    final graphStats = ref.watch(graphStatsProvider);
     final timelineStats = ref.watch(timelineStatsProvider);
     final geoStats = ref.watch(geoStatsProvider);
-    final highRiskNodes = ref.watch(highRiskNodesProvider);
     final highPriorityEvents = ref.watch(highPriorityEventsProvider);
 
     if (investigation == null) {
@@ -41,30 +39,6 @@ class OverviewTab extends ConsumerWidget {
           const SizedBox(height: 16),
 
           // Statistics Row
-          Row(
-            children: [
-              Expanded(
-                child: _buildStatCard(
-                  context,
-                  title: 'Entidades',
-                  value: graphStats.totalNodes.toString(),
-                  icon: Icons.hub,
-                  color: Colors.blue,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _buildStatCard(
-                  context,
-                  title: 'Relaciones',
-                  value: graphStats.totalRelationships.toString(),
-                  icon: Icons.link,
-                  color: Colors.purple,
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
@@ -98,28 +72,6 @@ class OverviewTab extends ConsumerWidget {
                 ),
           ),
           const SizedBox(height: 16),
-
-          // Entity Type Distribution
-          if (graphStats.nodesByType.isNotEmpty) ...[
-            _buildChartCard(
-              context,
-              title: 'Entidades por Tipo',
-              child: SizedBox(
-                height: 250,
-                child: PieChart(
-                  PieChartData(
-                    sections: _buildEntityTypeSections(
-                      context,
-                      graphStats.nodesByType,
-                    ),
-                    sectionsSpace: 2,
-                    centerSpaceRadius: 40,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-          ],
 
           // Event Priority Distribution
           if (timelineStats.eventsByPriority.isNotEmpty) ...[
@@ -169,7 +121,7 @@ class OverviewTab extends ConsumerWidget {
           ],
 
           // Alerts Section
-          if (highRiskNodes.isNotEmpty || highPriorityEvents.isNotEmpty) ...[
+          if (highPriorityEvents.isNotEmpty) ...[
             Text(
               'Alertas y Elementos de Alta Prioridad',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
@@ -178,28 +130,14 @@ class OverviewTab extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
 
-            if (highRiskNodes.isNotEmpty) ...[
-              _buildAlertCard(
-                context,
-                title: 'Entidades de Alto Riesgo',
-                count: highRiskNodes.length,
-                icon: Icons.warning,
-                color: Colors.red,
-                items: highRiskNodes.take(5).map((node) => node.label).toList(),
-              ),
-              const SizedBox(height: 12),
-            ],
-
-            if (highPriorityEvents.isNotEmpty) ...[
-              _buildAlertCard(
-                context,
-                title: 'Eventos de Alta Prioridad',
-                count: highPriorityEvents.length,
-                icon: Icons.flag,
-                color: Colors.orange,
-                items: highPriorityEvents.take(5).map((e) => e.title).toList(),
-              ),
-            ],
+            _buildAlertCard(
+              context,
+              title: 'Eventos de Alta Prioridad',
+              count: highPriorityEvents.length,
+              icon: Icons.flag,
+              color: Colors.orange,
+              items: highPriorityEvents.take(5).map((e) => e.title).toList(),
+            ),
           ],
         ],
       ),

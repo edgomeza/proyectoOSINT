@@ -414,10 +414,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
       final investigation = ref.read(
         investigationByIdProvider(widget.investigationId),
       )!;
-      final nodes = ref.read(nodesByInvestigationProvider(widget.investigationId));
-      final relationships = ref.read(
-        relationshipsByInvestigationProvider(widget.investigationId),
-      );
+      // Note: Entity nodes and relationships removed - passing empty lists
+      final nodes = [];
+      final relationships = [];
       final events = ref.read(
         eventsByInvestigationProvider(widget.investigationId),
       );
@@ -475,10 +474,9 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
       final investigation = ref.read(
         investigationByIdProvider(widget.investigationId),
       )!;
-      final nodes = ref.read(nodesByInvestigationProvider(widget.investigationId));
-      final relationships = ref.read(
-        relationshipsByInvestigationProvider(widget.investigationId),
-      );
+      // Note: Entity nodes and relationships removed - passing empty lists
+      final nodes = [];
+      final relationships = [];
 
       final file = await ReportGenerationService.generateSummaryReport(
         investigation: investigation,
