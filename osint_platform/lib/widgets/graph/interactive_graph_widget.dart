@@ -49,16 +49,18 @@ class _InteractiveGraphWidgetState
     super.initState();
     // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
-    // Increased iterations significantly for better convergence and node separation
-    // More iterations = more time for repulsion forces to separate overlapping nodes
-    config.iterations = 5000;
+    // Very high iteration count for complete convergence and node separation
+    // Each iteration allows repulsion forces to push overlapping square nodes apart
+    config.iterations = 10000;
     algorithm = FruchtermanReingoldAlgorithm(config);
 
-    // Initialize transformation controller with a moderate initial scale
+    // Initialize transformation controller with centered view
     _transformationController = TransformationController();
-    // Set initial scale to 0.3 for better visibility while still showing full graph
-    // Using diagonal3Values instead of deprecated scale() method
-    _transformationController.value = Matrix4.diagonal3Values(0.3, 0.3, 1.0);
+    // Apply translation to center the graph, then scale down for full view
+    // Translation moves viewport to show the graph centered instead of top-left corner
+    _transformationController.value = Matrix4.identity()
+      ..translate(200.0, 200.0)  // Center the viewport on the graph area
+      ..scale(0.3, 0.3, 1.0);     // Scale down to show full graph
   }
 
   @override
@@ -372,25 +374,30 @@ class _InteractiveGraphWidgetState
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
 
-      // Initialize node size for FruchtermanReingold collision detection
-      // Real widget size: ~108px wide (80 text + 24 padding + 4 border) x ~90px tall
-      // Using 150x150 provides buffer space for repulsion forces to work effectively
-      // CRITICAL: This size must be >= actual widget size or nodes will overlap
-      node.size = const Size(150, 150);
+      // Initialize node size for FruchtermanReingold collision detection of SQUARE nodes
+      // Real widget size: ~108px wide x ~90px tall
+      // Nodes are SQUARES not points - need large repulsion margin for visual separation
+      // Using 300x300 (3x real size) ensures strong repulsion forces between nodes
+      // CRITICAL: Larger size = stronger repulsion = less overlap for square widgets
+      node.size = const Size(300, 300);
 
-      // Load saved position from entity node if available, otherwise distribute randomly
+      // Load saved position from entity node if available, otherwise distribute with offset
       if (entityNode.x != null && entityNode.y != null) {
         final savedPosition = Offset(entityNode.x!, entityNode.y!);
         _nodePositions[entityNode.id] = savedPosition;
         node.position = savedPosition;
       } else {
-        // Distribute nodes in a wide grid pattern initially for better FruchtermanReingold convergence
-        // Generous spacing prevents massive initial overlap that the algorithm can't resolve
+        // Distribute nodes in a wide grid pattern with large offset from origin
+        // Large offset prevents layout from clustering near (0,0) in top-left corner
         final gridSize = (nodes.length / 2).ceil();
         final row = i ~/ gridSize;
         final col = i % gridSize;
-        final spacing = 800.0; // Large spacing gives repulsion forces room to work
-        node.position = Offset(col * spacing, row * spacing);
+        final spacing = 800.0; // Large spacing between nodes in grid
+        const double initialOffset = 1000.0; // Offset from origin to prevent corner clustering
+        node.position = Offset(
+          col * spacing + initialOffset,
+          row * spacing + initialOffset,
+        );
       }
 
       graph.addNode(node);
