@@ -32,6 +32,11 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   bool _showLabels = true;
   double _nodeSize = 60.0;
 
+  // Track if graph needs rebuild
+  bool _graphNeedsRebuild = true;
+  String _lastEntityHash = '';
+  String _lastRelationshipHash = '';
+
   @override
   void initState() {
     super.initState();
@@ -66,6 +71,22 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
     // Filter entities by selected types
     final filteredEntities = entities.where((e) => _selectedTypes.contains(e.type)).toList();
+
+    // Rebuild graph if data changed (outside of layout)
+    final entityHash = filteredEntities.map((e) => e.id).join(',');
+    final relationshipHash = relationships.map((r) => r.id).join(',');
+
+    if (_lastEntityHash != entityHash || _lastRelationshipHash != relationshipHash) {
+      _lastEntityHash = entityHash;
+      _lastRelationshipHash = relationshipHash;
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && filteredEntities.isNotEmpty) {
+          _buildGraph(filteredEntities, relationships);
+          setState(() {});
+        }
+      });
+    }
 
     return Column(
       children: [
@@ -303,16 +324,16 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   }
 
   Widget _buildGraphView(BuildContext context, List<EntityNode> entities, List<Relationship> relationships) {
-    // Build the graph before rendering (only if we have entities)
-    if (entities.isNotEmpty) {
-      _buildGraph(entities, relationships);
-    }
-
     return Card(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
         child: LayoutBuilder(
           builder: (context, constraints) {
+            // Ensure we have valid constraints
+            if (constraints.maxWidth <= 0 || constraints.maxHeight <= 0) {
+              return const SizedBox.shrink();
+            }
+
             return Stack(
               children: [
                 // Background
@@ -331,36 +352,50 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
                   ),
                 ),
                 // Graph
-                SizedBox(
-                  width: constraints.maxWidth,
-                  height: constraints.maxHeight,
-                  child: InteractiveViewer(
-                    transformationController: _transformationController,
-                    boundaryMargin: const EdgeInsets.all(100),
-                    minScale: 0.1,
-                    maxScale: 3.0,
-                    constrained: false,
-                    child: SizedBox(
-                      width: constraints.maxWidth * 2,
-                      height: constraints.maxHeight * 2,
-                      child: GraphView(
-                        graph: graph,
-                        algorithm: algorithm,
-                        paint: Paint()
-                          ..color = Colors.grey[400]!
-                          ..strokeWidth = 2
-                          ..style = PaintingStyle.stroke,
-                        builder: (Node node) {
-                          final entity = entities.firstWhere(
-                            (e) => e.id == node.key?.value,
-                            orElse: () => EntityNode(label: 'Unknown', type: EntityNodeType.other),
-                          );
-                          return _buildNodeWidget(context, entity);
-                        },
+                if (graph.nodeCount() > 0)
+                  SizedBox(
+                    width: constraints.maxWidth,
+                    height: constraints.maxHeight,
+                    child: InteractiveViewer(
+                      transformationController: _transformationController,
+                      boundaryMargin: const EdgeInsets.all(100),
+                      minScale: 0.1,
+                      maxScale: 3.0,
+                      constrained: false,
+                      child: SizedBox(
+                        width: constraints.maxWidth * 2,
+                        height: constraints.maxHeight * 2,
+                        child: GraphView(
+                          graph: graph,
+                          algorithm: algorithm,
+                          paint: Paint()
+                            ..color = Colors.grey[400]!
+                            ..strokeWidth = 2
+                            ..style = PaintingStyle.stroke,
+                          builder: (Node node) {
+                            try {
+                              final nodeId = node.key?.value;
+                              if (nodeId == null) {
+                                return const SizedBox.shrink();
+                              }
+
+                              final entity = entities.firstWhere(
+                                (e) => e.id == nodeId,
+                                orElse: () => EntityNode(
+                                  label: 'Unknown',
+                                  type: EntityNodeType.other,
+                                ),
+                              );
+                              return _buildNodeWidget(context, entity);
+                            } catch (e) {
+                              debugPrint('Error building node: $e');
+                              return const SizedBox.shrink();
+                            }
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
                 // Legend
                 Positioned(
                   top: 16,
