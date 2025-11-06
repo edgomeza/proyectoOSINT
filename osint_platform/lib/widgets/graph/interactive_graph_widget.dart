@@ -54,8 +54,9 @@ class _InteractiveGraphWidgetState
 
     // Initialize transformation controller with a smaller initial scale
     _transformationController = TransformationController();
-    // Set initial scale to 0.5 so graph appears smaller and fits better
-    _transformationController.value = Matrix4.identity()..scale(0.5);
+    // Set initial scale to 0.2 so graph appears much smaller and fits better
+    // Using diagonal3Values instead of deprecated scale() method
+    _transformationController.value = Matrix4.diagonal3Values(0.2, 0.2, 1.0);
   }
 
   @override
