@@ -27,7 +27,7 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
-  late FruchtermanReingoldAlgorithm algorithm;
+  late BuchheimWalkerAlgorithm algorithm;
   late TransformationController _transformationController;
 
   // Node positions (drag functionality removed)
@@ -47,13 +47,15 @@ class _InteractiveGraphWidgetState
   @override
   void initState() {
     super.initState();
-    // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
-    final config = FruchtermanReingoldConfiguration();
-    // Conservative iteration count to prevent graphview internal bugs
-    // Reduced from 5000 to 3000 due to known graphview stability issues with F-R
-    // Lower iterations = more stable execution, still sufficient for good layout
-    config.iterations = 3000;
-    algorithm = FruchtermanReingoldAlgorithm(config);
+    // SWITCHED TO BuchheimWalker: FruchtermanReingold has persistent null check bugs
+    // BuchheimWalker is much more stable, no known issues with graphview library
+    // Trade-off: Hierarchical tree layout instead of force-directed, but stability is critical
+    final config = BuchheimWalkerConfiguration();
+    config.siblingSeparation = 100;      // Distance between sibling nodes
+    config.levelSeparation = 150;         // Distance between tree levels
+    config.subtreeSeparation = 150;       // Distance between subtrees
+    config.orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
+    algorithm = BuchheimWalkerAlgorithm(config, TreeEdgeRenderer(config));
 
     // Initialize transformation controller with centered view
     _transformationController = TransformationController();
@@ -108,11 +110,8 @@ class _InteractiveGraphWidgetState
                           maxScale: 5.6,
                           child: GraphView(
                             // Dynamic key forces complete rebuild when data changes
-                            // Prevents Riverpod async update conflicts during F-R iterations
-                            // If null check errors persist, consider:
-                            // 1. BuchheimWalkerAlgorithm (more stable, hierarchical)
-                            // 2. SugiyamaAlgorithm (directed graphs)
-                            // 3. Updating graphview library version
+                            // Using BuchheimWalker algorithm for stability (hierarchical tree layout)
+                            // FruchtermanReingold had persistent null check bugs in graphview library
                             key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
                             graph: graph,
                             algorithm: algorithm,
@@ -389,30 +388,17 @@ class _InteractiveGraphWidgetState
       node.key = ValueKey(entityNode);
       nodeMap[entityNode.id] = node;
 
-      // Initialize node size for FruchtermanReingold collision detection of SQUARE nodes
+      // Initialize node size for BuchheimWalker tree layout
       // Real widget size: ~108px wide x ~90px tall
-      // Nodes are SQUARES not points - need large repulsion margin for visual separation
-      // Using 300x300 (3x real size) ensures strong repulsion forces between nodes
-      // CRITICAL: Larger size = stronger repulsion = less overlap for square widgets
-      node.size = const Size(300, 300);
+      // BuchheimWalker handles spacing automatically, size just for reference
+      node.size = const Size(100, 100);
 
-      // Load saved position from entity node if available, otherwise distribute with offset
+      // Load saved position if available (optional for BuchheimWalker)
+      // Algorithm calculates positions automatically in hierarchical tree structure
       if (entityNode.x != null && entityNode.y != null) {
         final savedPosition = Offset(entityNode.x!, entityNode.y!);
         _nodePositions[entityNode.id] = savedPosition;
         node.position = savedPosition;
-      } else {
-        // Distribute nodes in a wide grid pattern with large offset from origin
-        // Large offset prevents layout from clustering near (0,0) in top-left corner
-        final gridSize = (nodes.length / 2).ceil();
-        final row = i ~/ gridSize;
-        final col = i % gridSize;
-        final spacing = 800.0; // Large spacing between nodes in grid
-        const double initialOffset = 1000.0; // Offset from origin to prevent corner clustering
-        node.position = Offset(
-          col * spacing + initialOffset,
-          row * spacing + initialOffset,
-        );
       }
 
       graph.addNode(node);
