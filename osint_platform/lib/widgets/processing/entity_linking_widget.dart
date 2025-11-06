@@ -934,11 +934,11 @@ class _EntitiesList extends ConsumerWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(Icons.account_tree_outlined,
-                            size: 48, color: Colors.grey[300]),
-                        const SizedBox(height: 8),
+                            size: 32, color: Colors.grey[300]),
+                        const SizedBox(height: 4),
                         Text(
                           'No hay entidades',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
                         ),
                       ],
                     ),
@@ -1152,11 +1152,11 @@ class _RelationshipsList extends ConsumerWidget {
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Icon(Icons.link, size: 48, color: Colors.grey[300]),
-                        const SizedBox(height: 8),
+                        Icon(Icons.link, size: 32, color: Colors.grey[300]),
+                        const SizedBox(height: 4),
                         Text(
                           'No hay relaciones',
-                          style: TextStyle(color: Colors.grey[600]),
+                          style: TextStyle(color: Colors.grey[600], fontSize: 13),
                         ),
                       ],
                     ),

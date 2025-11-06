@@ -362,37 +362,33 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
                       minScale: 0.1,
                       maxScale: 3.0,
                       constrained: false,
-                      child: SizedBox(
-                        width: constraints.maxWidth * 2,
-                        height: constraints.maxHeight * 2,
-                        child: GraphView(
-                          graph: graph,
-                          algorithm: algorithm,
-                          paint: Paint()
-                            ..color = Colors.grey[400]!
-                            ..strokeWidth = 2
-                            ..style = PaintingStyle.stroke,
-                          builder: (Node node) {
-                            try {
-                              final nodeId = node.key?.value;
-                              if (nodeId == null) {
-                                return const SizedBox.shrink();
-                              }
-
-                              final entity = entities.firstWhere(
-                                (e) => e.id == nodeId,
-                                orElse: () => EntityNode(
-                                  label: 'Unknown',
-                                  type: EntityNodeType.other,
-                                ),
-                              );
-                              return _buildNodeWidget(context, entity);
-                            } catch (e) {
-                              debugPrint('Error building node: $e');
+                      child: GraphView(
+                        graph: graph,
+                        algorithm: algorithm,
+                        paint: Paint()
+                          ..color = Colors.grey[400]!
+                          ..strokeWidth = 2
+                          ..style = PaintingStyle.stroke,
+                        builder: (Node node) {
+                          try {
+                            final nodeId = node.key?.value;
+                            if (nodeId == null) {
                               return const SizedBox.shrink();
                             }
-                          },
-                        ),
+
+                            final entity = entities.firstWhere(
+                              (e) => e.id == nodeId,
+                              orElse: () => EntityNode(
+                                label: 'Unknown',
+                                type: EntityNodeType.other,
+                              ),
+                            );
+                            return _buildNodeWidget(context, entity);
+                          } catch (e) {
+                            debugPrint('Error building node: $e');
+                            return const SizedBox.shrink();
+                          }
+                        },
                       ),
                     ),
                   ),
