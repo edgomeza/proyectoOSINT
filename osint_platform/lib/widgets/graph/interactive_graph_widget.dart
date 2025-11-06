@@ -27,7 +27,7 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
-  FruchtermanReingoldAlgorithm? algorithm;
+  late FruchtermanReingoldAlgorithm algorithm;
 
   // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
@@ -43,10 +43,13 @@ class _InteractiveGraphWidgetState
   double minConfidence = 0.0;
   bool showLabels = true;
 
-  FruchtermanReingoldAlgorithm _createAlgorithm(double width, double height) {
+  @override
+  void initState() {
+    super.initState();
+    // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
     config.iterations = 1000;
-    return FruchtermanReingoldAlgorithm(config);
+    algorithm = FruchtermanReingoldAlgorithm(config);
   }
 
   @override
@@ -79,10 +82,9 @@ class _InteractiveGraphWidgetState
                           );
                         }
 
-                        // Create algorithm with proper canvas dimensions
+                        // Canvas dimensions for the graph
                         final canvasWidth = constraints.maxWidth * 3;
                         final canvasHeight = constraints.maxHeight * 3;
-                        algorithm = _createAlgorithm(canvasWidth, canvasHeight);
 
                         return InteractiveViewer(
                           constrained: false,
@@ -95,7 +97,7 @@ class _InteractiveGraphWidgetState
                             child: GraphView(
                               key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
                               graph: graph,
-                              algorithm: algorithm!,
+                              algorithm: algorithm,
                               paint: Paint()
                                 ..color = Theme.of(context).colorScheme.primary
                                 ..strokeWidth = 2
