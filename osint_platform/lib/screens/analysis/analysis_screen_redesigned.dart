@@ -15,6 +15,7 @@ import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
 import 'tabs/advanced_search_tab.dart';
+import 'tabs/entity_graph_tab.dart';
 import '../../widgets/common/phase_navigation_buttons.dart';
 
 class AnalysisScreenRedesigned extends ConsumerStatefulWidget {
@@ -39,7 +40,7 @@ class _AnalysisScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _currentTabIndex = _tabController.index;
@@ -177,7 +178,9 @@ class _AnalysisScreenRedesignedState
                   const SizedBox(width: 8),
                   _buildTabChip(2, Icons.map_outlined, 'Mapa', Colors.green),
                   const SizedBox(width: 8),
-                  _buildTabChip(3, Icons.search_outlined, 'Búsqueda', Colors.orange),
+                  _buildTabChip(3, Icons.hub, 'Grafo', Colors.purple),
+                  const SizedBox(width: 8),
+                  _buildTabChip(4, Icons.search_outlined, 'Búsqueda', Colors.orange),
                 ],
               ),
             ),
@@ -205,6 +208,12 @@ class _AnalysisScreenRedesignedState
           GeographicMapWidget(
             investigationId: widget.investigationId,
             onLocationTap: (location) => _showLocationDetails(context, location),
+          ),
+
+          // Entity Graph Tab
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: EntityGraphTab(investigationId: widget.investigationId),
           ),
 
           // Advanced Search Tab
