@@ -51,17 +51,14 @@ const Map<String, String> translationsEs = {
   // Processing
   'validation': 'Validación',
   'duplication': 'Duplicados',
-  'ner_extraction': 'Extracción NER',
   'entity_linking': 'Vinculación de Entidades',
   'clean_data': 'Limpiar Datos',
   'merge': 'Fusionar',
   'duplicate_detection': 'Detección de Duplicados',
-  'ner_entity_extraction': 'Extracción de Entidades NER',
   'create_entity_from_form': 'Crear Entidad desde Formulario',
   'create_relationship': 'Crear Relación',
   'convert_data_form_to_entity': 'Convertir Formulario de Datos a Entidad',
   'create_relationships_between_entities': 'Crear relaciones entre entidades',
-  'extract_entities_from_text_using_ai': 'Extraer entidades del texto usando IA',
   'scanning_for_duplicates': 'Buscando duplicados...',
   'potential_duplicates_found': 'duplicados potenciales encontrados',
 

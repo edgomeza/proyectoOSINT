@@ -10,7 +10,6 @@ import '../../models/investigation_phase.dart';
 import '../../providers/investigations_provider.dart';
 import '../../widgets/processing/deduplication_widget.dart';
 import '../../widgets/processing/entity_linking_widget.dart';
-import '../../widgets/processing/ner_extraction_widget.dart';
 import '../../widgets/processing/processing_data_list_widget.dart';
 
 class ProcessingScreenRedesigned extends ConsumerStatefulWidget {
@@ -35,7 +34,7 @@ class _ProcessingScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (_tabController.indexIsChanging) {
         setState(() {
@@ -134,9 +133,7 @@ class _ProcessingScreenRedesignedState
                         const SizedBox(width: 8),
                         _buildTabChip(1, Icons.content_copy_outlined, 'Duplicados', Colors.purple),
                         const SizedBox(width: 8),
-                        _buildTabChip(2, Icons.psychology_outlined, 'NER', Colors.teal),
-                        const SizedBox(width: 8),
-                        _buildTabChip(3, Icons.link_outlined, 'Vinculación de Entidades', Colors.orange),
+                        _buildTabChip(2, Icons.link_outlined, 'Vinculación de Entidades', Colors.orange),
                       ],
                     ),
                   ),
@@ -158,14 +155,6 @@ class _ProcessingScreenRedesignedState
             padding: const EdgeInsets.all(20),
             child: FadeIn(
               child: DeduplicationWidget(
-                investigationId: widget.investigationId,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: FadeIn(
-              child: NERExtractionWidget(
                 investigationId: widget.investigationId,
               ),
             ),

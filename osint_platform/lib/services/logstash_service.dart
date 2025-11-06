@@ -116,25 +116,6 @@ class LogstashService {
     );
   }
 
-  /// Envía entidades extraídas por NER
-  Future<bool> sendNEREntities({
-    required String investigationId,
-    required String formId,
-    required List<Map<String, dynamic>> entities,
-    required String originalText,
-  }) async {
-    return sendProcessingData(
-      investigationId: investigationId,
-      processingType: 'ner_extraction',
-      data: {
-        'form_id': formId,
-        'original_text': originalText,
-        'entities': entities,
-        'entity_count': entities.length,
-      },
-    );
-  }
-
   /// Envía datos de análisis
   Future<bool> sendAnalysisData({
     required String investigationId,

@@ -158,7 +158,7 @@ class ProcessingDataListWidget extends ConsumerWidget {
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(
-                          'Estos datos provienen de la fase de Recopilación. Usa las pestañas para procesarlos con NER, Deduplicación o Entity Linking.',
+                          'Estos datos provienen de la fase de Recopilación. Usa las pestañas para procesarlos con Deduplicación o Entity Linking.',
                           style: TextStyle(
                             fontSize: 13,
                             color: Colors.blue.shade900,
