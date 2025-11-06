@@ -59,6 +59,9 @@ dependencies:
   # Charts
   fl_chart: ^0.69.0
 
+  # Graph Visualization
+  graphview: 1.5.1
+
   # Maps
   flutter_map: ^7.0.2
   latlong2: ^0.9.1
