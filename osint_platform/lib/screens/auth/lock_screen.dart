@@ -396,10 +396,12 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                 );
 
                                 if (confirm == true && mounted) {
+                                  // Capture navigator before async gap
+                                  final navigator = Navigator.of(context);
                                   await _encryptionService.resetCredentials();
                                   if (mounted) {
                                     // Recargar la app
-                                    Navigator.of(context).pushReplacement(
+                                    navigator.pushReplacement(
                                       MaterialPageRoute(
                                         builder: (_) => LockScreen(
                                           isFirstLaunch: true,

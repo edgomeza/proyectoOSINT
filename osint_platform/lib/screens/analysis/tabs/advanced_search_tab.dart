@@ -65,37 +65,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
 
     final results = <SearchResult>[];
 
-    // Search entities
-    if (_selectedCategory == SearchCategory.all ||
-        _selectedCategory == SearchCategory.entities) {
-      final nodes = ref
-          .read(nodesByInvestigationProvider(widget.investigationId));
-      for (final node in nodes) {
-        // Apply confidence filter
-        if (node.confidence < _minConfidence) continue;
-
-        // Apply risk level filter
-        if (_selectedRisk != null && node.riskLevel != _selectedRisk) continue;
-
-        // Apply text search
-        if (node.label.toLowerCase().contains(query) ||
-            node.type.displayName.toLowerCase().contains(query) ||
-            (node.description?.toLowerCase().contains(query) ?? false)) {
-          results.add(SearchResult(
-            title: node.label,
-            subtitle: node.type.displayName,
-            description: node.description,
-            category: 'Entity',
-            icon: Icons.hub,
-            data: node,
-            metadata: {
-              'confidence': node.confidence,
-              'riskLevel': node.riskLevel.displayName,
-            },
-          ));
-        }
-      }
-    }
+    // Note: Entity search removed as graph functionality was removed
 
     // Search events
     if (_selectedCategory == SearchCategory.all ||
@@ -274,7 +244,7 @@ class _AdvancedSearchTabState extends ConsumerState<AdvancedSearchTab> {
           TextField(
             controller: _searchController,
             decoration: InputDecoration(
-              hintText: 'Buscar entidades, eventos, ubicaciones y formularios...',
+              hintText: 'Buscar eventos, ubicaciones y formularios...',
               prefixIcon: const Icon(Icons.search),
               suffixIcon: _searchController.text.isNotEmpty
                   ? IconButton(
@@ -764,7 +734,6 @@ class SearchResult {
 
 enum SearchCategory {
   all,
-  entities,
   events,
   locations,
   forms,
@@ -775,8 +744,6 @@ extension SearchCategoryExtension on SearchCategory {
     switch (this) {
       case SearchCategory.all:
         return 'Todos';
-      case SearchCategory.entities:
-        return 'Entidades';
       case SearchCategory.events:
         return 'Eventos';
       case SearchCategory.locations:

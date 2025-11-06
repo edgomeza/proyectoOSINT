@@ -399,24 +399,11 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
   }
 
   void _createSingleEntity(BuildContext context, ExtractedEntity entity) {
-    final nodes = _nerService.convertToEntityNodes(
-      NERResult(
-        text: _result!.text,
-        entities: [entity],
-        entityCounts: {entity.label: 1},
-        model: _result!.model,
-      ),
-      investigationId: widget.investigationId,
-    );
-
-    for (final node in nodes) {
-      ref.read(entityNodesProvider.notifier).addNode(node);
-    }
-
+    // Note: Entity creation disabled - graph functionality removed
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('Entidad "${entity.text}" creada'),
-        backgroundColor: Colors.green,
+      const SnackBar(
+        content: Text('Entity creation is not available (graph functionality removed)'),
+        backgroundColor: Colors.orange,
       ),
     );
   }
@@ -424,26 +411,13 @@ class _NERExtractionWidgetState extends ConsumerState<NERExtractionWidget> {
   void _createAllEntities(BuildContext context) {
     if (_result == null) return;
 
-    final nodes = _nerService.convertToEntityNodes(
-      _result!,
-      investigationId: widget.investigationId,
-    );
-
-    for (final node in nodes) {
-      ref.read(entityNodesProvider.notifier).addNode(node);
-    }
-
+    // Note: Entity creation disabled - graph functionality removed
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${nodes.length} entidades creadas exitosamente'),
-        backgroundColor: Colors.green,
+      const SnackBar(
+        content: Text('Entity creation is not available (graph functionality removed)'),
+        backgroundColor: Colors.orange,
       ),
     );
-
-    setState(() {
-      _result = null;
-      _textController.clear();
-    });
   }
 
   @override
