@@ -27,7 +27,7 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
-  late BuchheimWalkerAlgorithm algorithm;
+  late FruchtermanReingoldAlgorithm algorithm;
 
   // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
@@ -46,13 +46,10 @@ class _InteractiveGraphWidgetState
   @override
   void initState() {
     super.initState();
-    // Use BuchheimWalker algorithm - more stable than FruchtermanReingold
-    final config = BuchheimWalkerConfiguration();
-    config.siblingSeparation = 100;
-    config.levelSeparation = 150;
-    config.subtreeSeparation = 150;
-    config.orientation = BuchheimWalkerConfiguration.ORIENTATION_TOP_BOTTOM;
-    algorithm = BuchheimWalkerAlgorithm(config, TreeEdgeRenderer(config));
+    // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
+    final config = FruchtermanReingoldConfiguration();
+    config.iterations = 1000;
+    algorithm = FruchtermanReingoldAlgorithm(config);
   }
 
   @override
@@ -360,10 +357,17 @@ class _InteractiveGraphWidgetState
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
 
-      // Load saved position from entity node if available (optional for BuchheimWalker)
+      // Initialize node with default size to prevent null errors in FruchtermanReingold algorithm
+      node.size = const Size(100, 100);
+
+      // Load saved position from entity node if available, otherwise set default position
       if (entityNode.x != null && entityNode.y != null) {
         final savedPosition = Offset(entityNode.x!, entityNode.y!);
         _nodePositions[entityNode.id] = savedPosition;
+        node.position = savedPosition;
+      } else {
+        // Set a default position to prevent null errors in the layout algorithm
+        node.position = Offset.zero;
       }
 
       graph.addNode(node);
