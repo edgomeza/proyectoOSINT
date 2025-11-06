@@ -49,9 +49,9 @@ class _InteractiveGraphWidgetState
     super.initState();
     // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
-    // Very high iteration count for complete convergence and node separation
-    // Each iteration allows repulsion forces to push overlapping square nodes apart
-    config.iterations = 10000;
+    // High iteration count for good convergence without causing algorithm instability
+    // Reduced from 10000 to 5000 to prevent internal library failures during layout
+    config.iterations = 5000;
     algorithm = FruchtermanReingoldAlgorithm(config);
 
     // Initialize transformation controller with centered view
@@ -114,8 +114,9 @@ class _InteractiveGraphWidgetState
                               ..strokeWidth = 2
                               ..style = PaintingStyle.stroke,
                             builder: (Node node) {
-                              // Stronger null safety check
-                              final entityNode = node.key?.value;
+                              // Extract EntityNode from ValueKey attached during graph construction
+                              // Using ValueKey with explicit String ID prevents null check errors
+                              final entityNode = (node.key as ValueKey?)?.value;
 
                               // Verify that the value exists and is of the correct type
                               if (entityNode == null || entityNode is! EntityNode) {
@@ -371,11 +372,14 @@ class _InteractiveGraphWidgetState
 
     // Create node map
     final nodeMap = <String, Node>{};
-    final random = DateTime.now().millisecondsSinceEpoch;
 
     for (int i = 0; i < nodes.length; i++) {
       final entityNode = nodes[i];
-      final node = Node.Id(entityNode);
+      // Use explicit String ID instead of entire EntityNode object for stability
+      // This prevents null check errors in graphview's internal algorithm
+      final node = Node.Id(entityNode.id);
+      // Attach the complete EntityNode via ValueKey for access in builder
+      node.key = ValueKey(entityNode);
       nodeMap[entityNode.id] = node;
 
       // Initialize node size for FruchtermanReingold collision detection of SQUARE nodes
