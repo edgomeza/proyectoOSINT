@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:intl/intl.dart';
 import '../../../providers/investigations_provider.dart';
-import '../../../providers/graph_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
 import '../../../models/entity_node.dart';

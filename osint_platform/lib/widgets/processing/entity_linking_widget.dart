@@ -5,7 +5,6 @@ import '../../models/data_form.dart';
 import '../../models/entity_node.dart';
 import '../../models/relationship.dart';
 import '../../providers/data_forms_provider.dart';
-import '../../providers/graph_provider.dart';
 
 class EntityLinkingWidget extends ConsumerStatefulWidget {
   final String investigationId;

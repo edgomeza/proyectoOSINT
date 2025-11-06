@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../models/entity_node.dart';
 import '../../../models/timeline_event.dart';
 import '../../../models/geo_location.dart';
-import '../../../providers/graph_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
 import '../../../providers/data_forms_provider.dart';

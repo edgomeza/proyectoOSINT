@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:osint_platform/models/relationship.dart';
-import '../../../providers/graph_provider.dart';
-import '../../../services/graph_analysis_service.dart';
 import '../../../models/entity_node.dart';
 
 class AnalysisToolsTab extends ConsumerStatefulWidget {
