@@ -28,6 +28,7 @@ class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
   late FruchtermanReingoldAlgorithm algorithm;
+  late TransformationController _transformationController;
 
   // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
@@ -48,8 +49,19 @@ class _InteractiveGraphWidgetState
     super.initState();
     // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
-    config.iterations = 1000;
+    config.iterations = 2000; // Increased from 1000 for better node separation
     algorithm = FruchtermanReingoldAlgorithm(config);
+
+    // Initialize transformation controller with a smaller initial scale
+    _transformationController = TransformationController();
+    // Set initial scale to 0.5 so graph appears smaller and fits better
+    _transformationController.value = Matrix4.identity()..scale(0.5);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.dispose();
+    super.dispose();
   }
 
   @override
@@ -83,6 +95,7 @@ class _InteractiveGraphWidgetState
                         }
 
                         return InteractiveViewer(
+                          transformationController: _transformationController,
                           constrained: false,
                           boundaryMargin: const EdgeInsets.all(100),
                           minScale: 0.01,
@@ -357,7 +370,8 @@ class _InteractiveGraphWidgetState
       nodeMap[entityNode.id] = node;
 
       // Initialize node with default size to prevent null errors in FruchtermanReingold algorithm
-      node.size = const Size(100, 100);
+      // Larger size helps the algorithm calculate proper spacing between nodes
+      node.size = const Size(150, 150);
 
       // Load saved position from entity node if available, otherwise distribute randomly
       if (entityNode.x != null && entityNode.y != null) {
@@ -366,10 +380,11 @@ class _InteractiveGraphWidgetState
         node.position = savedPosition;
       } else {
         // Distribute nodes in a grid pattern initially for better FruchtermanReingold convergence
+        // Larger spacing gives the algorithm more room to arrange nodes without overlap
         final gridSize = (nodes.length / 2).ceil();
         final row = i ~/ gridSize;
         final col = i % gridSize;
-        final spacing = 200.0;
+        final spacing = 400.0; // Increased from 200.0 to reduce initial overlap
         node.position = Offset(col * spacing, row * spacing);
       }
 
