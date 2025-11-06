@@ -27,7 +27,7 @@ class InteractiveGraphWidget extends ConsumerStatefulWidget {
 class _InteractiveGraphWidgetState
     extends ConsumerState<InteractiveGraphWidget> {
   final Graph graph = Graph()..isTree = false;
-  late FruchtermanReingoldAlgorithm algorithm;
+  FruchtermanReingoldAlgorithm? algorithm;
 
   // Node positions (drag functionality removed)
   final Map<String, Offset> _nodePositions = {};
@@ -43,13 +43,10 @@ class _InteractiveGraphWidgetState
   double minConfidence = 0.0;
   bool showLabels = true;
 
-  @override
-  void initState() {
-    super.initState();
-    // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
+  FruchtermanReingoldAlgorithm _createAlgorithm(double width, double height) {
     final config = FruchtermanReingoldConfiguration();
     config.iterations = 1000;
-    algorithm = FruchtermanReingoldAlgorithm(config);
+    return FruchtermanReingoldAlgorithm(config);
   }
 
   @override
@@ -82,18 +79,23 @@ class _InteractiveGraphWidgetState
                           );
                         }
 
+                        // Create algorithm with proper canvas dimensions
+                        final canvasWidth = constraints.maxWidth * 3;
+                        final canvasHeight = constraints.maxHeight * 3;
+                        algorithm = _createAlgorithm(canvasWidth, canvasHeight);
+
                         return InteractiveViewer(
                           constrained: false,
                           boundaryMargin: const EdgeInsets.all(100),
                           minScale: 0.01,
                           maxScale: 5.6,
                           child: SizedBox(
-                            width: constraints.maxWidth * 2,
-                            height: constraints.maxHeight * 2,
+                            width: canvasWidth,
+                            height: canvasHeight,
                             child: GraphView(
                               key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
                               graph: graph,
-                              algorithm: algorithm,
+                              algorithm: algorithm!,
                               paint: Paint()
                                 ..color = Theme.of(context).colorScheme.primary
                                 ..strokeWidth = 2
@@ -353,21 +355,28 @@ class _InteractiveGraphWidgetState
 
     // Create node map
     final nodeMap = <String, Node>{};
-    for (final entityNode in nodes) {
+    final random = DateTime.now().millisecondsSinceEpoch;
+
+    for (int i = 0; i < nodes.length; i++) {
+      final entityNode = nodes[i];
       final node = Node.Id(entityNode);
       nodeMap[entityNode.id] = node;
 
       // Initialize node with default size to prevent null errors in FruchtermanReingold algorithm
       node.size = const Size(100, 100);
 
-      // Load saved position from entity node if available, otherwise set default position
+      // Load saved position from entity node if available, otherwise distribute randomly
       if (entityNode.x != null && entityNode.y != null) {
         final savedPosition = Offset(entityNode.x!, entityNode.y!);
         _nodePositions[entityNode.id] = savedPosition;
         node.position = savedPosition;
       } else {
-        // Set a default position to prevent null errors in the layout algorithm
-        node.position = Offset.zero;
+        // Distribute nodes in a grid pattern initially for better FruchtermanReingold convergence
+        final gridSize = (nodes.length / 2).ceil();
+        final row = i ~/ gridSize;
+        final col = i % gridSize;
+        final spacing = 200.0;
+        node.position = Offset(col * spacing, row * spacing);
       }
 
       graph.addNode(node);
