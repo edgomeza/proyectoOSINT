@@ -114,11 +114,15 @@ class _InteractiveGraphWidgetState
                               ..strokeWidth = 2
                               ..style = PaintingStyle.stroke,
                             builder: (Node node) {
-                              // Safe null check
-                              if (node.key?.value == null) {
+                              // Stronger null safety check
+                              final entityNode = node.key?.value;
+
+                              // Verify that the value exists and is of the correct type
+                              if (entityNode == null || entityNode is! EntityNode) {
                                 return const SizedBox.shrink();
                               }
-                              final entityNode = node.key!.value as EntityNode;
+
+                              // Now entityNode is guaranteed to be an EntityNode
                               return _buildNodeWidget(context, entityNode, node);
                             },
                           ),
