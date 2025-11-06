@@ -57,14 +57,15 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
     // Initialize selected types if empty
     if (_selectedTypes.isEmpty && entities.isNotEmpty) {
-      _selectedTypes = entities.map((e) => e.type).toSet();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        setState(() {
+          _selectedTypes = entities.map((e) => e.type).toSet();
+        });
+      });
     }
 
     // Filter entities by selected types
     final filteredEntities = entities.where((e) => _selectedTypes.contains(e.type)).toList();
-
-    // Build graph
-    _buildGraph(filteredEntities, relationships);
 
     return Column(
       children: [
@@ -302,53 +303,73 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   }
 
   Widget _buildGraphView(BuildContext context, List<EntityNode> entities, List<Relationship> relationships) {
+    // Build the graph before rendering (only if we have entities)
+    if (entities.isNotEmpty) {
+      _buildGraph(entities, relationships);
+    }
+
     return Card(
       child: ClipRRect(
         borderRadius: BorderRadius.circular(12),
-        child: Stack(
-          children: [
-            // Background
-            Container(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    Colors.grey[50]!,
-                    Colors.grey[100]!,
-                  ],
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return Stack(
+              children: [
+                // Background
+                Container(
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Colors.grey[50]!,
+                        Colors.grey[100]!,
+                      ],
+                    ),
+                  ),
                 ),
-              ),
-            ),
-            // Graph
-            InteractiveViewer(
-              transformationController: _transformationController,
-              boundaryMargin: const EdgeInsets.all(100),
-              minScale: 0.1,
-              maxScale: 3.0,
-              child: GraphView(
-                graph: graph,
-                algorithm: algorithm,
-                paint: Paint()
-                  ..color = Colors.grey[400]!
-                  ..strokeWidth = 2
-                  ..style = PaintingStyle.stroke,
-                builder: (Node node) {
-                  final entity = entities.firstWhere(
-                    (e) => e.id == node.key?.value,
-                    orElse: () => EntityNode(label: 'Unknown', type: EntityNodeType.other),
-                  );
-                  return _buildNodeWidget(context, entity);
-                },
-              ),
-            ),
-            // Legend
-            Positioned(
-              top: 16,
-              right: 16,
-              child: _buildLegend(context),
-            ),
-          ],
+                // Graph
+                SizedBox(
+                  width: constraints.maxWidth,
+                  height: constraints.maxHeight,
+                  child: InteractiveViewer(
+                    transformationController: _transformationController,
+                    boundaryMargin: const EdgeInsets.all(100),
+                    minScale: 0.1,
+                    maxScale: 3.0,
+                    constrained: false,
+                    child: SizedBox(
+                      width: constraints.maxWidth * 2,
+                      height: constraints.maxHeight * 2,
+                      child: GraphView(
+                        graph: graph,
+                        algorithm: algorithm,
+                        paint: Paint()
+                          ..color = Colors.grey[400]!
+                          ..strokeWidth = 2
+                          ..style = PaintingStyle.stroke,
+                        builder: (Node node) {
+                          final entity = entities.firstWhere(
+                            (e) => e.id == node.key?.value,
+                            orElse: () => EntityNode(label: 'Unknown', type: EntityNodeType.other),
+                          );
+                          return _buildNodeWidget(context, entity);
+                        },
+                      ),
+                    ),
+                  ),
+                ),
+                // Legend
+                Positioned(
+                  top: 16,
+                  right: 16,
+                  child: _buildLegend(context),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
