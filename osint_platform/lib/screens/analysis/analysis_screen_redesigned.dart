@@ -6,7 +6,6 @@ import '../../widgets/common/phase_navigation.dart';
 import '../../widgets/common/app_layout_wrapper.dart';
 import '../../widgets/common/modern_app_bar.dart';
 import '../../models/investigation_phase.dart';
-import '../../models/entity_node.dart';
 import '../../models/timeline_event.dart';
 import '../../models/geo_location.dart';
 import '../../providers/investigations_provider.dart';

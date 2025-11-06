@@ -5,7 +5,6 @@ import 'package:intl/intl.dart';
 import '../../../providers/investigations_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
-import '../../../models/entity_node.dart';
 import '../../../models/timeline_event.dart';
 
 class OverviewTab extends ConsumerWidget {
@@ -357,39 +356,6 @@ class OverviewTab extends ConsumerWidget {
     );
   }
 
-  List<PieChartSectionData> _buildEntityTypeSections(
-    BuildContext context,
-    Map<EntityNodeType, int> data,
-  ) {
-    final colors = [
-      Colors.blue,
-      Colors.purple,
-      Colors.green,
-      Colors.orange,
-      Colors.red,
-      Colors.cyan,
-      Colors.pink,
-      Colors.amber,
-    ];
-
-    int index = 0;
-    return data.entries.map((entry) {
-      final color = colors[index % colors.length];
-      index++;
-
-      return PieChartSectionData(
-        value: entry.value.toDouble(),
-        title: '${entry.value}',
-        color: color,
-        radius: 80,
-        titleStyle: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-          color: Colors.white,
-        ),
-      );
-    }).toList();
-  }
 
   List<BarChartGroupData> _buildEventPriorityBars(
     Map<dynamic, int> data,
