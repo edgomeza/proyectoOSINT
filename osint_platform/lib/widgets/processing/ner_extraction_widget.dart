@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../services/ner_service.dart';
-import '../../providers/graph_provider.dart';
 
 class NERExtractionWidget extends ConsumerStatefulWidget {
   final String investigationId;

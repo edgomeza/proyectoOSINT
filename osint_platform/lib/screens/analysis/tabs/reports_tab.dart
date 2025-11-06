@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../providers/investigations_provider.dart';
-import '../../../providers/graph_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
 import '../../../services/report_generation_service.dart';

@@ -10,10 +10,8 @@ import '../../models/entity_node.dart';
 import '../../models/timeline_event.dart';
 import '../../models/geo_location.dart';
 import '../../providers/investigations_provider.dart';
-import '../../providers/graph_provider.dart';
 import '../../providers/timeline_provider.dart';
 import '../../providers/geo_location_provider.dart';
-import '../../widgets/graph/interactive_graph_widget.dart';
 import '../../widgets/timeline/timeline_widget.dart';
 import '../../widgets/map/geographic_map_widget.dart';
 import 'tabs/overview_tab.dart';
@@ -42,7 +40,7 @@ class _AnalysisScreenRedesignedState
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 5, vsync: this);
+    _tabController = TabController(length: 4, vsync: this);
     _tabController.addListener(() {
       setState(() {
         _currentTabIndex = _tabController.index;
@@ -201,13 +199,6 @@ class _AnalysisScreenRedesignedState
           // Overview Tab
           OverviewTab(investigationId: widget.investigationId),
 
-          // Graph Tab
-          InteractiveGraphWidget(
-            investigationId: widget.investigationId,
-            onNodeTap: (node) => _showNodeDetails(context, node),
-            onEdgeTap: (edge) => _showEdgeDetails(context, edge),
-          ),
-
           // Timeline Tab
           DynamicTimelineWidget(
             investigationId: widget.investigationId,
@@ -229,21 +220,14 @@ class _AnalysisScreenRedesignedState
 
   Widget? _buildFloatingActionButton(BuildContext context) {
     switch (_currentTabIndex) {
-      case 1: // Graph tab
-        return FloatingActionButton.extended(
-          heroTag: 'add_node',
-          onPressed: () => _showAddNodeDialog(context),
-          icon: const Icon(Icons.add),
-          label: const Text('Agregar Entidad'),
-        );
-      case 2: // Timeline tab
+      case 1: // Timeline tab
         return FloatingActionButton.extended(
           heroTag: 'add_event',
           onPressed: () => _showAddEventDialog(context),
           icon: const Icon(Icons.add),
           label: const Text('Agregar Evento'),
         );
-      case 3: // Map tab
+      case 2: // Map tab
         return FloatingActionButton.extended(
           heroTag: 'add_location',
           onPressed: () => _showAddLocationDialog(context),
@@ -314,82 +298,6 @@ class _AnalysisScreenRedesignedState
             ),
           ),
         ),
-      ),
-    );
-  }
-
-  void _showNodeDetails(BuildContext context, node) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.person, color: Theme.of(context).colorScheme.primary),
-            const SizedBox(width: 12),
-            Expanded(child: Text(node.label)),
-          ],
-        ),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDetailRow('Tipo', node.type.displayName),
-              _buildDetailRow('Nivel de riesgo', node.riskLevel.displayName),
-              _buildDetailRow(
-                'Confianza',
-                '${(node.confidence * 100).toInt()}%',
-              ),
-              if (node.description != null) ...[
-                const SizedBox(height: 8),
-                Text(node.description!),
-              ],
-              if (node.tags.isNotEmpty) ...[
-                const SizedBox(height: 12),
-                const Text('Tags:', style: TextStyle(fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Wrap(
-                  spacing: 4,
-                  children: node.tags.map((tag) => Chip(label: Text(tag))).toList(),
-                ),
-              ],
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _showEdgeDetails(BuildContext context, edge) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(edge.label),
-        content: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDetailRow('Tipo', edge.type.displayName),
-            _buildDetailRow('Confianza', '${(edge.confidence * 100).toInt()}%'),
-            _buildDetailRow('Peso', edge.weight.toString()),
-            if (edge.description != null) ...[
-              const SizedBox(height: 8),
-              Text(edge.description!),
-            ],
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cerrar'),
-          ),
-        ],
       ),
     );
   }
@@ -474,166 +382,6 @@ class _AnalysisScreenRedesignedState
           ),
           Expanded(child: Text(value)),
         ],
-      ),
-    );
-  }
-
-  void _showAddNodeDialog(BuildContext context) {
-    final nameController = TextEditingController();
-    final descriptionController = TextEditingController();
-    EntityNodeType selectedType = EntityNodeType.person;
-    RiskLevel selectedRiskLevel = RiskLevel.medium;
-    double selectedConfidence = 0.8;
-
-    showDialog(
-      context: context,
-      builder: (dialogContext) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Añadir nueva entidad'),
-          content: SizedBox(
-            width: 500,
-            child: SingleChildScrollView(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextField(
-                    controller: nameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre de la entidad *',
-                      hintText: 'Insertar nombre de la entidad',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person),
-                    ),
-                    autofocus: true,
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<EntityNodeType>(
-                    decoration: const InputDecoration(
-                      labelText: 'Tipo de entidad',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.category),
-                    ),
-                    initialValue: selectedType,
-                    items: EntityNodeType.values.map((type) {
-                      return DropdownMenuItem(
-                        value: type,
-                        child: Text(type.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedType = value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  DropdownButtonFormField<RiskLevel>(
-                    decoration: const InputDecoration(
-                      labelText: 'Nivel de riesgo',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.warning),
-                    ),
-                    initialValue: selectedRiskLevel,
-                    items: RiskLevel.values.map((risk) {
-                      return DropdownMenuItem(
-                        value: risk,
-                        child: Text(risk.displayName),
-                      );
-                    }).toList(),
-                    onChanged: (value) {
-                      if (value != null) {
-                        setDialogState(() => selectedRiskLevel = value);
-                      }
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Confianza: ${(selectedConfidence * 100).toInt()}%',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      Slider(
-                        value: selectedConfidence,
-                        min: 0.0,
-                        max: 1.0,
-                        divisions: 10,
-                        label: '${(selectedConfidence * 100).toInt()}%',
-                        onChanged: (value) {
-                          setDialogState(() => selectedConfidence = value);
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: descriptionController,
-                    decoration: const InputDecoration(
-                      labelText: 'Descripción',
-                      hintText: 'Descripción opcional',
-                      border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.description),
-                    ),
-                    maxLines: 3,
-                  ),
-                ],
-              ),
-            ),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                nameController.dispose();
-                descriptionController.dispose();
-                Navigator.pop(context);
-              },
-              child: const Text('Cancelar'),
-            ),
-            ElevatedButton.icon(
-              onPressed: () {
-                final name = nameController.text.trim();
-                if (name.isEmpty) {
-                  ScaffoldMessenger.of(dialogContext).showSnackBar(
-                    const SnackBar(
-                      content: Text('Por favor, ingrese un nombre para la entidad'),
-                      backgroundColor: Colors.orange,
-                    ),
-                  );
-                  return;
-                }
-
-                final node = EntityNode(
-                  label: name,
-                  type: selectedType,
-                  riskLevel: selectedRiskLevel,
-                  confidence: selectedConfidence,
-                  description: descriptionController.text.trim(),
-                  attributes: {
-                    'investigationId': widget.investigationId,
-                    'createdManually': true,
-                  },
-                );
-
-                ref.read(entityNodesProvider.notifier).addNode(node);
-
-                nameController.dispose();
-                descriptionController.dispose();
-                Navigator.pop(dialogContext);
-
-                ScaffoldMessenger.of(this.context).showSnackBar(
-                  SnackBar(
-                    content: Text('Entidad "$name" añadida con éxito'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add),
-              label: const Text('Añadir Entidad'),
-            ),
-          ],
-        ),
       ),
     );
   }
