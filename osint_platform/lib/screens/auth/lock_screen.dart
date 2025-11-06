@@ -368,15 +368,18 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                           ),
                         ),
 
-                        // Botón de reseteo de credenciales (solo si no es primer lanzamiento)
+                        // Botón de reseteo de credenciales
                         if (!widget.isFirstLaunch) ...[
                           const SizedBox(height: 16),
                           Center(
                             child: InkWell(
                               onTap: _isLoading ? null : () async {
+                                final ctx = context;
+                                final navigator = Navigator.of(ctx);
+
                                 final confirm = await showDialog<bool>(
-                                  context: context,
-                                  builder: (context) => AlertDialog(
+                                  context: ctx,
+                                  builder: (dialogCtx) => AlertDialog(
                                     title: const Text('Resetear Credenciales'),
                                     content: const Text(
                                       '¿Estás seguro de que deseas resetear las credenciales?\n\n'
@@ -384,32 +387,27 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                                     ),
                                     actions: [
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context, false),
+                                        onPressed: () => Navigator.pop(dialogCtx, false),
                                         child: const Text('Cancelar'),
                                       ),
                                       TextButton(
-                                        onPressed: () => Navigator.pop(context, true),
+                                        onPressed: () => Navigator.pop(dialogCtx, true),
                                         child: const Text('Resetear', style: TextStyle(color: Colors.red)),
                                       ),
                                     ],
                                   ),
                                 );
 
-                                if (confirm == true && mounted) {
-                                  // Capture navigator before async gap
-                                  final navigator = Navigator.of(context);
+                                if (confirm == true) {
                                   await _encryptionService.resetCredentials();
-                                  if (mounted) {
-                                    // Recargar la app
-                                    navigator.pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (_) => LockScreen(
-                                          isFirstLaunch: true,
-                                          onUnlocked: widget.onUnlocked,
-                                        ),
+                                  navigator.pushReplacement(
+                                    MaterialPageRoute(
+                                      builder: (_) => LockScreen(
+                                        isFirstLaunch: true,
+                                        onUnlocked: widget.onUnlocked,
                                       ),
-                                    );
-                                  }
+                                    ),
+                                  );
                                 }
                               },
                               borderRadius: BorderRadius.circular(8),
