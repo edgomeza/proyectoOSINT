@@ -4,6 +4,8 @@ import '../../../providers/investigations_provider.dart';
 import '../../../providers/timeline_provider.dart';
 import '../../../providers/geo_location_provider.dart';
 import '../../../services/report_generation_service.dart';
+import '../../../models/entity_node.dart';
+import '../../../models/relationship.dart';
 
 class ReportsTab extends ConsumerStatefulWidget {
   final String investigationId;
@@ -415,8 +417,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
         investigationByIdProvider(widget.investigationId),
       )!;
       // Note: Entity nodes and relationships removed - passing empty lists
-      final nodes = [];
-      final relationships = [];
+      final nodes = <EntityNode>[];
+      final relationships = <Relationship>[];
       final events = ref.read(
         eventsByInvestigationProvider(widget.investigationId),
       );
@@ -475,8 +477,8 @@ class _ReportsTabState extends ConsumerState<ReportsTab> {
         investigationByIdProvider(widget.investigationId),
       )!;
       // Note: Entity nodes and relationships removed - passing empty lists
-      final nodes = [];
-      final relationships = [];
+      final nodes = <EntityNode>[];
+      final relationships = <Relationship>[];
 
       final file = await ReportGenerationService.generateSummaryReport(
         investigation: investigation,
