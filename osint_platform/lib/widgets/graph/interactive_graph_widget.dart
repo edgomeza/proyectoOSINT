@@ -49,9 +49,10 @@ class _InteractiveGraphWidgetState
     super.initState();
     // Use FruchtermanReingold algorithm - force-directed layout for better graph visualization
     final config = FruchtermanReingoldConfiguration();
-    // High iteration count for good convergence without causing algorithm instability
-    // Reduced from 10000 to 5000 to prevent internal library failures during layout
-    config.iterations = 5000;
+    // Conservative iteration count to prevent graphview internal bugs
+    // Reduced from 5000 to 3000 due to known graphview stability issues with F-R
+    // Lower iterations = more stable execution, still sufficient for good layout
+    config.iterations = 3000;
     algorithm = FruchtermanReingoldAlgorithm(config);
 
     // Initialize transformation controller with centered view
@@ -106,6 +107,12 @@ class _InteractiveGraphWidgetState
                           minScale: 0.01,
                           maxScale: 5.6,
                           child: GraphView(
+                            // Dynamic key forces complete rebuild when data changes
+                            // Prevents Riverpod async update conflicts during F-R iterations
+                            // If null check errors persist, consider:
+                            // 1. BuchheimWalkerAlgorithm (more stable, hierarchical)
+                            // 2. SugiyamaAlgorithm (directed graphs)
+                            // 3. Updating graphview library version
                             key: ValueKey('graph_${filteredNodes.length}_${filteredRelationships.length}'),
                             graph: graph,
                             algorithm: algorithm,
