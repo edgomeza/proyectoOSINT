@@ -44,7 +44,7 @@ class EntitiesNotifier extends StateNotifier<List<EntityNode>> {
     try {
       final result = await _esService.search(
         _indexName,
-        query: {
+        filters: {
           'match': {'investigationId': investigationId}
         },
         size: 10000,
@@ -172,7 +172,7 @@ class RelationshipsNotifier extends StateNotifier<List<Relationship>> {
     try {
       final result = await _esService.search(
         _indexName,
-        query: {
+        filters: {
           'match': {'investigationId': investigationId}
         },
         size: 10000,

@@ -1,4 +1,3 @@
-import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphview/GraphView.dart';
@@ -39,9 +38,9 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
     // Initialize Fruchterman-Reingold algorithm
     algorithm = FruchtermanReingoldAlgorithm(
-      iterations: 1000,
-      width: 2000,
-      height: 2000,
+      FruchtermanReingoldConfiguration(
+        iterations: 1000,
+      ),
     );
   }
 
@@ -352,7 +351,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
       onTap: () => _showEntityDetails(context, entity),
       child: MouseRegion(
         cursor: SystemMouseCursors.click,
-        child: Container(
+        child: SizedBox(
           width: _nodeSize,
           height: _nodeSize,
           child: Column(
@@ -483,7 +482,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
                   ],
                 ),
               );
-            }).toList(),
+            }),
           ],
         ),
       ),
@@ -526,7 +525,9 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   }
 
   void _buildGraph(List<EntityNode> entities, List<Relationship> relationships) {
-    graph.clear();
+    // Recreate the graph to clear it
+    graph.nodes.clear();
+    graph.edges.clear();
 
     // Create nodes
     final nodeMap = <String, Node>{};
