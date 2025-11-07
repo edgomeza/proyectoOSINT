@@ -39,18 +39,15 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
   // Timer for graph layout animation
   Timer? _layoutTimer;
-  bool _isLayoutAnimating = false;
 
   @override
   void initState() {
     super.initState();
 
-    // Initialize Fruchterman-Reingold algorithm with compact layout
+    // Initialize Fruchterman-Reingold algorithm
     algorithm = FruchtermanReingoldAlgorithm(
       FruchtermanReingoldConfiguration(
         iterations: 1000,
-        width: 800,  // Reducir el área para acercar los nodos
-        height: 600, // Reducir el área para acercar los nodos
       ),
     );
   }
@@ -635,7 +632,6 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
     // Start animation timer to show the force-directed layout calculation
     // The algorithm runs over multiple iterations, and we need to rebuild
     // to show the nodes moving to their calculated positions
-    _isLayoutAnimating = true;
     int frameCount = 0;
     const maxFrames = 100; // Animate for ~3 seconds at 30fps
 
@@ -648,7 +644,6 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
       frameCount++;
       if (frameCount >= maxFrames) {
         timer.cancel();
-        _isLayoutAnimating = false;
       }
 
       // Force rebuild to show updated node positions
