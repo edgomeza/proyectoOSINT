@@ -237,7 +237,7 @@ class _EntityLinkingWidgetState extends ConsumerState<EntityLinkingWidget> {
   }
 
   void _showImportFromFormsDialog() {
-    final dataForms = ref.read(dataFormsProvider(widget.investigationId));
+    final dataForms = ref.read(dataFormsProvider);
 
     showDialog(
       context: context,

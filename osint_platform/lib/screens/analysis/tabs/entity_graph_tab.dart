@@ -34,7 +34,6 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   double _nodeSize = 60.0;
 
   // Track if graph needs rebuild
-  bool _graphNeedsRebuild = true;
   String _lastEntityHash = '';
   String _lastRelationshipHash = '';
 
@@ -45,12 +44,12 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   void initState() {
     super.initState();
 
-    // Initialize Fruchterman-Reingold algorithm with compact layout
+    // Initialize Fruchterman-Reingold algorithm
     algorithm = FruchtermanReingoldAlgorithm(
       FruchtermanReingoldConfiguration(
-        iterations: 1000,
-        width: 800,  // Reducir el área para acercar los nodos
-        height: 600, // Reducir el área para acercar los nodos
+        iterations: 500,
+        repulsionRate: 0.15,
+        attractionRate: 0.25,
       ),
     );
   }
@@ -685,6 +684,22 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
     await Future.delayed(const Duration(milliseconds: 100));
 
     if (!mounted) return;
+    // Start animation timer to show the force-directed layout calculation
+    // The algorithm runs over multiple iterations, and we need to rebuild
+    // to show the nodes moving to their calculated positions
+    int frameCount = 0;
+    const maxFrames = 100; // Animate for ~3 seconds at 30fps
+
+    _layoutTimer = Timer.periodic(const Duration(milliseconds: 33), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      frameCount++;
+      if (frameCount >= maxFrames) {
+        timer.cancel();
+      }
 
     setState(() {
       _isGraphLoading = false;
