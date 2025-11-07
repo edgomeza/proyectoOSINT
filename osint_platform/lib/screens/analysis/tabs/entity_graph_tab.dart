@@ -47,7 +47,9 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
     // Initialize Fruchterman-Reingold algorithm
     algorithm = FruchtermanReingoldAlgorithm(
       FruchtermanReingoldConfiguration(
-        iterations: 1000,
+        iterations: 500,
+        repulsionRate: 0.15,
+        attractionRate: 0.25,
       ),
     );
   }
