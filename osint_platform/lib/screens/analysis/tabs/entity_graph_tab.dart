@@ -39,6 +39,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
   // Loading state for graph calculation
   bool _isGraphLoading = false;
+  Timer? _layoutTimer;
 
   @override
   void initState() {
@@ -56,6 +57,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
   @override
   void dispose() {
+    _layoutTimer?.cancel();
     _transformationController.dispose();
     super.dispose();
   }
@@ -700,6 +702,11 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
       if (frameCount >= maxFrames) {
         timer.cancel();
       }
+
+      setState(() {
+        // Trigger rebuild to show animation
+      });
+    });
 
     setState(() {
       _isGraphLoading = false;
