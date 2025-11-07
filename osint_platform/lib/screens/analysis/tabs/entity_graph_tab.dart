@@ -46,10 +46,12 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   void initState() {
     super.initState();
 
-    // Initialize Fruchterman-Reingold algorithm
+    // Initialize Fruchterman-Reingold algorithm with compact layout
     algorithm = FruchtermanReingoldAlgorithm(
       FruchtermanReingoldConfiguration(
         iterations: 1000,
+        width: 800,  // Reducir el área para acercar los nodos
+        height: 600, // Reducir el área para acercar los nodos
       ),
     );
   }
