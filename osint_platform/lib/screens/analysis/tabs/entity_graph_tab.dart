@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:graphview/GraphView.dart';
@@ -36,6 +37,10 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   String _lastEntityHash = '';
   String _lastRelationshipHash = '';
 
+  // Timer for graph layout animation
+  Timer? _layoutTimer;
+  bool _isLayoutAnimating = false;
+
   @override
   void initState() {
     super.initState();
@@ -50,6 +55,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
   @override
   void dispose() {
+    _layoutTimer?.cancel();
     _transformationController.dispose();
     super.dispose();
   }
@@ -586,6 +592,9 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   }
 
   void _buildGraph(List<EntityNode> entities, List<Relationship> relationships) {
+    // Cancel any existing animation timer
+    _layoutTimer?.cancel();
+
     // Recreate the graph to clear it
     graph.nodes.clear();
     graph.edges.clear();
@@ -620,6 +629,31 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
         }
       }
     }
+
+    // Start animation timer to show the force-directed layout calculation
+    // The algorithm runs over multiple iterations, and we need to rebuild
+    // to show the nodes moving to their calculated positions
+    _isLayoutAnimating = true;
+    int frameCount = 0;
+    const maxFrames = 100; // Animate for ~3 seconds at 30fps
+
+    _layoutTimer = Timer.periodic(const Duration(milliseconds: 33), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+
+      frameCount++;
+      if (frameCount >= maxFrames) {
+        timer.cancel();
+        _isLayoutAnimating = false;
+      }
+
+      // Force rebuild to show updated node positions
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   void _showEntityDetails(BuildContext context, EntityNode entity) {
