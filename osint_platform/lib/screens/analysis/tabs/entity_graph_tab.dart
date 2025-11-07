@@ -37,8 +37,8 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
   String _lastEntityHash = '';
   String _lastRelationshipHash = '';
 
-  // Timer for graph layout animation
-  Timer? _layoutTimer;
+  // Loading state for graph calculation
+  bool _isGraphLoading = false;
 
   @override
   void initState() {
@@ -56,7 +56,6 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
   @override
   void dispose() {
-    _layoutTimer?.cancel();
     _transformationController.dispose();
     super.dispose();
   }
@@ -88,8 +87,7 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted && filteredEntities.isNotEmpty) {
-          _buildGraph(filteredEntities, relationships);
-          setState(() {});
+          _buildGraphAsync(filteredEntities, relationships);
         }
       });
     }
@@ -113,9 +111,11 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
         Expanded(
           child: filteredEntities.isEmpty
               ? _buildEmptyState(context)
-              : FadeIn(
-                  child: _buildGraphView(context, filteredEntities, relationships),
-                ),
+              : _isGraphLoading
+                  ? _buildLoadingState(context)
+                  : FadeIn(
+                      child: _buildGraphView(context, filteredEntities, relationships),
+                    ),
         ),
       ],
     );
@@ -592,9 +592,57 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
     );
   }
 
-  void _buildGraph(List<EntityNode> entities, List<Relationship> relationships) {
-    // Cancel any existing animation timer
-    _layoutTimer?.cancel();
+  Widget _buildLoadingState(BuildContext context) {
+    return Center(
+      child: Card(
+        child: Padding(
+          padding: const EdgeInsets.all(48),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 60,
+                height: 60,
+                child: CircularProgressIndicator(
+                  strokeWidth: 4,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Theme.of(context).colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                'Calculando posiciones del grafo...',
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                      fontWeight: FontWeight.bold,
+                    ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'El algoritmo está optimizando la disposición de los nodos',
+                textAlign: TextAlign.center,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: Theme.of(context).colorScheme.outline,
+                    ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _buildGraphAsync(List<EntityNode> entities, List<Relationship> relationships) async {
+    if (!mounted) return;
+
+    setState(() {
+      _isGraphLoading = true;
+    });
+
+    // Dar un frame para que se muestre el loading
+    await Future.delayed(const Duration(milliseconds: 16));
+
+    if (!mounted) return;
 
     // Recreate the graph to clear it
     graph.nodes.clear();
@@ -631,6 +679,11 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
       }
     }
 
+    // Wait for the algorithm to calculate positions
+    // This allows the FruchtermanReingoldAlgorithm to complete its iterations
+    await Future.delayed(const Duration(milliseconds: 100));
+
+    if (!mounted) return;
     // Start animation timer to show the force-directed layout calculation
     // The algorithm runs over multiple iterations, and we need to rebuild
     // to show the nodes moving to their calculated positions
@@ -648,10 +701,8 @@ class _EntityGraphTabState extends ConsumerState<EntityGraphTab> {
         timer.cancel();
       }
 
-      // Force rebuild to show updated node positions
-      if (mounted) {
-        setState(() {});
-      }
+    setState(() {
+      _isGraphLoading = false;
     });
   }
 
